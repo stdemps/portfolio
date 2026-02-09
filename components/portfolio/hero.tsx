@@ -6,7 +6,7 @@ export function Hero() {
   return (
     <section className="border-b border-border/60">
       <div className="container px-4 py-12 md:px-6 md:py-16 lg:px-8 lg:py-24">
-        <div className="max-w-3xl">
+        <div className="max-w-3xl md:max-w-4xl lg:max-w-5xl xl:max-w-6xl">
           <p className="text-base text-muted-foreground md:text-lg">
             {site.heroGreeting}
           </p>

@@ -83,6 +83,7 @@ export const tools: Tool[] = [
   { name: "Cursor", icon: "cursor", link: "https://cursor.com" },
   { name: "Visual Studio Code", icon: "vscode", link: "https://code.visualstudio.com" },
   { name: "Notion", icon: "notion", link: "https://notion.so" },
+  { name: "Claude", icon: "claude", link: "https://anthropic.com" },
 ]
 
 export const templateRepos: TemplateRepo[] = [

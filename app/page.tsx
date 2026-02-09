@@ -15,12 +15,12 @@ export default function Home() {
       <SiteHeader />
       <main id="main" className="flex-1">
         <Hero />
-        <ToolIcons tools={tools} />
         <ExploringSection />
         <WorkSection />
         <WorkExperienceSection />
         <TestimonialsSection />
         <ContactSection />
+        <ToolIcons tools={tools} />
       </main>
       <Footer />
     </div>

@@ -30,6 +30,11 @@ export function ThemeToggle() {
   const currentLabel = THEME_LABELS[theme] ?? "System"
   const resolvedLabel = THEME_LABELS[resolvedTheme ?? theme] ?? "System"
 
+  // Use a stable label until mounted to avoid hydration mismatch (server has no theme context)
+  const ariaLabel = mounted
+    ? `Toggle theme. Active: ${resolvedLabel}. Preference: ${currentLabel}`
+    : "Toggle theme"
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -37,7 +42,7 @@ export function ThemeToggle() {
           variant="ghost"
           size="icon"
           className="relative h-11 w-11"
-          aria-label={`Toggle theme. Active: ${resolvedLabel}. Preference: ${currentLabel}`}
+          aria-label={ariaLabel}
         >
           <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" aria-hidden="true" />
           <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" aria-hidden="true" />

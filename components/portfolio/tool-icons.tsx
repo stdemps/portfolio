@@ -64,13 +64,13 @@ function ToolIcon({ tool }: { tool: Tool }) {
 export function ToolIcons({ tools, className }: ToolIconsProps) {
   return (
     <section
-      className={cn("border-b border-border/60 overflow-hidden", className)}
+      className={cn("border-t border-border/60", className)}
       aria-label="Tools in my stack"
     >
-      <div className="py-6 md:py-8">
-        <div className="flex w-max animate-ticker gap-8 md:gap-12 md:animate-ticker-offset motion-reduce:animate-none">
-          {[...tools, ...tools].map((tool, index) => (
-            <ToolIcon key={`${tool.name}-${index}`} tool={tool} />
+      <div className="container px-4 py-6 md:px-6 md:py-8 lg:px-8">
+        <div className="flex w-full items-center justify-between gap-4 md:gap-6">
+          {tools.map((tool) => (
+            <ToolIcon key={tool.name} tool={tool} />
           ))}
         </div>
       </div>
