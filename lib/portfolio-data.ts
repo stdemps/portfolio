@@ -113,6 +113,17 @@ export const projects: Project[] = [
     featured: true,
   },
   {
+    id: "flower-delivery-proto",
+    title: "Giving a small business a professional online presence — without any web design experience",
+    tagline: "Peony Blooms — flower delivery",
+    subtitle: "Peony Blooms",
+    kind: "personal",
+    mockupType: "browser",
+    href: "https://flower-delivery-proto.vercel.app/",
+    image: "/projects/flower-delivery-proto.png",
+    imageAlt: "Peony Blooms landing page: hero with ‘Sending Joy, Simply.’ headline, Shop Daily Blooms CTA, and bouquet in vase.",
+  },
+  {
     id: "sddesigns",
     title: "SDDesigns",
     tagline: "Client-facing app for tax and actions — home and profile flows.",
