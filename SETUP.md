@@ -70,6 +70,14 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
+### 6. Playwright MCP (Cursor)
+
+The template includes a project-level MCP config so Cursor can use the **Playwright MCP** server for browser automation (e.g. navigating, snapping the page, clicking). No extra setup needed: open the project in Cursor and the Playwright tools are available to the agent.
+
+- Config: `.cursor/mcp.json` (runs `npx @playwright/mcp@latest`)
+- Requires Node.js 18+ and an existing `npm install` so `npx` can run the package.
+- To disable: remove or rename `.cursor/mcp.json`.
+
 ## First Steps
 
 ### 1. Update Project Context

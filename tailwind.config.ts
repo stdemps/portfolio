@@ -18,6 +18,10 @@ const config = {
   		}
   	},
   	extend: {
+  		fontFamily: {
+  			sans: ['var(--font-body)', 'system-ui', 'sans-serif'],
+  			display: ['var(--font-display)', 'var(--font-body)', 'system-ui', 'sans-serif'],
+  		},
   		colors: {
   			border: 'hsl(var(--border))',
   			input: 'hsl(var(--input))',
@@ -38,7 +42,8 @@ const config = {
   			},
   			muted: {
   				DEFAULT: 'hsl(var(--muted))',
-  				foreground: 'hsl(var(--muted-foreground))'
+  				foreground: 'hsl(var(--muted-foreground))',
+  				alt: 'hsl(var(--muted-foreground-alt))'
   			},
   			accent: {
   				DEFAULT: 'hsl(var(--accent))',
@@ -51,7 +56,14 @@ const config = {
   			card: {
   				DEFAULT: 'hsl(var(--card))',
   				foreground: 'hsl(var(--card-foreground))'
-  			}
+  			},
+  			heroBlue: 'hsl(var(--hero-blue))',
+  			heroPink: 'hsl(var(--hero-pink))',
+  			comingSoon: 'hsl(var(--coming-soon-bg))',
+  			starYellow: 'hsl(var(--star-yellow))',
+  			browserDotRed: 'hsl(var(--browser-dot-red))',
+  			browserDotAmber: 'hsl(var(--browser-dot-amber))',
+  			browserDotGreen: 'hsl(var(--browser-dot-green))'
   		},
   		borderRadius: {
   			lg: 'var(--radius)',
@@ -74,11 +86,21 @@ const config = {
   				to: {
   					height: '0'
   				}
+  			},
+  			ticker: {
+  				from: { transform: 'translateX(0)' },
+  				to: { transform: 'translateX(-50%)' }
+  			},
+  			'ticker-offset': {
+  				from: { transform: 'translateX(-25%)' },
+  				to: { transform: 'translateX(-75%)' }
   			}
   		},
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
-  			'accordion-up': 'accordion-up 0.2s ease-out'
+  			'accordion-up': 'accordion-up 0.2s ease-out',
+  			ticker: 'ticker 25s linear infinite',
+  			'ticker-offset': 'ticker-offset 25s linear infinite'
   		}
   	}
   },

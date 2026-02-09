@@ -1,51 +1,44 @@
 ---
-alwaysApply: false
+alwaysApply: true
 ---
 
-## Project Context Template
+## About Steven Dempster Portfolio
 
-**Replace this file with your project-specific context.**
-
-This file should include:
-- Project overview and goals
-- Key terminology and domain concepts
-- User personas (if applicable)
-- Product philosophy and principles
-- Current priorities and roadmap
-- Competitive landscape (if relevant)
-
-### Example Structure
-
-```markdown
-## About [Project Name]
-
-**What it is:** [Brief description]
+**What it is:** A personal portfolio site showcasing product design work, experience, and testimonials — rebuilt in Next.js from an existing Framer site.
 
 **Goals:**
-- [Goal 1]
-- [Goal 2]
+- Help recruiters and hiring managers discover Steven's work and contact him easily
+- Demonstrate product design skill and creative thinking through real project case studies
 
 ## Key Terminology
 
-- **Term 1:** Definition
-- **Term 2:** Definition
+- **Framer site:** The original portfolio at stevendempster.framer.website that this Next.js build aims to match
+- **Formspree:** Third-party form backend used for the contact form (configured via `NEXT_PUBLIC_FORMSPREE_FORM_ID`)
+- **Fathom:** Privacy-focused analytics provider (configured via `NEXT_PUBLIC_FATHOM_SITE_ID`)
 
 ## User Personas
 
-### [Persona Name]
-- Role: [Role]
-- Goals: [Goals]
-- Pain Points: [Pain Points]
+### Recruiter / Hiring Manager
+- Role: Evaluating candidates for product design roles
+- Goals: Quickly assess Steven's skills, see relevant work, and make contact
+- Pain Points: Long load times, unclear navigation, no easy way to reach out
+
+### Peer Designer / Collaborator
+- Role: Fellow designer or potential collaborator exploring Steven's portfolio
+- Goals: Understand Steven's design approach and craft quality
+- Pain Points: Missing project visuals, placeholder content, lack of case study depth
 
 ## Product Philosophy
 
-1. **Principle 1:** Description
-2. **Principle 2:** Description
+1. **Mobile-first simplicity:** Simple, clean, mobile-first design that works everywhere
+2. **Ship fast, iterate:** Get a solid baseline live quickly and improve based on real feedback
+3. **Content over chrome:** Real content and clear communication matter more than flashy effects
 
 ## Current Priorities
 
-1. [Priority 1]
-2. [Priority 2]
+1. Match the Framer site design in the Next.js build (layout, typography, colours)
+2. Replace placeholders with real project visuals, copy, and case studies
+3. Proper SEO metadata (title, description) so the site ranks and shares well
 
 ## Design & Development Standards
 
@@ -61,14 +54,5 @@ This project uses **mobile-first responsive design** for ALL features. Before st
 ## Resources
 
 - **Responsive Design Checklist:** [.cursor/checklists/responsive-design-checklist.md](../checklists/responsive-design-checklist.md) ⭐ **READ THIS FIRST**
-- [Link to documentation]
-- [Link to design system]
-```
-
----
-
-**Instructions:**
-1. Replace this template with your actual project context
-2. Keep it updated as the project evolves
-3. Reference this file when making product decisions
-4. Use @ mentions in Cursor to reference this context
+- **Implementation Plan:** [docs/framer-to-next-implementation-plan.md](../../docs/framer-to-next-implementation-plan.md)
+- **Improvements Review:** [docs/portfolio-improvements-collab.md](../../docs/portfolio-improvements-collab.md)
