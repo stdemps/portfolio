@@ -71,7 +71,7 @@ export const site = {
   emoji: "👋",
   tagline: "Product design lead building and scaling a design practice at KPMG UK — shipping real products with AI-assisted development.",
   heroGreeting: "Hey! 👋 I'm Steven.",
-  email: "hello@stevendempster.com",
+  email: "steven.dempster@hotmail.co.uk",
   linkedIn: "https://linkedin.com/in/stevendempster",
   resumeUrl: undefined as string | undefined,
   about: "",
