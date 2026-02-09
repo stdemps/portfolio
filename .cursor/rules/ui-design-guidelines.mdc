@@ -1,0 +1,425 @@
+---
+alwaysApply: true
+---
+
+## Mobile Responsiveness Requirements
+
+### CRITICAL: Mobile-First is Non-Negotiable
+**Default to mobile-first for ALL features unless explicitly justified otherwise.**
+
+This project experienced significant rework due to desktop-first implementation. To prevent this:
+- ✅ **ALWAYS start with mobile layout** (no breakpoint prefix = mobile)
+- ✅ **Build mobile experience FIRST, then enhance for larger screens**
+- ✅ **Review the [Responsive Design Checklist](../checklists/responsive-design-checklist.md) before starting any UI work**
+- ❌ **NEVER build desktop-first and add mobile as afterthought**
+
+### Breakpoints (Tailwind Default)
+- **default (no prefix):** 0px+ (mobile) - **START HERE**
+- **sm:** 640px and up (small tablets, large phones)
+- **md:** 768px and up (tablets)
+- **lg:** 1024px and up (desktops)
+- **xl:** 1280px and up (large desktops)
+- **2xl:** 1536px and up (extra large desktops)
+
+### Key Breakpoints for This Project
+- **default (mobile):** 0px+ - Primary experience
+- **md:** 768px+ - Enhanced spacing and layout
+- **lg:** 1024px+ - Full desktop features (e.g., split panels)
+
+### Mobile-First Approach
+- **Always design mobile-first:** Start with mobile layout, enhance for larger screens
+- **Use responsive utilities:** `sm:`, `md:`, `lg:`, `xl:`, `2xl:` prefixes
+- **Mobile classes have NO prefix:** `p-4` is mobile, `md:p-6` is tablet+
+- **Test on real devices:** Don't rely solely on browser dev tools
+- **Verify responsive scale:** Spacing, typography, and sizing must scale consistently
+
+### Mobile-Specific Requirements
+
+**Touch Targets:**
+- Minimum 44x44px (Apple HIG) or 48x48px (Material Design) for interactive elements
+- Adequate spacing between touch targets (minimum 8px)
+- Thumb-reachable zones: Primary actions in bottom 1/3 of screen
+
+**Layout:**
+- Single column layouts on mobile
+- Stack elements vertically on small screens
+- Use responsive grid: `grid-cols-1 md:grid-cols-2 lg:grid-cols-3`
+- Full-width components on mobile, constrained width on desktop
+
+**Navigation:**
+- Mobile: Bottom navigation or hamburger menu
+- Desktop: Sidebar or top navigation
+- Use `lg:` breakpoint to switch between mobile/desktop navigation patterns
+
+**Typography:**
+- Minimum 16px font size on mobile (prevents zoom on iOS)
+- Line height: 1.5 for body text, 1.2 for headings
+- Responsive font sizes: `text-base md:text-lg`
+
+**Spacing:**
+- Tighter spacing on mobile: `p-4 md:p-6 lg:p-8`
+- Consistent padding: `px-4 md:px-6 lg:px-8`
+
+**Components:**
+- Full-screen modals on mobile, centered modals on desktop
+- Bottom sheets for mobile actions (use shadcn/ui Sheet component)
+- Swipe gestures where appropriate (but always provide button alternative)
+
+### Example Mobile Patterns
+
+#### ✅ CORRECT: Mobile-First
+```tsx
+// Start with mobile (no prefix), enhance for larger screens
+<div className="flex flex-col gap-3 lg:flex-row lg:gap-6">
+<div className="p-4 md:p-5 lg:p-6">
+<div className="text-xs md:text-sm lg:text-base">
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+```
+
+#### ❌ WRONG: Desktop-First
+```tsx
+// DON'T do this - requires reverse engineering for mobile
+<div className="flex gap-6 lg:flex-col lg:gap-3">
+<div className="p-8 md:p-6 lg:p-4">
+```
+
+### Standard Responsive Scales (Use These)
+
+**Spacing (padding/margin/gap):**
+```tsx
+p-4 md:p-5 lg:p-6           // Card padding
+gap-3 md:gap-4 lg:gap-6     // Layout gaps
+px-4 md:px-6 lg:px-8        // Container horizontal padding
+```
+
+**Typography:**
+```tsx
+text-xs md:text-sm                    // Small text (labels, captions)
+text-sm md:text-base                  // Body text
+text-base md:text-lg                  // Emphasized text
+text-lg md:text-xl lg:text-2xl       // Headings
+```
+
+**Component Sizing:**
+```tsx
+h-9 md:h-10 lg:h-11          // Button heights
+h-4 w-4 md:h-5 md:w-5        // Icon sizes
+w-12 h-12 md:w-16 md:h-16    // Avatar/badge sizes
+```
+
+**Layout Patterns:**
+```tsx
+// Stack mobile, row desktop
+flex flex-col lg:flex-row
+
+// Single column mobile, multi-column desktop
+grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3
+
+// Full width mobile, constrained desktop
+w-full lg:max-w-3xl
+
+// Hide on mobile, show desktop
+hidden lg:block
+
+// Show on mobile, hide desktop
+lg:hidden
+```
+
+### Anti-Patterns to Avoid
+
+❌ **Fixed dimensions without responsive alternatives:**
+```tsx
+<div className="w-64 h-48">  // BAD: Fixed everywhere
+```
+
+✅ **Responsive dimensions:**
+```tsx
+<div className="w-full md:w-64 h-auto">  // GOOD: Adapts
+```
+
+❌ **Building desktop-first:**
+```tsx
+<div className="flex-row lg:flex-col">  // BAD: Backward
+```
+
+✅ **Building mobile-first:**
+```tsx
+<div className="flex-col lg:flex-row">  // GOOD: Progressive
+```
+
+---
+
+## Accessibility Requirements (WCAG 2.1 AA)
+
+### Color & Contrast
+- **Text contrast:** Minimum 4.5:1 for normal text, 3:1 for large text (18pt+)
+- **Interactive elements:** Minimum 3:1 contrast for buttons, links, form controls
+- **Don't rely on color alone:** Use icons, labels, or patterns in addition to color
+- **Test with color blindness simulators:** Ensure information is clear without color
+
+### Keyboard Navigation
+- **All interactive elements must be keyboard accessible:** Tab, Enter, Space, Arrow keys
+- **Visible focus indicators:** Use `focus-visible:` utilities for clear focus states
+- **Logical tab order:** Follow visual order, use `tabIndex` only when necessary
+- **Skip links:** Provide skip-to-content links for screen reader users
+- **Keyboard shortcuts:** Document and provide visual hints (Cmd+K, etc.)
+
+### Screen Reader Support
+- **Semantic HTML:** Use proper heading hierarchy (h1 → h2 → h3)
+- **ARIA labels:** Use `aria-label`, `aria-labelledby`, `aria-describedby` when needed
+- **ARIA live regions:** Announce dynamic content changes (`aria-live="polite"`)
+- **Form labels:** Always associate labels with inputs (`htmlFor` or `aria-labelledby`)
+- **Button vs link:** Use `<button>` for actions, `<a>` for navigation
+- **Alt text:** All images must have descriptive `alt` attributes
+
+### Focus Management
+- **Focus trap:** Trap focus within modals and dialogs
+- **Focus restoration:** Return focus to trigger element when closing modals
+- **Auto-focus:** Use carefully, only when it improves UX (e.g., search input in command palette)
+
+### Form Accessibility
+- **Required fields:** Use `required` attribute and visual indicator
+- **Error messages:** Associate errors with inputs using `aria-describedby`
+- **Field descriptions:** Use `aria-describedby` for helper text
+- **Validation feedback:** Show errors immediately, use `aria-invalid="true"`
+
+### Example Accessible Patterns
+```tsx
+// Accessible button
+<button
+  type="button"
+  aria-label="Close dialog"
+  className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+>
+  <X className="h-4 w-4" />
+</button>
+
+// Accessible form field
+<div>
+  <label htmlFor="field-id" className="text-sm font-medium">
+    Field Label
+  </label>
+  <input
+    id="field-id"
+    type="text"
+    required
+    aria-describedby="field-id-error"
+    aria-invalid={hasError}
+    className="focus-visible:ring-2 focus-visible:ring-ring"
+  />
+  {hasError && (
+    <p id="field-id-error" className="text-destructive" role="alert">
+      Error message
+    </p>
+  )}
+</div>
+
+// Accessible dialog
+<Dialog>
+  <DialogContent aria-describedby="dialog-description">
+    <DialogTitle>Dialog Title</DialogTitle>
+    <p id="dialog-description">Dialog description text.</p>
+    {/* Form content */}
+  </DialogContent>
+</Dialog>
+```
+
+### Testing Accessibility
+- **Automated testing:** Use axe DevTools or Lighthouse
+- **Keyboard testing:** Navigate entire interface with keyboard only
+- **Screen reader testing:** Test with VoiceOver (macOS) or NVDA (Windows)
+- **Color contrast:** Use WebAIM Contrast Checker
+- **Focus indicators:** Verify all interactive elements have visible focus
+
+---
+
+## Component Usage Guidelines
+
+### shadcn/ui Component Patterns
+
+**Always:**
+- Import components from `@/components/ui/[component-name]`
+- Use TypeScript types provided by components
+- Extend components using `className` prop (Tailwind classes)
+- Use component variants via `variant` prop when available
+- Follow component API documentation
+
+**Never:**
+- Modify component source files directly (they're meant to be customized)
+- Create duplicate components that already exist
+- Use inline styles instead of Tailwind classes
+- Mix component libraries
+
+### Common Component Patterns
+
+**Buttons:**
+```tsx
+import { Button } from "@/components/ui/button"
+
+<Button variant="default" size="default">
+  Primary Action
+</Button>
+<Button variant="outline" size="sm">
+  Secondary Action
+</Button>
+<Button variant="ghost" size="icon">
+  <Icon />
+</Button>
+```
+
+**Forms:**
+```tsx
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+
+<div className="space-y-2">
+  <Label htmlFor="email">Email</Label>
+  <Input id="email" type="email" placeholder="you@example.com" />
+</div>
+```
+
+**Cards:**
+```tsx
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+
+<Card>
+  <CardHeader>
+    <CardTitle>Card Title</CardTitle>
+  </CardHeader>
+  <CardContent>
+    {/* Content */}
+  </CardContent>
+</Card>
+```
+
+### Icon Usage (Lucide React)
+
+**Always:**
+- Import specific icons: `import { Check, X, Plus } from "lucide-react"`
+- Use consistent sizing: `h-4 w-4` (small), `h-5 w-5` (medium), `h-6 w-6` (large)
+- Provide `aria-label` or `aria-hidden="true"` for decorative icons
+- Use semantic icons that match their function
+
+**Example:**
+```tsx
+import { CheckCircle2, XCircle, AlertCircle } from "lucide-react"
+
+<button aria-label="Mark as complete">
+  <CheckCircle2 className="h-5 w-5" aria-hidden="true" />
+</button>
+```
+
+---
+
+## Styling Guidelines
+
+### Tailwind CSS Best Practices
+
+**Use:**
+- Utility classes for all styling
+- Custom CSS variables for theming (defined in `globals.css`)
+- Responsive prefixes: `sm:`, `md:`, `lg:`, `xl:`, `2xl:`
+- State variants: `hover:`, `focus:`, `active:`, `disabled:`
+- Dark mode: `dark:` prefix (when dark mode is implemented)
+
+**Avoid:**
+- Inline styles (`style={{}}`)
+- CSS Modules
+- Global CSS (except in `globals.css`)
+- Custom CSS files (use Tailwind utilities)
+
+### Color System
+- Use semantic color tokens: `bg-primary`, `text-foreground`, `border-border`
+- Don't use raw color values: `bg-blue-500` → use `bg-primary`
+- Colors defined in `globals.css` CSS variables (shadcn/ui theme system)
+- Support both light and dark modes
+- **For brand customization:** Use `@brand-identity` agent or `skills/brand-identity/resources/design-tokens.json` to customize colors, then implement in `globals.css` as CSS variables
+
+### Spacing
+- Use Tailwind spacing scale: `p-4`, `m-6`, `gap-8`
+- Base unit: 4px (0.25rem)
+- Common values: `4` (1rem), `6` (1.5rem), `8` (2rem), `12` (3rem), `16` (4rem)
+
+### Typography
+- Use semantic sizes: `text-sm`, `text-base`, `text-lg`, `text-xl`, `text-2xl`
+- Font weights: `font-normal`, `font-medium`, `font-semibold`, `font-bold`
+- Line heights: `leading-tight`, `leading-normal`, `leading-relaxed`
+
+### Layout
+- Flexbox: `flex`, `flex-col`, `items-center`, `justify-between`
+- Grid: `grid`, `grid-cols-3`, `gap-4`
+- Container: `container mx-auto px-4` (responsive padding)
+
+---
+
+## Performance Guidelines
+
+### Code Splitting
+- Use Next.js dynamic imports for heavy components
+- Lazy load components below the fold
+- Code split routes automatically (App Router handles this)
+
+### Image Optimization
+- Use Next.js `Image` component for all images
+- Provide `width` and `height` or use `fill` with container
+- Use appropriate `priority` for above-the-fold images
+
+### Bundle Size
+- Import only needed icons from `lucide-react`
+- Use tree-shaking friendly imports
+- Monitor bundle size with `npm run build`
+
+---
+
+## Testing & Quality Assurance
+
+### Before Committing Code
+1. **Lint:** Run `npm run lint` and fix all errors
+2. **Type check:** Ensure TypeScript compiles without errors
+3. **Visual check:** Test on multiple screen sizes (mobile, tablet, desktop)
+4. **Accessibility check:** Test keyboard navigation and screen reader
+5. **Browser test:** Test in Chrome, Firefox, Safari (at minimum)
+
+### Design Review Checklist
+
+**CRITICAL - Responsive Design (Check FIRST):**
+- [ ] **Mobile-first approach used** (no-prefix classes for mobile, breakpoint prefixes for larger)
+- [ ] **All three layouts designed:** Mobile (default), Tablet (md), Desktop (lg)
+- [ ] **Spacing scales consistently:** `p-4 md:p-5 lg:p-6` pattern
+- [ ] **Typography scales consistently:** `text-xs md:text-sm` pattern
+- [ ] **Touch targets minimum 44x44px** on mobile (use `h-11` for buttons)
+- [ ] **Tested at key sizes:** 375px (mobile), 768px (tablet), 1024px (desktop)
+- [ ] **No horizontal scroll** at any breakpoint
+- [ ] **Content prioritized** for mobile (what's most important?)
+- [ ] **See [Responsive Design Checklist](../checklists/responsive-design-checklist.md) for complete requirements**
+
+**Accessibility:**
+- [ ] Keyboard accessible (tab through entire interface)
+- [ ] Screen reader friendly (test with VoiceOver/NVDA)
+- [ ] Color contrast meets WCAG AA standards
+- [ ] Focus indicators visible on all interactive elements
+
+**States & Feedback:**
+- [ ] Error states handled gracefully
+- [ ] Loading states provide feedback
+- [ ] Empty states are helpful and actionable
+
+**Device Testing:**
+- [ ] Test on actual mobile device (not just DevTools)
+- [ ] Test in both portrait and landscape
+- [ ] Test on multiple browsers (Chrome, Safari, Firefox)
+
+---
+
+## Resources
+
+- **shadcn/ui Docs:** https://ui.shadcn.com/docs
+- **Tailwind CSS Docs:** https://tailwindcss.com/docs
+- **Lucide Icons:** https://lucide.dev/icons
+- **WCAG Guidelines:** https://www.w3.org/WAI/WCAG21/quickref/
+- **WebAIM Contrast Checker:** https://webaim.org/resources/contrastchecker/
+
+---
+
+**Remember:** User experience is the top priority. Every design decision should be evaluated through the lens of: Does this make the user's life easier? Is it accessible? Is it fast? Is it beautiful?

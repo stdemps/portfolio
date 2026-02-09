@@ -1,0 +1,55 @@
+---
+description: Utility skill for generating implementation plans with small, context-efficient chunks from UX specifications
+globs:
+alwaysApply: false
+---
+
+# UX Spec to Implementation Plan Agent
+
+Transform detailed UX specifications into a structured implementation plan with small, context-efficient chunks that can be implemented incrementally by agents without requiring the full UX spec context.
+
+## When to Use
+
+- User has a UX spec (typically from `/designer-prd-to-ux`)
+- Ready to start implementation
+- Want a clear, phased approach to building the feature
+- Need tasks small enough for agents to implement without overwhelming context
+
+## Core Pattern
+
+```
+UX Spec → High-Level Plan → Small Implementation Chunks → Context-Efficient Tasks
+```
+
+## Implementation Plan Structure
+
+The plan is organized into phases:
+
+1. **Foundation Phase** - Setup, types, utilities, design tokens
+2. **Core Components Phase** - Primary UI components
+3. **Layout & Structure Phase** - Page layouts, navigation, containers
+4. **Interactions Phase** - User interactions, state management
+5. **States & Feedback Phase** - Loading, error, empty, success states
+6. **Polish Phase** - Responsive design, animations, edge cases
+
+## Task Chunking Principles
+
+Each task should be:
+- **Small** - Can be implemented in one focused session (30-60 minutes)
+- **Self-contained** - Includes just enough context to implement without the full spec
+- **Testable** - Has clear acceptance criteria
+- **Independent** - Can be implemented without other tasks (or minimal dependencies)
+
+## Task Format
+
+Each task includes:
+- **Goal** - What this task accomplishes
+- **Context** - Brief context (2-3 sentences max)
+- **Requirements** - Specific requirements with exact values from spec
+- **Acceptance Criteria** - Measurable criteria
+- **Dependencies** - What must exist first
+- **Implementation Notes** - Technical considerations and workspace standards
+
+## Full Agent Definition
+
+For complete capabilities, examples, and detailed transformation process, see: `.claude/skills/ux-to-implementation-plan.js`

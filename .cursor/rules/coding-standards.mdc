@@ -1,0 +1,209 @@
+---
+alwaysApply: true
+---
+
+## TypeScript Standards
+
+### Type Safety
+- **Always use TypeScript strict mode:** Enabled in `tsconfig.json`
+- **Avoid `any`:** Use `unknown` or proper types instead
+- **Use type inference:** Let TypeScript infer types when possible
+- **Define interfaces for complex objects:** Especially for props and API responses
+
+### Code Organization
+- **File naming:** Use kebab-case for files (`task-card.tsx`, `use-debounce.ts`)
+- **Component naming:** Use PascalCase for components (`TaskCard`, `ThemeToggle`)
+- **Hook naming:** Prefix with `use` (`useDebounce`, `useTheme`)
+- **Utility functions:** Use camelCase (`formatDate`, `parseTask`)
+
+### Import Organization
+```tsx
+// 1. React and Next.js
+import * as React from "react"
+import { NextRequest, NextResponse } from "next/server"
+
+// 2. Third-party libraries
+import { useTheme } from "next-themes"
+import { Moon, Sun } from "lucide-react"
+
+// 3. Internal components
+import { Button } from "@/components/ui/button"
+import { ThemeToggle } from "@/components/theme-toggle"
+
+// 4. Utilities and types
+import { cn } from "@/lib/utils"
+import type { Task } from "@/lib/types"
+
+// 5. Styles (if needed)
+import "./styles.css"
+```
+
+---
+
+## React Best Practices
+
+### Component Structure
+```tsx
+// 1. Imports
+// 2. Types/Interfaces
+interface ComponentProps {
+  // props
+}
+
+// 3. Component
+export function Component({ prop1, prop2 }: ComponentProps) {
+  // 4. Hooks
+  const [state, setState] = React.useState()
+  
+  // 5. Effects
+  React.useEffect(() => {
+    // effect logic
+  }, [dependencies])
+  
+  // 6. Handlers
+  const handleClick = () => {
+    // handler logic
+  }
+  
+  // 7. Render
+  return (
+    <div>
+      {/* JSX */}
+    </div>
+  )
+}
+```
+
+### Hooks Guidelines
+- **Use `useCallback` for event handlers passed to children:** Prevents unnecessary re-renders
+- **Use `useMemo` for expensive computations:** Only when necessary
+- **Dependency arrays:** Include all dependencies, use ESLint rules
+- **Custom hooks:** Extract reusable logic into custom hooks
+
+### State Management
+- **Local state:** Use `useState` for component-specific state
+- **Shared state:** Consider context or state management library
+- **Server state:** Use React Server Components when possible
+- **Form state:** Use controlled components or form libraries
+
+---
+
+## Error Handling
+
+### Client-Side Errors
+```tsx
+// Use try-catch for async operations
+try {
+  const result = await fetchData()
+  setData(result)
+} catch (error) {
+  console.error("Error fetching data:", error)
+  setError("Failed to load data")
+}
+
+// Provide user-friendly error messages
+{error && (
+  <div className="text-destructive" role="alert">
+    {error}
+  </div>
+)}
+```
+
+### API Route Errors
+```tsx
+// In API routes
+try {
+  // logic
+  return NextResponse.json({ success: true })
+} catch (error) {
+  console.error("API error:", error)
+  return NextResponse.json(
+    { error: "Internal server error" },
+    { status: 500 }
+  )
+}
+```
+
+---
+
+## Performance Optimization
+
+### React Optimization
+- **Memoization:** Use `React.memo` for expensive components
+- **Code splitting:** Use dynamic imports for heavy components
+- **Image optimization:** Always use Next.js `Image` component
+- **Bundle analysis:** Regularly check bundle size
+
+### Next.js Optimization
+- **Server Components:** Use by default, opt into client components when needed
+- **Static generation:** Use `generateStaticParams` when possible
+- **Incremental Static Regeneration:** Use ISR for dynamic content
+- **Edge runtime:** Consider for API routes when appropriate
+
+---
+
+## Code Quality
+
+### Naming Conventions
+- **Variables:** camelCase (`userName`, `isLoading`)
+- **Constants:** UPPER_SNAKE_CASE (`API_BASE_URL`, `MAX_RETRIES`)
+- **Components:** PascalCase (`UserCard`, `TaskList`)
+- **Files:** kebab-case (`user-card.tsx`, `task-list.tsx`)
+
+### Comments
+- **Explain why, not what:** Code should be self-documenting
+- **Use JSDoc for functions:** Document parameters and return types
+- **Remove commented code:** Use git history instead
+
+### Formatting
+- **Use Prettier:** Consistent code formatting
+- **Follow ESLint rules:** Fix all linting errors
+- **Consistent indentation:** 2 spaces for TypeScript/TSX
+
+---
+
+## Testing Standards
+
+### Unit Tests
+- Test utility functions and hooks
+- Test component rendering and interactions
+- Use React Testing Library for components
+
+### Integration Tests
+- Test API routes
+- Test user flows end-to-end
+- Use Playwright or Cypress for E2E
+
+### Accessibility Tests
+- Run automated accessibility checks
+- Test with keyboard navigation
+- Test with screen readers
+
+---
+
+## Git Practices
+
+### Commit Messages
+- Use conventional commits format
+- Be descriptive and specific
+- Reference issues when applicable
+
+### Branch Strategy
+- `main`: Production-ready code
+- `develop`: Integration branch
+- `feature/*`: New features
+- `fix/*`: Bug fixes
+
+---
+
+## Documentation
+
+### Code Documentation
+- Document complex algorithms
+- Explain non-obvious decisions
+- Keep README updated
+
+### Component Documentation
+- Document component props
+- Provide usage examples
+- Note any accessibility considerations

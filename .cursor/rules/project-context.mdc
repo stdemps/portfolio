@@ -1,0 +1,74 @@
+---
+alwaysApply: false
+---
+
+## Project Context Template
+
+**Replace this file with your project-specific context.**
+
+This file should include:
+- Project overview and goals
+- Key terminology and domain concepts
+- User personas (if applicable)
+- Product philosophy and principles
+- Current priorities and roadmap
+- Competitive landscape (if relevant)
+
+### Example Structure
+
+```markdown
+## About [Project Name]
+
+**What it is:** [Brief description]
+
+**Goals:**
+- [Goal 1]
+- [Goal 2]
+
+## Key Terminology
+
+- **Term 1:** Definition
+- **Term 2:** Definition
+
+## User Personas
+
+### [Persona Name]
+- Role: [Role]
+- Goals: [Goals]
+- Pain Points: [Pain Points]
+
+## Product Philosophy
+
+1. **Principle 1:** Description
+2. **Principle 2:** Description
+
+## Current Priorities
+
+1. [Priority 1]
+2. [Priority 2]
+
+## Design & Development Standards
+
+### CRITICAL: Mobile-First Requirement
+This project uses **mobile-first responsive design** for ALL features. Before starting any UI work:
+- ✅ Review the [Responsive Design Checklist](../checklists/responsive-design-checklist.md)
+- ✅ Start with mobile layout (no breakpoint prefix)
+- ✅ Enhance for larger screens with `md:` and `lg:` prefixes
+- ❌ NEVER build desktop-first and retrofit mobile
+
+**Why this matters:** Building desktop-first and retrofitting mobile leads to significant rework, inconsistent patterns, and poor mobile user experience. The responsive design checklist and updated guidelines prevent this from happening.
+
+## Resources
+
+- **Responsive Design Checklist:** [.cursor/checklists/responsive-design-checklist.md](../checklists/responsive-design-checklist.md) ⭐ **READ THIS FIRST**
+- [Link to documentation]
+- [Link to design system]
+```
+
+---
+
+**Instructions:**
+1. Replace this template with your actual project context
+2. Keep it updated as the project evolves
+3. Reference this file when making product decisions
+4. Use @ mentions in Cursor to reference this context

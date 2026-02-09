@@ -1,0 +1,14 @@
+# GitHub Repository Template Configuration
+# This file configures the repository as a GitHub template
+
+name: Workspace Template
+description: A reusable workspace template for rapid prototyping with Next.js, TypeScript, Tailwind CSS, and shadcn/ui
+topics:
+  - nextjs
+  - typescript
+  - tailwindcss
+  - shadcn-ui
+  - template
+  - workspace
+  - cursor
+
