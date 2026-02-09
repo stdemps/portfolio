@@ -24,7 +24,7 @@ export function TestimonialCard({ testimonial, className }: TestimonialCardProps
     >
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <h3 className="font-display text-lg font-semibold text-foreground md:text-xl">
+          <h3 className="font-display text-lg font-medium text-foreground md:text-xl">
             {testimonial.name}
           </h3>
           <p className="mt-0.5 text-sm text-muted-foreground">{testimonial.role}</p>

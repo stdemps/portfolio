@@ -21,10 +21,10 @@ export function ProjectBlock({ project, className }: ProjectBlockProps) {
   const card = (
     <article
       className={cn(
-        "overflow-hidden rounded-2xl border border-border/60 transition-shadow",
+        "overflow-hidden rounded-2xl border border-border/60 transition-all duration-200",
         showGradientBg && "bg-gradient-to-br from-violet-50/60 via-muted/50 to-blue-50/60 dark:from-violet-950/25 dark:via-muted/20 dark:to-blue-950/25",
         !showGradientBg && "bg-card",
-        project.href && "hover:shadow-lg",
+        project.href && "hover:-translate-y-0.5 hover:shadow-lg",
         className
       )}
     >
@@ -58,7 +58,7 @@ export function ProjectBlock({ project, className }: ProjectBlockProps) {
                 <div className="h-2.5 w-2.5 rounded-full bg-browserDotAmber" />
                 <div className="h-2.5 w-2.5 rounded-full bg-browserDotGreen" />
               </div>
-              <div className="flex-1 rounded bg-background/80 px-3 py-1 text-center text-xs text-muted-foreground">
+              <div className="flex-1 truncate rounded bg-background/80 px-3 py-1 text-center text-[10px] text-muted-foreground">
                 {browserBarUrl(project.href) || project.subtitle || "preview"}
               </div>
             </div>
@@ -82,7 +82,7 @@ export function ProjectBlock({ project, className }: ProjectBlockProps) {
                 <div className="h-2.5 w-2.5 rounded-full bg-browserDotAmber" />
                 <div className="h-2.5 w-2.5 rounded-full bg-browserDotGreen" />
               </div>
-              <div className="flex-1 rounded bg-background/80 px-3 py-1 text-center text-xs text-muted-foreground">
+              <div className="flex-1 truncate rounded bg-background/80 px-3 py-1 text-center text-[10px] text-muted-foreground">
                 {browserBarUrl(project.href) || project.subtitle || "preview"}
               </div>
             </div>
@@ -105,7 +105,7 @@ export function ProjectBlock({ project, className }: ProjectBlockProps) {
         )}
 
         <div className={cn((isPhones || isBrowser || project.mockupType === "image") && "mt-6")}>
-          <h3 className="font-display text-xl font-semibold tracking-tight text-foreground md:text-2xl">
+          <h3 className="font-display text-xl font-medium tracking-tight text-foreground md:text-2xl">
             {project.title}
           </h3>
           {(project.subtitle || project.tagline) && (

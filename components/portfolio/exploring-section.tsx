@@ -5,7 +5,7 @@ export function ExploringSection() {
   return (
     <section className="border-b border-border/60">
       <div className="container px-4 py-8 md:px-6 md:py-10 lg:px-8 lg:py-12">
-        <h2 className="font-display text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
+        <h2 className="font-display text-2xl font-medium tracking-tight text-foreground md:text-3xl">
           Exploring AI-assisted engineering
         </h2>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground md:text-base">

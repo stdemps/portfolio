@@ -27,7 +27,7 @@ function ToolIcon({ tool }: { tool: Tool }) {
       unoptimized={isExternal}
     />
   ) : (
-    <span className="font-display text-lg font-semibold text-muted-foreground md:text-xl">
+    <span className="font-display text-lg font-medium text-muted-foreground md:text-xl">
       {tool.name.charAt(0)}
     </span>
   )
@@ -35,8 +35,8 @@ function ToolIcon({ tool }: { tool: Tool }) {
   const wrapper = (
     <div
       className={cn(
-        "flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-muted/80 shadow-sm md:h-14 md:w-14",
-        "border border-border/60"
+        "flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-muted/80 shadow-sm transition-colors duration-200 md:h-14 md:w-14",
+        "border border-border/60 hover:bg-muted"
       )}
       title={tool.name}
     >

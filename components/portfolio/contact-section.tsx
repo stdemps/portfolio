@@ -1,4 +1,4 @@
-import { Mail, Linkedin } from "lucide-react"
+import { Mail, LinkedinIcon } from "lucide-react"
 import { site } from "@/lib/portfolio-data"
 import { Button } from "@/components/ui/button"
 
@@ -7,7 +7,7 @@ export function ContactSection() {
     <section id="contact" className="scroll-mt-16 border-t border-border/60 md:scroll-mt-20">
       <div className="container px-4 py-12 md:px-6 md:py-16 lg:px-8 lg:py-20">
         <div className="mx-auto max-w-xl">
-          <h2 className="font-display text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
+          <h2 className="font-display text-2xl font-medium tracking-tight text-foreground md:text-3xl">
             Get in touch
           </h2>
           <p className="mt-2 text-sm text-muted-foreground md:text-base">
@@ -41,7 +41,7 @@ export function ContactSection() {
                 rel="noopener noreferrer"
                 aria-label="Connect on LinkedIn (opens in new tab)"
               >
-                <Linkedin className="h-5 w-5 shrink-0" aria-hidden />
+                <LinkedinIcon className="h-5 w-5 shrink-0" aria-hidden />
                 LinkedIn
               </a>
             </Button>

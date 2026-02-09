@@ -17,13 +17,13 @@ export function WorkExperienceSection() {
                   {item.period}
                 </p>
               )}
-              <p className="font-display text-lg font-semibold text-foreground md:text-xl">
+              <p className="font-display text-lg font-medium text-foreground md:text-xl">
                 {item.title}
                 {", "}
                 {item.employer}
               </p>
               {item.description && (
-                <p className="max-w-prose text-sm leading-relaxed text-foreground md:text-base md:leading-relaxed">
+                <p className="max-w-prose text-sm leading-relaxed text-muted-foreground md:text-base md:leading-relaxed">
                   {item.description}
                 </p>
               )}

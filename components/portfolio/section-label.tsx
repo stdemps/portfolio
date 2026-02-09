@@ -10,7 +10,7 @@ export function SectionLabel({ number, title, className }: SectionLabelProps) {
   return (
     <h2
       className={cn(
-        "font-display text-2xl font-semibold tracking-tight md:text-3xl",
+        "font-display text-2xl font-medium tracking-tight md:text-3xl",
         "flex items-baseline gap-2",
         className
       )}

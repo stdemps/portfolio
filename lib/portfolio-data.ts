@@ -69,13 +69,22 @@ export interface Testimonial {
 export const site = {
   name: "Steven Dempster",
   emoji: "👋",
-  tagline: "A creative thinker and product design lead at KPMG UK, growing a design team and exploring AI-assisted engineering.",
+  tagline: "Product design lead building and scaling a design practice at KPMG UK — shipping real products with AI-assisted development.",
   heroGreeting: "Hey! 👋 I'm Steven.",
   email: "hello@stevendempster.com",
   linkedIn: "https://linkedin.com/in/stevendempster",
   resumeUrl: undefined as string | undefined,
   about: "",
 }
+
+/** Label for the personal/prototype projects group in the work section */
+export const workSectionLabels = {
+  recentWork: "Recent work",
+  workProjects: "Work projects",
+  workProjectsDescription:
+    "I'm not able to make these projects publicly available. If you'd like to see them, get in touch and I can share them securely.",
+  prototypes: "Vibe coded prototypes",
+} as const
 
 export const tools: Tool[] = [
   { name: "Figma", icon: "figma", link: "https://figma.com" },
@@ -102,7 +111,7 @@ export const templateRepos: TemplateRepo[] = [
 export const projects: Project[] = [
   {
     id: "kraken-weddings",
-    title: "Designing a wedding musician's online presence from concept to launch",
+    title: "From idea to live site in a weekend — a musician needed a stage online",
     tagline: "Kraken Weddings — Live Acoustic Wedding Music",
     subtitle: "Kraken Weddings",
     kind: "personal",
@@ -114,7 +123,7 @@ export const projects: Project[] = [
   },
   {
     id: "flower-delivery-proto",
-    title: "Giving a small business a professional online presence — without any web design experience",
+    title: "Turning a local florist's side-hustle into a polished online storefront",
     tagline: "Peony Blooms — flower delivery",
     subtitle: "Peony Blooms",
     kind: "personal",
@@ -154,6 +163,7 @@ export const projects: Project[] = [
     mockupType: "image",
     image: "/projects/ai-expense-mockup.png",
     imageAlt: "Business Account expense review screen: review your expenses with filters, bulk categorisation and approve actions.",
+    comingSoon: true,
   },
 ]
 
@@ -162,14 +172,14 @@ export const workExperience: WorkExperienceItem[] = [
     period: "OCT, 2025 - CURRENT",
     title: "Product Design Lead",
     employer: "KPMG UK",
-    description: "Add placeholder for now",
+    description: "Leading and growing a product design team within KPMG UK's Tax Technology practice. Setting the design direction across a portfolio of internal and client-facing products, embedding design thinking into engineering workflows, and championing AI-assisted development to accelerate delivery.",
   },
   {
     period: "OCT, 2022 - 2024",
     title: "Product Designer",
     employer: "KPMG UK",
     description:
-      "Built a design team from scratch, slashed design handoff time by 66% with a design system, and sped up product launches by 75%. Led a varied project portfolio, always exceeding expectations while reshaping the user experience across our full product suite, introducing a unified and familiar experience across all our apps.",
+      "Established and grew a product design function from the ground up, introducing a design system that reduced handoff time by 66% and accelerated product launches by 75%. Drove a 75% improvement in launch speed and reshaped the experience across the entire product suite into a cohesive, modern standard.",
   },
   {
     period: "FEB, 2020 - SEP, 2022",
@@ -194,7 +204,7 @@ export const testimonials: Testimonial[] = [
     role: "Partner Tax Tech & Innovation",
     quote:
       "Hugely impressed by your commitment, approach and methodology. The design/UX work you've done during your time with us is fantastic, enabling us to build a consistent experience across our product suite.",
-    avatar: "/avatars/oli.jpg",
+
     featured: true,
   },
   {
@@ -203,7 +213,7 @@ export const testimonials: Testimonial[] = [
     role: "Director Tax Tech & Innovation",
     quote:
       "Steven's a creative force, constantly devising modern designs with a user-centric approach. He's revamped the portals for a contemporary and personalised feel, showcasing his keen understanding of user experience.",
-    avatar: "/avatars/jamie.jpg",
+
   },
   {
     id: "siva",
@@ -211,7 +221,7 @@ export const testimonials: Testimonial[] = [
     role: "Product Owner",
     quote:
       "Steven brings a rare blend of creativity and structure. His designs are not only visually compelling but also deeply considered from a user and business perspective. A real asset to any product team.",
-    avatar: "/avatars/siva.jpg",
+
   },
   {
     id: "sinu",
@@ -219,7 +229,7 @@ export const testimonials: Testimonial[] = [
     role: "Lead Software Engineer",
     quote:
       "Your Figma mockups, crafted with a keen eye and analytical mind, have been instrumental in APEX development. Your approachable nature fosters collaboration, with junior team members readily seeking and receiving your valuable insights. You're also open to feedback, making you a true asset.",
-    avatar: "/avatars/sinu.jpg",
+
     featured: true,
   },
   {
@@ -228,7 +238,7 @@ export const testimonials: Testimonial[] = [
     role: "Senior Software Developer",
     quote:
       "Steven's deep business knowledge and analytical skills shaped our product during Research & Design. He seamlessly filled the vacant product owner role, perfectly bridging business and development. He really went above and beyond.",
-    avatar: "/avatars/shubhangi.jpg",
+
     featured: true,
   },
   {
@@ -237,6 +247,6 @@ export const testimonials: Testimonial[] = [
     role: "Senior Business Analyst",
     quote:
       "You always go over and above what you need to do to help make the project function in the best way possible. Your mock ups, usability studies and demos are excellent. The business area really like this approach.",
-    avatar: "/avatars/rozlynn.jpg",
+
   },
 ]

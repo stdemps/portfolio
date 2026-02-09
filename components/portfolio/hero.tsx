@@ -10,14 +10,13 @@ export function Hero() {
           <p className="text-base text-muted-foreground md:text-lg">
             {site.heroGreeting}
           </p>
-          <h1 className="mt-4 font-display text-3xl font-bold leading-tight tracking-tight text-foreground sm:text-4xl md:text-5xl md:leading-tight lg:text-6xl">
-            A{" "}
-            <span className="text-heroBlue">creative thinker</span>
-            {" and "}
-            <span className="text-heroPink">product</span>{" "}
-            <span className="text-heroPink">design lead</span>
-            {" at KPMG UK, growing a design team and exploring "}
-            <span className="text-heroBlue">AI-assisted engineering</span>
+          <h1 className="mt-4 font-display text-3xl font-medium leading-[1.25] tracking-tight text-foreground sm:text-4xl md:text-5xl lg:text-6xl">
+            {"A "}
+            <span className="text-heroBlue">product design lead</span>
+            {" at "}
+            <span className="text-heroBlue">KPMG UK</span>
+            {", growing a design team and exploring "}
+            <span className="text-heroPink">AI-assisted engineering</span>
             {"."}
           </h1>
           <div className="mt-6 md:mt-8">
