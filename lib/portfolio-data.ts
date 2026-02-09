@@ -169,7 +169,7 @@ export const projects: Project[] = [
 
 export const workExperience: WorkExperienceItem[] = [
   {
-    period: "OCT, 2025 - CURRENT",
+    period: "OCT, 2024 - CURRENT",
     title: "Product Design Lead",
     employer: "KPMG UK",
     description: "Leading and growing a product design team within KPMG UK's Tax Technology practice. Setting the design direction across a portfolio of internal and client-facing products, embedding design thinking into engineering workflows, and championing AI-assisted development to accelerate delivery.",
