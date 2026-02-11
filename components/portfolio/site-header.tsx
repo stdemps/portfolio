@@ -28,6 +28,7 @@ export function SiteHeader() {
             height={24}
             className="h-6 w-6 md:h-7 md:w-7"
             aria-hidden
+            priority
           />
         </Link>
         <div className="flex items-center gap-6">

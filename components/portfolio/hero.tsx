@@ -17,6 +17,7 @@ export function Hero() {
               height={28}
               className="inline-block h-7 w-7 md:h-8 md:w-8"
               aria-hidden
+              priority
             />{" "}
             I&apos;m Steven.
           </p>

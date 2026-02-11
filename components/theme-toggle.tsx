@@ -54,7 +54,7 @@ export function ThemeToggle() {
         <DropdownMenuSeparator />
         <DropdownMenuRadioGroup
           value={mounted ? theme : "system"}
-          onValueChange={(value) => setTheme(value)}
+          onValueChange={setTheme}
           aria-label="Select theme preference"
         >
           <DropdownMenuRadioItem value="light">
