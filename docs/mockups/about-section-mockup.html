@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About Section — Mockup Options</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=Space+Grotesk:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --background: hsl(0 0% 98%);
+      --foreground: hsl(240 14.3% 2.7%);
+      --card: hsl(0 0% 100%);
+      --card-foreground: hsl(240 14.3% 2.7%);
+      --primary: hsl(227 77.2% 50.2%);
+      --accent: hsl(339 100% 55.1%);
+      --muted: hsl(0 0% 96%);
+      --muted-foreground: hsl(240 7.1% 38.8%);
+      --border: hsl(0 0% 90%);
+      --radius: 0.625rem;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: var(--background);
+      color: var(--foreground);
+      line-height: 1.6;
+    }
+
+    .font-display {
+      font-family: 'Inter Tight', sans-serif;
+    }
+
+    /* Shared section styles */
+    .section {
+      border-top: 1px solid var(--border);
+      padding: 48px 24px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    @media (min-width: 1280px) {
+      .section { padding: 80px 48px; }
+    }
+
+    @media (min-width: 768px) {
+      .section { padding: 64px 24px; }
+    }
+    @media (min-width: 1024px) {
+      .section { padding: 80px 32px; }
+    }
+
+    /* Section label (matches SectionLabel component) */
+    .section-label {
+      font-family: 'Inter Tight', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+    }
+    @media (min-width: 768px) {
+      .section-label { font-size: 1.875rem; }
+    }
+    .section-label .num {
+      font-weight: 400;
+      color: var(--muted-foreground);
+    }
+
+    /* Option divider */
+    .option-divider {
+      text-align: center;
+      padding: 48px 24px;
+      font-family: 'Inter Tight', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 500;
+      color: var(--muted-foreground);
+      border-top: 2px dashed var(--border);
+      border-bottom: 2px dashed var(--border);
+      background: var(--muted);
+    }
+    .option-divider span {
+      display: inline-block;
+      background: var(--primary);
+      color: white;
+      padding: 4px 16px;
+      border-radius: 999px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    /* ========================================
+       OPTION A — Photo Grid / Collage
+       ======================================== */
+
+    .photo-grid-layout {
+      margin-top: 2rem;
+    }
+
+    .about-intro {
+      max-width: 640px;
+      margin-bottom: 2rem;
+    }
+    .about-intro p {
+      color: var(--muted-foreground);
+      font-size: 0.9375rem;
+      line-height: 1.7;
+    }
+    @media (min-width: 768px) {
+      .about-intro p { font-size: 1rem; }
+    }
+
+    /* Masonry-style grid */
+    .masonry-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-auto-rows: 160px;
+      gap: 12px;
+    }
+    @media (min-width: 768px) {
+      .masonry-grid {
+        grid-template-columns: repeat(3, 1fr);
+        grid-auto-rows: 180px;
+        gap: 16px;
+      }
+    }
+    @media (min-width: 1024px) {
+      .masonry-grid {
+        grid-template-columns: repeat(4, 1fr);
+        grid-auto-rows: 200px;
+        gap: 20px;
+      }
+    }
+
+    .masonry-item {
+      border-radius: var(--radius);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .masonry-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* Spanning items for visual variety */
+    .masonry-item.tall { grid-row: span 2; }
+    .masonry-item.wide { grid-column: span 2; }
+
+    /* Text card inside the grid */
+    .masonry-text-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .masonry-text-card .quote {
+      font-family: 'Inter Tight', sans-serif;
+      font-size: 1.125rem;
+      font-weight: 500;
+      line-height: 1.4;
+      color: var(--foreground);
+    }
+    .masonry-text-card .label {
+      margin-top: 12px;
+      font-size: 0.8125rem;
+      color: var(--muted-foreground);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Placeholder images with gradient fills */
+    .img-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      color: white;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+    .img-placeholder.gig { background: linear-gradient(135deg, hsl(227 60% 35%), hsl(260 50% 50%)); }
+    .img-placeholder.workspace { background: linear-gradient(135deg, hsl(200 30% 40%), hsl(180 25% 55%)); }
+    .img-placeholder.travel { background: linear-gradient(135deg, hsl(30 50% 45%), hsl(15 60% 55%)); }
+    .img-placeholder.music { background: linear-gradient(135deg, hsl(339 70% 45%), hsl(300 50% 40%)); }
+    .img-placeholder.ai { background: linear-gradient(135deg, hsl(227 77% 50%), hsl(200 80% 55%)); }
+    .img-placeholder.tinker { background: linear-gradient(135deg, hsl(150 40% 40%), hsl(170 35% 50%)); }
+    .img-placeholder.portrait { background: linear-gradient(135deg, hsl(240 10% 25%), hsl(240 10% 40%)); }
+    .img-placeholder.band { background: linear-gradient(135deg, hsl(260 40% 30%), hsl(280 45% 45%)); }
+
+
+    /* ========================================
+       OPTION B — Mixed Media Bento Cards
+       ======================================== */
+
+    .bento-layout {
+      margin-top: 2rem;
+    }
+
+    .bento-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    @media (min-width: 768px) {
+      .bento-grid {
+        grid-template-columns: repeat(3, 1fr);
+        grid-auto-rows: auto;
+        gap: 20px;
+      }
+    }
+
+    .bento-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .bento-card.span-2 {
+      grid-column: span 1;
+    }
+    @media (min-width: 768px) {
+      .bento-card.span-2 { grid-column: span 2; }
+    }
+
+    .bento-card-image {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+    @media (min-width: 768px) {
+      .bento-card-image { height: 240px; }
+    }
+
+    .bento-card-body {
+      padding: 20px 24px;
+    }
+    .bento-card-body .eyebrow {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+    .bento-card-body h3 {
+      font-family: 'Inter Tight', sans-serif;
+      font-size: 1.125rem;
+      font-weight: 500;
+      line-height: 1.4;
+      color: var(--foreground);
+    }
+    .bento-card-body p {
+      margin-top: 8px;
+      font-size: 0.875rem;
+      color: var(--muted-foreground);
+      line-height: 1.6;
+    }
+
+    /* Pull-quote card */
+    .bento-quote {
+      background: var(--foreground);
+      color: var(--background);
+      border: none;
+      padding: 32px 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .bento-quote blockquote {
+      font-family: 'Inter Tight', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 500;
+      line-height: 1.4;
+      font-style: normal;
+    }
+    @media (min-width: 768px) {
+      .bento-quote blockquote { font-size: 1.375rem; }
+    }
+    .bento-quote .attrib {
+      margin-top: 16px;
+      font-size: 0.8125rem;
+      opacity: 0.6;
+    }
+
+    /* Stat card */
+    .bento-stat {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 28px 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+    }
+    .bento-stat .stat-number {
+      font-family: 'Inter Tight', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 600;
+      line-height: 1;
+    }
+    .bento-stat .stat-label {
+      margin-top: 8px;
+      font-size: 0.875rem;
+      opacity: 0.85;
+    }
+
+    /* Image-only card */
+    .bento-image-only .bento-card-image {
+      height: 260px;
+    }
+    @media (min-width: 768px) {
+      .bento-image-only .bento-card-image { height: 300px; }
+    }
+
+    /* Accent card */
+    .bento-accent {
+      background: linear-gradient(135deg, hsl(339 100% 55.1%), hsl(270 80% 55%));
+      color: white;
+      border: none;
+      padding: 28px 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+    .bento-accent h3 {
+      font-family: 'Inter Tight', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 500;
+      color: white;
+    }
+    .bento-accent p {
+      margin-top: 6px;
+      font-size: 0.875rem;
+      opacity: 0.85;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================================
+       OPTION A — Photo Grid / Collage
+       ============================================================ -->
+  <div class="option-divider">
+    <span>Option A</span>
+    <div>Photo Grid / Collage</div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">
+      <span class="num">05</span>
+      <span>About me</span>
+    </div>
+
+    <div class="photo-grid-layout">
+      <div class="about-intro">
+        <p>
+          I'm a senior product designer who works at the intersection of design, technology, and strategy.
+          Outside of work, I'm a gigging musician most weekends, and I'm always tinkering with something new.
+        </p>
+      </div>
+
+      <div class="masonry-grid">
+        <!-- Row 1 -->
+        <div class="masonry-item tall">
+          <div class="img-placeholder gig">Gigging</div>
+        </div>
+        <div class="masonry-item">
+          <div class="img-placeholder workspace">Workspace</div>
+        </div>
+        <div class="masonry-item">
+          <div class="img-placeholder ai">AI Exploration</div>
+        </div>
+        <div class="masonry-item tall">
+          <div class="img-placeholder portrait">Portrait</div>
+        </div>
+
+        <!-- Text card woven into grid -->
+        <div class="masonry-item wide masonry-text-card">
+          <div class="quote">"The best design work happens when you can bridge the gap between a messy problem and a clear, well-sequenced plan."</div>
+          <div class="label">Design philosophy</div>
+        </div>
+
+        <!-- More images -->
+        <div class="masonry-item">
+          <div class="img-placeholder music">Music Setup</div>
+        </div>
+        <div class="masonry-item">
+          <div class="img-placeholder tinker">Tinkering</div>
+        </div>
+
+        <div class="masonry-item wide">
+          <div class="img-placeholder band">Band / Live gig</div>
+        </div>
+        <div class="masonry-item">
+          <div class="img-placeholder travel">Travel</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ============================================================
+       OPTION B — Mixed Media Bento Cards
+       ============================================================ -->
+  <div class="option-divider">
+    <span>Option B</span>
+    <div>Mixed Media Bento Cards</div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">
+      <span class="num">05</span>
+      <span>About me</span>
+    </div>
+
+    <div class="bento-layout">
+      <div class="about-intro">
+        <p>
+          I'm a senior product designer who works at the intersection of design, technology, and strategy.
+          Outside of work, I'm a gigging musician most weekends, and I'm always tinkering with something new.
+        </p>
+      </div>
+
+      <div class="bento-grid">
+        <!-- Featured image card (wide) -->
+        <div class="bento-card span-2 bento-image-only">
+          <div class="bento-card-image img-placeholder gig">Live gig photo</div>
+          <div class="bento-card-body">
+            <div class="eyebrow">Music</div>
+            <h3>Gigging musician most weekends</h3>
+            <p>Whether it's a pub session or a headline set, playing live is how I recharge.</p>
+          </div>
+        </div>
+
+        <!-- Pull-quote card -->
+        <div class="bento-card bento-quote">
+          <blockquote>"I care about research-led design — driving insights rather than just asking users what they want."</blockquote>
+          <div class="attrib">— Design philosophy</div>
+        </div>
+
+        <!-- AI card -->
+        <div class="bento-card">
+          <div class="bento-card-image img-placeholder ai">AI + Prototyping</div>
+          <div class="bento-card-body">
+            <div class="eyebrow">AI + Design</div>
+            <h3>Exploring how AI changes the way we build</h3>
+            <p>From rapid prototyping to workflow automation — developing frameworks to help teams adopt AI without losing design discipline.</p>
+          </div>
+        </div>
+
+        <!-- Stat card -->
+        <div class="bento-card bento-stat">
+          <div class="stat-number">10+</div>
+          <div class="stat-label">Years in product design</div>
+        </div>
+
+        <!-- Workspace image -->
+        <div class="bento-card bento-image-only">
+          <div class="bento-card-image img-placeholder workspace">Workspace / desk setup</div>
+        </div>
+
+        <!-- Accent card -->
+        <div class="bento-card bento-accent">
+          <h3>Always tinkering</h3>
+          <p>Side projects, new tools, new frameworks — I never stop experimenting.</p>
+        </div>
+
+        <!-- Tinkering image card -->
+        <div class="bento-card">
+          <div class="bento-card-image img-placeholder tinker">Side project / tinkering</div>
+          <div class="bento-card-body">
+            <div class="eyebrow">Side Projects</div>
+            <h3>Building to learn</h3>
+            <p>From Next.js templates to AI experiments — shipping small things to understand big ideas.</p>
+          </div>
+        </div>
+
+        <!-- Music detail card -->
+        <div class="bento-card span-2">
+          <div class="bento-card-image img-placeholder band" style="height: 200px;">Band / performance</div>
+          <div class="bento-card-body">
+            <div class="eyebrow">Weekend life</div>
+            <h3>Music is the counterbalance</h3>
+            <p>Design is structured problem solving. Music is instinct, expression, and a bit of chaos. Both make me better at the other.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

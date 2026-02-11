@@ -1,5 +1,4 @@
 import type { Testimonial } from "@/lib/portfolio-data"
-import { Star } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
 
@@ -41,15 +40,6 @@ export function TestimonialCard({ testimonial, className }: TestimonialCardProps
       <p className="mt-4 flex-1 text-sm leading-relaxed text-foreground md:text-base md:leading-relaxed">
         {testimonial.quote}
       </p>
-      <div className="mt-5 flex justify-start gap-0.5 md:mt-6" aria-label="5 stars">
-        {[1, 2, 3, 4, 5].map((i) => (
-          <Star
-            key={i}
-            className="h-4 w-4 fill-starYellow text-starYellow md:h-5 md:w-5"
-            aria-hidden
-          />
-        ))}
-      </div>
     </article>
   )
 }

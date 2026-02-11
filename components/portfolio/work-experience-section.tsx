@@ -1,12 +1,15 @@
 import { workExperience } from "@/lib/portfolio-data"
 import { cn } from "@/lib/utils"
 import { SectionLabel } from "./section-label"
+import { ScrollReveal } from "@/components/scroll-reveal"
 
 export function WorkExperienceSection() {
   return (
     <section id="experience" className="scroll-mt-16 border-t border-border/60 md:scroll-mt-20">
       <div className="container px-4 py-12 md:px-6 md:py-16 lg:px-8 lg:py-20">
-        <SectionLabel number="02" title="Work experience" />
+        <ScrollReveal>
+          <SectionLabel number="02" title="Work experience" />
+        </ScrollReveal>
         <ul className="relative mt-8 list-none space-y-10 pl-6 md:mt-10 md:space-y-12 md:pl-8 lg:mt-12">
           {/* Vertical line */}
           <span
@@ -16,16 +19,18 @@ export function WorkExperienceSection() {
           {workExperience.map((item, index) => {
             const isCurrent = item.period?.toUpperCase().includes("CURRENT")
             return (
-            <li
+            <ScrollReveal
+              as="li"
               key={`${item.title}-${item.employer}-${index}`}
+              delay={index * 60}
               className="relative flex gap-4"
             >
-              {/* Timeline marker: current = ring + pulse, past = filled muted */}
+              {/* Timeline marker: current = ring, past = filled muted */}
               <span
                 className={cn(
                   "relative z-10 flex h-2 w-2 shrink-0 self-start rounded-full mt-1.5 md:mt-2 md:h-2.5 md:w-2.5",
                   isCurrent
-                    ? "border-2 border-muted-foreground/60 bg-background animate-pulse"
+                    ? "border-2 border-muted-foreground/60 bg-background"
                     : "border-0 bg-muted-foreground/40"
                 )}
                 aria-hidden
@@ -47,7 +52,7 @@ export function WorkExperienceSection() {
                   </p>
                 )}
               </div>
-            </li>
+            </ScrollReveal>
             )
           })}
         </ul>

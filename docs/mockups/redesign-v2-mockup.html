@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portfolio Redesign v2 — Steven Dempster</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Space+Grotesk:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* ============================================
+       DESIGN TOKENS
+       ============================================ */
+    :root {
+      --bg: hsl(0 0% 98%);
+      --fg: hsl(240 14.3% 2.7%);
+      --card: hsl(0 0% 100%);
+      --primary: hsl(227 77.2% 50.2%);
+      --primary-fg: hsl(0 0% 100%);
+      --accent: hsl(339 100% 55.1%);
+      --muted: hsl(0 0% 96%);
+      --muted-fg: hsl(240 7.1% 38.8%);
+      --border: hsl(0 0% 90%);
+      --radius: 0.625rem;
+      --container: 1400px;
+      --coming-soon: hsl(262 83% 58%);
+    }
+
+    /* ============================================
+       RESET & BASE
+       ============================================ */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .font-display { font-family: 'Inter Tight', system-ui, sans-serif; }
+
+    img { display: block; max-width: 100%; }
+    a { color: inherit; text-decoration: none; }
+
+    /* ============================================
+       CONTAINER
+       ============================================ */
+    .container {
+      max-width: var(--container);
+      margin: 0 auto;
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+    @media (min-width: 768px) {
+      .container { padding-left: 1.5rem; padding-right: 1.5rem; }
+    }
+    @media (min-width: 1024px) {
+      .container { padding-left: 2rem; padding-right: 2rem; }
+    }
+
+    /* ============================================
+       HEADER — with nav links
+       ============================================ */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: hsla(0 0% 98% / 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+    }
+    @media (min-width: 768px) { .header-inner { height: 64px; } }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: 'Inter Tight', sans-serif;
+      font-size: 1.125rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+    @media (min-width: 768px) { .header-brand { font-size: 1.25rem; } }
+
+    .header-brand img {
+      width: 24px; height: 24px; border-radius: 50%;
+    }
+    @media (min-width: 768px) { .header-brand img { width: 28px; height: 28px; } }
+
+    .header-nav {
+      display: none;
+      list-style: none;
+      gap: 1.5rem;
+      align-items: center;
+    }
+    @media (min-width: 768px) { .header-nav { display: flex; } }
+
+    .header-nav a {
+      font-size: 0.875rem;
+      color: var(--muted-fg);
+      transition: color 0.15s;
+    }
+    .header-nav a:hover { color: var(--fg); }
+
+    .theme-toggle {
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ============================================
+       HERO — generous spacing
+       ============================================ */
+    .hero {
+      border-bottom: 1px solid var(--border);
+      padding: 3rem 0 4rem;
+    }
+    @media (min-width: 768px) { .hero { padding: 4rem 0 5rem; } }
+    @media (min-width: 1024px) { .hero { padding: 5rem 0 6.5rem; } }
+
+    .hero-content { max-width: 52rem; }
+
+    .hero-greeting {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem;
+      font-size: 1rem; color: var(--muted-fg);
+    }
+    @media (min-width: 768px) { .hero-greeting { font-size: 1.125rem; } }
+
+    .hero-greeting img { width: 28px; height: 28px; border-radius: 50%; }
+    @media (min-width: 768px) { .hero-greeting img { width: 32px; height: 32px; } }
+
+    .hero h1 {
+      margin-top: 1rem;
+      font-family: 'Inter Tight', sans-serif;
+      font-size: 1.875rem; font-weight: 500;
+      line-height: 1.25; letter-spacing: -0.02em;
+    }
+    @media (min-width: 640px) { .hero h1 { font-size: 2.25rem; } }
+    @media (min-width: 768px) { .hero h1 { font-size: 3rem; } }
+    @media (min-width: 1024px) { .hero h1 { font-size: 3.75rem; } }
+
+    .text-blue { color: var(--primary); }
+    .text-pink { color: var(--accent); }
+
+    .hero-cta { margin-top: 1.5rem; }
+    @media (min-width: 768px) { .hero-cta { margin-top: 2rem; } }
+
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      height: 44px; padding: 0 1.5rem;
+      background: var(--fg); color: var(--bg);
+      font-family: 'Inter Tight', sans-serif;
+      font-size: 1rem; font-weight: 600;
+      border-radius: var(--radius); border: none; cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    @media (min-width: 768px) { .btn-primary { height: 48px; padding: 0 2rem; } }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+
+    /* ============================================
+       SECTION LABEL (matches existing component)
+       ============================================ */
+    .section-label {
+      font-family: 'Inter Tight', sans-serif;
+      font-size: 1.5rem; font-weight: 500; letter-spacing: -0.02em;
+      display: flex; align-items: baseline; gap: 0.5rem;
+    }
+    @media (min-width: 768px) { .section-label { font-size: 1.875rem; } }
+    .section-label .num { font-weight: 400; color: var(--muted-fg); }
+
+    /* ============================================
+       SECTION 01: RECENT WORK
+       Exploring folded in. Tools inline.
+       Same work structure as current site.
+       Projects less cardy.
+       ============================================ */
+    .work-section {
+      padding: 3rem 0 3.5rem;
+    }
+    @media (min-width: 768px) { .work-section { padding: 4rem 0 4.5rem; } }
+    @media (min-width: 1024px) { .work-section { padding: 5rem 0 5.5rem; } }
+
+    .work-intro {
+      margin-top: 1.25rem;
+      max-width: 40rem;
+      color: var(--muted-fg);
+      font-size: 0.9375rem; line-height: 1.7;
+    }
+    @media (min-width: 768px) { .work-intro { font-size: 1rem; margin-top: 1.5rem; } }
+
+    .tools-inline {
+      margin-top: 1rem;
+      display: flex; flex-wrap: wrap; align-items: center; gap: 0.375rem;
+      font-size: 0.875rem; color: var(--muted-fg);
+    }
+    .tools-inline .tool-label { font-weight: 500; color: var(--fg); margin-right: 0.25rem; }
+    .tools-inline .tool-sep { color: var(--border); }
+
+    /* Repo links (same style as current ExploringSection) */
+    .repo-list {
+      margin-top: 1rem;
+      display: flex; flex-direction: column; gap: 0.75rem; list-style: none;
+    }
+    @media (min-width: 640px) { .repo-list { flex-direction: row; gap: 1rem; } }
+
+    .repo-link {
+      display: flex; align-items: flex-start; gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      border-radius: 0.75rem;
+      border: 1px solid var(--border);
+      background: hsl(0 0% 96% / 0.3);
+      min-height: 4.5rem;
+      transition: background 0.15s;
+    }
+    .repo-link:hover { background: hsl(0 0% 96% / 0.5); }
+
+    .repo-link-text { flex: 1; min-width: 0; }
+    .repo-link-text .name { font-family: 'Inter Tight', sans-serif; font-weight: 500; }
+    .repo-link-text .desc { margin-top: 0.125rem; font-size: 0.875rem; color: var(--muted-fg); }
+    .repo-link .arrow { flex-shrink: 0; font-size: 0.875rem; color: var(--muted-fg); }
+
+    /* Sub-section headings (Work projects / Vibe coded prototypes) */
+    .work-subheading {
+      margin-top: 2.5rem;
+      font-family: 'Inter Tight', sans-serif;
+      font-size: 1.125rem; font-weight: 500;
+      letter-spacing: -0.01em;
+      color: var(--muted-fg);
+    }
+    @media (min-width: 768px) { .work-subheading { font-size: 1.25rem; margin-top: 3rem; } }
+
+    .work-subtext {
+      margin-top: 1rem;
+      max-width: 40rem;
+      font-size: 0.875rem; color: var(--muted-fg); line-height: 1.7;
+    }
+    @media (min-width: 768px) { .work-subtext { font-size: 0.9375rem; margin-top: 1.25rem; } }
+
+    /* ── Project grid — LESS CARDY ──
+       No outer border/bg/shadow. Image + text sit on the page.
+       The browser mockup image IS the visual container.
+       Hover lifts just the image. */
+    .project-grid {
+      margin-top: 1.25rem;
+      display: grid; grid-template-columns: 1fr; gap: 2rem;
+    }
+    @media (min-width: 640px) { .project-grid { grid-template-columns: repeat(2, 1fr); gap: 1.5rem; } }
+    @media (min-width: 1024px) { .project-grid { gap: 2rem; } }
+
+    .project-block {
+      display: block;
+    }
+    .project-block:hover .browser-mockup {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }
+
+    /* Browser mockup — no dots, just URL bar */
+    .browser-mockup {
+      border-radius: 0.625rem;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      background: var(--card);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .browser-bar {
+      display: flex; align-items: center;
+      height: 32px; padding: 0 0.75rem;
+      border-bottom: 1px solid var(--border);
+      background: hsl(0 0% 96% / 0.5);
+    }
+
+    .browser-url {
+      flex: 1; text-align: center;
+      font-size: 0.625rem; color: var(--muted-fg);
+      background: hsla(0 0% 98% / 0.8);
+      border-radius: 4px; padding: 2px 12px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    .browser-viewport {
+      position: relative; aspect-ratio: 16 / 9; background: var(--muted);
+    }
+    .browser-viewport img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* Project text — sits directly below the mockup, no card wrapper */
+    .project-text { margin-top: 1rem; }
+
+    .project-title {
+      font-family: 'Inter Tight', sans-serif;
+      font-size: 1.125rem; font-weight: 500;
+      letter-spacing: -0.01em; line-height: 1.35;
+    }
+    @media (min-width: 768px) { .project-title { font-size: 1.25rem; } }
+
+    .project-subtitle {
+      margin-top: 0.25rem;
+      font-size: 0.875rem; color: var(--muted-fg);
+    }
+
+    /* Coming soon badge */
+    .badge-coming-soon {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 999px;
+      background: var(--coming-soon);
+      color: white;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      margin-bottom: 0.75rem;
+    }
+
+    /* Image-only mockup (no browser chrome) */
+    .image-mockup {
+      border-radius: 0.625rem;
+      overflow: hidden;
+      background: var(--muted);
+      position: relative;
+      aspect-ratio: 16 / 9;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .project-block:hover .image-mockup {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }
+    .image-mockup img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* ============================================
+       SECTION 02: WORK EXPERIENCE
+       — bg shift (muted), no border-t
+       — no pulse on marker
+       ============================================ */
+    .experience-section {
+      background: var(--muted);
+      padding: 3rem 0;
+    }
+    @media (min-width: 768px) { .experience-section { padding: 4rem 0; } }
+    @media (min-width: 1024px) { .experience-section { padding: 5rem 0; } }
+
+    .timeline {
+      margin-top: 2rem; position: relative;
+      padding-left: 1.5rem; list-style: none;
+    }
+    @media (min-width: 768px) { .timeline { margin-top: 2.5rem; padding-left: 2rem; } }
+
+    .timeline::before {
+      content: ''; position: absolute;
+      left: 3.5px; top: 0; bottom: 0;
+      width: 1px; background: var(--border);
+    }
+    @media (min-width: 768px) { .timeline::before { left: 4.5px; } }
+
+    .timeline-item {
+      position: relative; padding-bottom: 2.5rem;
+    }
+    @media (min-width: 768px) { .timeline-item { padding-bottom: 3rem; } }
+    .timeline-item:last-child { padding-bottom: 0; }
+
+    .timeline-marker {
+      position: absolute; left: -1.5rem; top: 6px;
+      width: 8px; height: 8px; border-radius: 50%;
+      z-index: 1;
+    }
+    @media (min-width: 768px) {
+      .timeline-marker { left: -2rem; top: 8px; width: 10px; height: 10px; }
+    }
+
+    .timeline-marker.current {
+      background: var(--bg);
+      border: 2px solid var(--muted-fg);
+    }
+    .timeline-marker.past {
+      background: hsl(240 7.1% 70%);
+    }
+
+    .timeline-period {
+      font-size: 0.75rem; font-weight: 400;
+      text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted-fg);
+    }
+    @media (min-width: 768px) { .timeline-period { font-size: 0.8125rem; } }
+
+    .timeline-role {
+      margin-top: 0.375rem;
+      font-family: 'Inter Tight', sans-serif;
+      font-size: 1.125rem; font-weight: 500;
+    }
+    @media (min-width: 768px) { .timeline-role { font-size: 1.25rem; } }
+
+    .timeline-desc {
+      margin-top: 0.5rem;
+      font-size: 0.875rem; line-height: 1.7; color: var(--muted-fg); max-width: 60ch;
+    }
+    @media (min-width: 768px) { .timeline-desc { font-size: 0.9375rem; } }
+
+    /* ============================================
+       SECTION 03: TESTIMONIALS
+       — Cards kept, but NO stars
+       ============================================ */
+    .testimonials-section {
+      padding: 3rem 0;
+      border-top: 1px solid var(--border);
+    }
+    @media (min-width: 768px) { .testimonials-section { padding: 4rem 0; } }
+    @media (min-width: 1024px) { .testimonials-section { padding: 5rem 0; } }
+
+    .testimonial-grid {
+      margin-top: 2rem;
+      display: grid; grid-template-columns: 1fr;
+      gap: 1rem; list-style: none;
+    }
+    @media (min-width: 768px) {
+      .testimonial-grid { grid-template-columns: repeat(2, 1fr); gap: 1.25rem; margin-top: 2.5rem; }
+    }
+    @media (min-width: 1024px) {
+      .testimonial-grid { grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+    }
+
+    .testimonial-card {
+      display: flex; flex-direction: column;
+      border-radius: 1rem;
+      border: 1px solid var(--border);
+      background: var(--card);
+      padding: 1.25rem;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    }
+    @media (min-width: 768px) { .testimonial-card { padding: 1.5rem; } }
+
+    .testimonial-card.featured {
+      grid-column: span 1;
+    }
+    @media (min-width: 768px) { .testimonial-card.featured { grid-column: span 2; } }
+
+    .testimonial-header {
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem;
+    }
+
+    .testimonial-name {
+      font-family: 'Inter Tight', sans-serif;
+      font-size: 1.125rem; font-weight: 500;
+    }
+    @media (min-width: 768px) { .testimonial-name { font-size: 1.25rem; } }
+
+    .testimonial-role {
+      margin-top: 0.125rem;
+      font-size: 0.8125rem; color: var(--muted-fg);
+    }
+
+    .testimonial-avatar {
+      width: 48px; height: 48px; border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--muted);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Inter Tight', sans-serif;
+      font-size: 0.8125rem; font-weight: 500; color: var(--muted-fg);
+      flex-shrink: 0;
+    }
+    @media (min-width: 768px) { .testimonial-avatar { width: 56px; height: 56px; } }
+
+    .testimonial-quote {
+      margin-top: 1rem; flex: 1;
+      font-size: 0.9375rem; line-height: 1.6;
+    }
+    @media (min-width: 768px) { .testimonial-quote { font-size: 1rem; } }
+
+    /* No stars — removed entirely */
+
+    /* ============================================
+       SECTION 04: BEYOND THE PIXELS
+       — bg shift (muted), same photo grid
+       ============================================ */
+    .about-section {
+      background: var(--muted);
+      padding: 3rem 0;
+    }
+    @media (min-width: 768px) { .about-section { padding: 4rem 0; } }
+    @media (min-width: 1024px) { .about-section { padding: 5rem 0; } }
+
+    .about-intro {
+      margin-top: 1rem; max-width: 36rem;
+      font-size: 0.9375rem; color: var(--muted-fg); line-height: 1.7;
+    }
+    @media (min-width: 768px) { .about-intro { font-size: 1rem; margin-top: 1.25rem; } }
+
+    .masonry-grid {
+      margin-top: 2rem;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-auto-rows: 160px;
+      gap: 0.75rem;
+    }
+    @media (min-width: 768px) {
+      .masonry-grid { grid-template-columns: repeat(3, 1fr); grid-auto-rows: 180px; gap: 1rem; }
+    }
+    @media (min-width: 1024px) {
+      .masonry-grid { grid-template-columns: repeat(4, 1fr); grid-auto-rows: 200px; }
+    }
+
+    .masonry-item {
+      border-radius: var(--radius); overflow: hidden;
+      position: relative; background: hsl(240 6% 85%);
+    }
+    .masonry-item img { width: 100%; height: 100%; object-fit: cover; }
+    .masonry-item.tall { grid-row: span 2; }
+    .masonry-item.full-tall { grid-row: span 3; }
+    .masonry-item.wide { grid-column: span 2; }
+
+    .pull-quote-card {
+      grid-column: span 2;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      display: flex; flex-direction: column; justify-content: center;
+    }
+    .pull-quote-card .quote-text {
+      font-family: 'Inter Tight', sans-serif;
+      font-size: 1rem; font-weight: 500; line-height: 1.4;
+    }
+    @media (min-width: 768px) { .pull-quote-card .quote-text { font-size: 1.125rem; } }
+    .pull-quote-card .quote-label {
+      margin-top: 0.75rem;
+      font-size: 0.6875rem; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--muted-fg);
+    }
+
+    /* ============================================
+       CONTACT — left aligned, reworded
+       ============================================ */
+    .contact-section {
+      padding: 3.5rem 0;
+      border-top: 1px solid var(--border);
+    }
+    @media (min-width: 768px) { .contact-section { padding: 4.5rem 0; } }
+    @media (min-width: 1024px) { .contact-section { padding: 5.5rem 0; } }
+
+    .contact-section h2 {
+      font-family: 'Inter Tight', sans-serif;
+      font-size: 1.5rem; font-weight: 500; letter-spacing: -0.02em;
+    }
+    @media (min-width: 768px) { .contact-section h2 { font-size: 1.875rem; } }
+
+    .contact-sub {
+      margin-top: 0.5rem;
+      font-size: 0.9375rem; color: var(--muted-fg);
+    }
+    @media (min-width: 768px) { .contact-sub { font-size: 1rem; } }
+
+    .contact-actions {
+      margin-top: 2rem;
+      display: flex; flex-direction: column; gap: 0.75rem;
+    }
+    @media (min-width: 640px) { .contact-actions { flex-direction: row; gap: 1rem; } }
+
+    .btn-contact {
+      display: inline-flex; align-items: center; justify-content: center;
+      gap: 0.5rem; min-height: 44px; padding: 0 1.25rem;
+      font-family: 'Inter Tight', sans-serif;
+      font-size: 1rem; font-weight: 500;
+      border-radius: var(--radius);
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-contact:hover { transform: translateY(-1px); }
+    .btn-contact.primary {
+      background: var(--fg); color: var(--bg);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    }
+    .btn-contact.secondary {
+      background: transparent; color: var(--fg);
+      border-color: var(--border);
+    }
+
+    .btn-icon { width: 20px; height: 20px; flex-shrink: 0; }
+
+    /* ============================================
+       TOOL ICONS BAR — kept from current site
+       ============================================ */
+    .tool-icons-section {
+      border-top: 1px solid var(--border);
+      padding: 1.5rem 0;
+    }
+    @media (min-width: 768px) { .tool-icons-section { padding: 2rem 0; } }
+
+    .tool-icons-row {
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 1rem;
+    }
+    @media (min-width: 768px) { .tool-icons-row { gap: 1.5rem; } }
+
+    .tool-icon-box {
+      width: 48px; height: 48px;
+      border-radius: 0.75rem;
+      border: 1px solid var(--border);
+      background: hsl(0 0% 96% / 0.8);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+      transition: background 0.15s;
+      flex-shrink: 0;
+    }
+    @media (min-width: 768px) { .tool-icon-box { width: 56px; height: 56px; } }
+    .tool-icon-box:hover { background: var(--muted); }
+
+    .tool-icon-box span {
+      font-family: 'Inter Tight', sans-serif;
+      font-size: 0.6875rem; font-weight: 600;
+      color: var(--muted-fg); text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    /* ============================================
+       FOOTER — simplified
+       ============================================ */
+    .site-footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem 0;
+    }
+    @media (min-width: 768px) { .site-footer { padding: 2.5rem 0; } }
+
+    .footer-inner {
+      display: flex; flex-direction: column; gap: 0.5rem;
+    }
+    @media (min-width: 768px) {
+      .footer-inner { flex-direction: row; justify-content: space-between; align-items: center; }
+    }
+
+    .footer-name {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-family: 'Inter Tight', sans-serif;
+      font-size: 0.875rem; font-weight: 500;
+    }
+    .footer-name img { width: 20px; height: 20px; border-radius: 50%; }
+    .footer-copy { font-size: 0.875rem; color: var(--muted-fg); }
+
+    /* ============================================
+       MOCKUP LABEL
+       ============================================ */
+    .mockup-banner {
+      background: var(--primary); color: white;
+      text-align: center; padding: 10px 16px;
+      font-family: 'Inter Tight', sans-serif;
+      font-size: 0.8125rem; font-weight: 600;
+      letter-spacing: 0.04em; text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="mockup-banner">Redesign v2 Mockup — Not Live Code</div>
+
+  <!-- ============================================
+       HEADER
+       ============================================ -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="#" class="header-brand">
+        Steven Dempster
+        <img src="../../public/avatar.png" alt="" />
+      </a>
+      <nav>
+        <ul class="header-nav">
+          <li><a href="#work">Work</a></li>
+          <li><a href="#experience">Experience</a></li>
+          <li><a href="#testimonials">Testimonials</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+      <button class="theme-toggle" aria-label="Toggle theme">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ============================================
+         HERO
+         ============================================ -->
+    <section class="hero">
+      <div class="container">
+        <div class="hero-content">
+          <p class="hero-greeting">
+            Hey!
+            <img src="../../public/avatar.png" alt="" />
+            I'm Steven.
+          </p>
+          <h1 class="font-display">
+            A <span class="text-blue">product design lead</span> at KPMG UK, growing a design team and exploring <span class="text-pink">AI-assisted engineering</span>.
+          </h1>
+          <div class="hero-cta">
+            <a href="#contact" class="btn-primary">Let's chat &rarr;</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================
+         SECTION 01: RECENT WORK
+         Exploring AI folded in as intro.
+         Same structure: Work projects → Vibe coded prototypes.
+         Projects are LESS CARDY — no outer border/bg.
+         ============================================ -->
+    <section id="work" class="work-section">
+      <div class="container">
+        <h2 class="section-label">
+          <span class="num">01</span>
+          <span>Recent work</span>
+        </h2>
+
+        <p class="work-intro">
+          I'm exploring AI-assisted engineering and building reusable starters in Cursor. Here are a couple of template repos I maintain.
+        </p>
+
+        <div class="tools-inline">
+          <span class="tool-label">Daily tools:</span>
+          Figma <span class="tool-sep">/</span>
+          Cursor <span class="tool-sep">/</span>
+          Claude <span class="tool-sep">/</span>
+          VS Code <span class="tool-sep">/</span>
+          Framer <span class="tool-sep">/</span>
+          Notion
+        </div>
+
+        <ul class="repo-list">
+          <li>
+            <a href="https://github.com/stdemps/prototype-starter" target="_blank" rel="noopener noreferrer" class="repo-link">
+              <div class="repo-link-text">
+                <div class="name">prototype-starter</div>
+                <div class="desc">Quick prototypes with Cursor and Next.js</div>
+              </div>
+              <span class="arrow">&nearr;</span>
+            </a>
+          </li>
+          <li>
+            <a href="https://github.com/stdemps/product-workspace" target="_blank" rel="noopener noreferrer" class="repo-link">
+              <div class="repo-link-text">
+                <div class="name">product-workspace</div>
+                <div class="desc">Design-to-dev workflow and product templates</div>
+              </div>
+              <span class="arrow">&nearr;</span>
+            </a>
+          </li>
+        </ul>
+
+        <!-- Work projects sub-section (same as current) -->
+        <h3 class="work-subheading">Work projects</h3>
+        <p class="work-subtext">
+          I'm not able to make these projects publicly available. If you'd like to see them, get in touch and I can share them securely.
+        </p>
+
+        <!-- Vibe coded prototypes -->
+        <h3 class="work-subheading">Vibe coded prototypes</h3>
+
+        <div class="project-grid">
+          <!-- Kraken Weddings — less cardy: no outer card, just image + text -->
+          <a href="https://kraken-weddings.vercel.app" target="_blank" rel="noopener noreferrer" class="project-block">
+            <div class="browser-mockup">
+              <div class="browser-bar">
+                <div class="browser-url">kraken-weddings.vercel.app</div>
+              </div>
+              <div class="browser-viewport">
+                <img src="../../public/projects/kraken-weddings.png" alt="Kraken Weddings homepage" />
+              </div>
+            </div>
+            <div class="project-text">
+              <h3 class="project-title font-display">From idea to live site in a weekend — a musician needed a stage online</h3>
+              <p class="project-subtitle">Kraken Weddings</p>
+            </div>
+          </a>
+
+          <!-- Peony Blooms -->
+          <a href="https://flower-delivery-proto.vercel.app/" target="_blank" rel="noopener noreferrer" class="project-block">
+            <div class="browser-mockup">
+              <div class="browser-bar">
+                <div class="browser-url">flower-delivery-proto.vercel.app</div>
+              </div>
+              <div class="browser-viewport">
+                <img src="../../public/projects/flower-delivery-proto.png" alt="Peony Blooms landing page" />
+              </div>
+            </div>
+            <div class="project-text">
+              <h3 class="project-title font-display">Turning a local florist's side-hustle into a polished online storefront</h3>
+              <p class="project-subtitle">Peony Blooms</p>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================
+         SECTION 02: WORK EXPERIENCE
+         — bg shift, no border-t, no pulse
+         ============================================ -->
+    <section id="experience" class="experience-section">
+      <div class="container">
+        <h2 class="section-label">
+          <span class="num">02</span>
+          <span>Work experience</span>
+        </h2>
+
+        <ul class="timeline">
+          <li class="timeline-item">
+            <span class="timeline-marker current"></span>
+            <div>
+              <p class="timeline-period">Oct, 2024 — Current</p>
+              <p class="timeline-role font-display">Product Design Lead, KPMG UK</p>
+              <p class="timeline-desc">Leading and growing a product design team within KPMG UK's Tax Technology practice. Setting the design direction across a portfolio of internal and client-facing products, embedding design thinking into engineering workflows, and championing AI-assisted development to accelerate delivery.</p>
+            </div>
+          </li>
+          <li class="timeline-item">
+            <span class="timeline-marker past"></span>
+            <div>
+              <p class="timeline-period">Oct, 2022 — 2024</p>
+              <p class="timeline-role font-display">Product Designer, KPMG UK</p>
+              <p class="timeline-desc">Established and grew a product design function from the ground up, introducing a design system that reduced handoff time by 66% and accelerated product launches by 75%. Drove a 75% improvement in launch speed and reshaped the experience across the entire product suite into a cohesive, modern standard.</p>
+            </div>
+          </li>
+          <li class="timeline-item">
+            <span class="timeline-marker past"></span>
+            <div>
+              <p class="timeline-period">Feb, 2020 — Sep, 2022</p>
+              <p class="timeline-role font-display">Senior Product Analyst, KPMG UK</p>
+              <p class="timeline-desc">Standardised our client onboarding to simplify processes and serve a wider audience. Led the design and delivery of a digital service portal which guides our servicing teams through the onboarding processes, integrating with our CRM - MSDynamics, reducing admin and ensuring data accuracy and improved client management. Boosted team morale and knowledge sharing through a bi-weekly skill share program.</p>
+            </div>
+          </li>
+          <li class="timeline-item">
+            <span class="timeline-marker past"></span>
+            <div>
+              <p class="timeline-period">Sep, 2018 — Feb, 2020</p>
+              <p class="timeline-role font-display">Product Analyst, Tesco Bank</p>
+              <p class="timeline-desc">Delivered on multiple projects like the Savings Comparison Tool and revamped Clubcard & Travel Money features, making financial decisions easier for millions. Championed a database solution saving content creators an hour per rate change, and streamlined teamwork for faster product delivery.</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============================================
+         SECTION 03: TESTIMONIALS
+         — Same card layout, NO stars
+         ============================================ -->
+    <section id="testimonials" class="testimonials-section">
+      <div class="container">
+        <h2 class="section-label">
+          <span class="num">03</span>
+          <span>Testimonials</span>
+        </h2>
+
+        <ul class="testimonial-grid">
+          <!-- Featured: Oli Dockray -->
+          <li>
+            <article class="testimonial-card featured">
+              <div class="testimonial-header">
+                <div>
+                  <h3 class="testimonial-name font-display">Oli Dockray</h3>
+                  <p class="testimonial-role">Partner Tax Tech & Innovation</p>
+                </div>
+                <div class="testimonial-avatar">OD</div>
+              </div>
+              <p class="testimonial-quote">Hugely impressed by your commitment, approach and methodology. The design/UX work you've done during your time with us is fantastic, enabling us to build a consistent experience across our product suite.</p>
+            </article>
+          </li>
+
+          <!-- Jamie Richards -->
+          <li>
+            <article class="testimonial-card">
+              <div class="testimonial-header">
+                <div>
+                  <h3 class="testimonial-name font-display">Jamie Richards</h3>
+                  <p class="testimonial-role">Director Tax Tech & Innovation</p>
+                </div>
+                <div class="testimonial-avatar">JR</div>
+              </div>
+              <p class="testimonial-quote">Steven's a creative force, constantly devising modern designs with a user-centric approach. He's revamped the portals for a contemporary and personalised feel, showcasing his keen understanding of user experience.</p>
+            </article>
+          </li>
+
+          <!-- Siva Kumar Pandurao -->
+          <li>
+            <article class="testimonial-card">
+              <div class="testimonial-header">
+                <div>
+                  <h3 class="testimonial-name font-display">Siva Kumar Pandurao</h3>
+                  <p class="testimonial-role">Product Owner</p>
+                </div>
+                <div class="testimonial-avatar">SK</div>
+              </div>
+              <p class="testimonial-quote">Steven brings a rare blend of creativity and structure. His designs are not only visually compelling but also deeply considered from a user and business perspective. A real asset to any product team.</p>
+            </article>
+          </li>
+
+          <!-- Featured: Sinu Babu -->
+          <li>
+            <article class="testimonial-card featured">
+              <div class="testimonial-header">
+                <div>
+                  <h3 class="testimonial-name font-display">Sinu Babu</h3>
+                  <p class="testimonial-role">Lead Software Engineer</p>
+                </div>
+                <div class="testimonial-avatar">SB</div>
+              </div>
+              <p class="testimonial-quote">Your Figma mockups, crafted with a keen eye and analytical mind, have been instrumental in APEX development. Your approachable nature fosters collaboration, with junior team members readily seeking and receiving your valuable insights. You're also open to feedback, making you a true asset.</p>
+            </article>
+          </li>
+
+          <!-- Featured: Shubhangi Jagtap -->
+          <li>
+            <article class="testimonial-card featured">
+              <div class="testimonial-header">
+                <div>
+                  <h3 class="testimonial-name font-display">Shubhangi Jagtap</h3>
+                  <p class="testimonial-role">Senior Software Developer</p>
+                </div>
+                <div class="testimonial-avatar">SJ</div>
+              </div>
+              <p class="testimonial-quote">Steven's deep business knowledge and analytical skills shaped our product during Research & Design. He seamlessly filled the vacant product owner role, perfectly bridging business and development. He really went above and beyond.</p>
+            </article>
+          </li>
+
+          <!-- Rozlynn Jacobs -->
+          <li>
+            <article class="testimonial-card">
+              <div class="testimonial-header">
+                <div>
+                  <h3 class="testimonial-name font-display">Rozlynn Jacobs</h3>
+                  <p class="testimonial-role">Senior Business Analyst</p>
+                </div>
+                <div class="testimonial-avatar">RJ</div>
+              </div>
+              <p class="testimonial-quote">You always go over and above what you need to do to help make the project function in the best way possible. Your mock ups, usability studies and demos are excellent. The business area really like this approach.</p>
+            </article>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============================================
+         SECTION 04: BEYOND THE PIXELS
+         — bg shift, typo fixed
+         ============================================ -->
+    <section id="about" class="about-section">
+      <div class="container">
+        <h2 class="section-label">
+          <span class="num">04</span>
+          <span>Beyond the pixels</span>
+        </h2>
+
+        <p class="about-intro">
+          Outside of work, I'm either gigging, playing 5-a-side football, or hanging out with my partner and dog.
+        </p>
+
+        <div class="masonry-grid">
+          <div class="masonry-item full-tall">
+            <img src="../../public/about/LiveBass.jpg" alt="Playing bass on stage" />
+          </div>
+          <div class="masonry-item wide">
+            <img src="../../public/about/Studio.jpg" alt="Recording in the studio" />
+          </div>
+          <div class="masonry-item tall">
+            <img src="../../public/about/Cory.jpeg" alt="Night out" />
+          </div>
+          <div class="masonry-item tall">
+            <img src="../../public/about/Reggie.jpg" alt="Reggie the French Bulldog" />
+          </div>
+          <div class="masonry-item">
+            <img src="../../public/about/Recent 5s champion.jpg" alt="5-a-side football champions" />
+          </div>
+          <div class="pull-quote-card">
+            <p class="quote-text">&ldquo;The best design work happens when you can bridge the gap between a messy problem and a clear, well-sequenced plan.&rdquo;</p>
+            <span class="quote-label">Design philosophy</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================
+         CONTACT — left aligned, reworded
+         ============================================ -->
+    <section id="contact" class="contact-section">
+      <div class="container">
+        <h2 class="font-display">Want to collaborate or chat about design?</h2>
+        <p class="contact-sub">I'm always happy to connect — whether it's about a project, a role, or just swapping ideas.</p>
+
+        <div class="contact-actions">
+          <a href="mailto:steven.dempster@hotmail.co.uk" class="btn-contact primary">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            Email
+          </a>
+          <a href="https://www.linkedin.com/in/steven-dempster" target="_blank" rel="noopener noreferrer" class="btn-contact secondary">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
+            LinkedIn
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================
+         TOOL ICONS — kept from current site
+         ============================================ -->
+    <section class="tool-icons-section" aria-label="Tools in my stack">
+      <div class="container">
+        <div class="tool-icons-row">
+          <a href="https://figma.com" target="_blank" rel="noopener noreferrer" class="tool-icon-box" title="Figma"><span>Fig</span></a>
+          <a href="https://framer.com" target="_blank" rel="noopener noreferrer" class="tool-icon-box" title="Framer"><span>Fra</span></a>
+          <a href="https://cursor.com" target="_blank" rel="noopener noreferrer" class="tool-icon-box" title="Cursor"><span>Cur</span></a>
+          <a href="https://code.visualstudio.com" target="_blank" rel="noopener noreferrer" class="tool-icon-box" title="VS Code"><span>VS</span></a>
+          <a href="https://notion.so" target="_blank" rel="noopener noreferrer" class="tool-icon-box" title="Notion"><span>Not</span></a>
+          <a href="https://anthropic.com" target="_blank" rel="noopener noreferrer" class="tool-icon-box" title="Claude"><span>Cla</span></a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============================================
+       FOOTER — simplified (no "Built with Next.js")
+       ============================================ -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p class="footer-name">
+        Steven Dempster
+        <img src="../../public/avatar.png" alt="" />
+      </p>
+      <p class="footer-copy">&copy; 2026 Steven Dempster</p>
+    </div>
+  </footer>
+
+</body>
+</html>

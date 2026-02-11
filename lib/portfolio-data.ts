@@ -66,6 +66,17 @@ export interface Testimonial {
   featured?: boolean
 }
 
+export interface AboutImage {
+  id: string
+  /** Path under /public (e.g. "/about/gig.jpg") */
+  src: string
+  alt: string
+  /** Grid span: "tall" = span 2 rows, "full-tall" = span all rows, "wide" = span 2 cols */
+  span?: "tall" | "full-tall" | "wide"
+  /** When true, image spans full width (2 cols) on mobile only */
+  fullWidthMobile?: boolean
+}
+
 export const site = {
   name: "Steven Dempster",
   /** Avatar image path (replaces emoji in header, hero, footer). Also used as favicon. */
@@ -78,9 +89,22 @@ export const site = {
   about: "",
 }
 
+export const aboutQuote =
+  "The best design work happens when you can bridge the gap between a messy problem and a clear, well-sequenced plan."
+
+export const aboutImages: AboutImage[] = [
+  { id: "live-bass", src: "/about/LiveBass.jpg", alt: "Playing bass on stage", span: "full-tall", fullWidthMobile: true },
+  { id: "studio", src: "/about/Studio.jpg", alt: "Recording in the studio", span: "wide" },
+  { id: "cory", src: "/about/Cory.jpeg", alt: "Night out", span: "tall" },
+  { id: "reggie", src: "/about/Reggie.jpg", alt: "Reggie the French Bulldog", span: "tall" },
+  { id: "five-a-side", src: "/about/Recent 5s champion.jpg", alt: "5-a-side football champions", fullWidthMobile: true },
+]
+
 /** Label for the personal/prototype projects group in the work section */
 export const workSectionLabels = {
   recentWork: "Recent work",
+  aiIntro:
+    "I'm exploring AI-assisted engineering — vibe coding prototypes and building reusable starters to make our product team AI-native.",
   workProjects: "Work projects",
   workProjectsDescription:
     "I'm not able to make these projects publicly available. If you'd like to see them, get in touch and I can share them securely.",
