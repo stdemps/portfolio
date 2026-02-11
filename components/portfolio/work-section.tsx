@@ -34,7 +34,7 @@ export function WorkSection() {
         {/* Template repo links */}
         <ul className="mt-6 flex list-none flex-col gap-3 sm:flex-row sm:gap-4">
           {templateRepos.map((repo, i) => (
-            <ScrollReveal as="li" key={repo.name} delay={i * 80}>
+            <ScrollReveal asListItem key={repo.name} delay={i * 80}>
               <a
                 href={repo.href}
                 target="_blank"
@@ -86,7 +86,7 @@ export function WorkSection() {
           )}
         >
           {prototypeProjects.map((project, i) => (
-            <ScrollReveal as="li" key={project.id} delay={i * 100} className="min-h-0">
+            <ScrollReveal asListItem key={project.id} delay={i * 100} className="min-h-0">
               <ProjectBlock project={project} className="h-full" />
             </ScrollReveal>
           ))}

@@ -20,7 +20,7 @@ export function WorkExperienceSection() {
             const isCurrent = item.period?.toUpperCase().includes("CURRENT")
             return (
             <ScrollReveal
-              as="li"
+              asListItem
               key={`${item.title}-${item.employer}-${index}`}
               delay={index * 60}
               className="relative flex gap-4"

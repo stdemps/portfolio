@@ -20,7 +20,7 @@ export function TestimonialsSection() {
         >
           {testimonials.map((t, i) => (
             <ScrollReveal
-              as="li"
+              asListItem
               key={t.id}
               delay={i * 60}
               className={cn(
