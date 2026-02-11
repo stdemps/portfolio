@@ -68,11 +68,12 @@ export interface Testimonial {
 
 export const site = {
   name: "Steven Dempster",
-  emoji: "👋",
+  /** Avatar image path (replaces emoji in header, hero, footer). Also used as favicon. */
+  avatar: "/avatar.png",
   tagline: "Product design lead building and scaling a design practice at KPMG UK — shipping real products with AI-assisted development.",
-  heroGreeting: "Hey! 👋 I'm Steven.",
+  heroGreeting: "Hey! I'm Steven.",
   email: "steven.dempster@hotmail.co.uk",
-  linkedIn: "https://linkedin.com/in/stevendempster",
+  linkedIn: "https://www.linkedin.com/in/steven-dempster",
   resumeUrl: undefined as string | undefined,
   about: "",
 }

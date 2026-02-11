@@ -1,3 +1,4 @@
+import Image from "next/image"
 import Link from "next/link"
 import { site } from "@/lib/portfolio-data"
 import { ThemeToggle } from "@/components/theme-toggle"
@@ -8,10 +9,18 @@ export function SiteHeader() {
       <div className="container flex h-14 md:h-16 items-center justify-between px-4 md:px-6 lg:px-8">
         <Link
           href="/"
-          className="font-display text-lg font-semibold tracking-tight text-foreground md:text-xl"
+          className="flex items-center gap-2 font-display text-lg font-semibold tracking-tight text-foreground md:text-xl"
           aria-label={`${site.name} — home`}
         >
-          {site.name} {site.emoji}
+          {site.name}{" "}
+          <Image
+            src={site.avatar}
+            alt=""
+            width={24}
+            height={24}
+            className="h-6 w-6 md:h-7 md:w-7"
+            aria-hidden
+          />
         </Link>
         <ThemeToggle />
       </div>
