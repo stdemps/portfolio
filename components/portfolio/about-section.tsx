@@ -4,6 +4,21 @@ import { SectionLabel } from "./section-label"
 import { ScrollReveal } from "@/components/scroll-reveal"
 import { cn } from "@/lib/utils"
 
+/**
+ * Named grid areas for lg — gives full control over the 3-column layout,
+ * overriding auto-placement and all span classes at once.
+ *
+ * Pattern: portrait (1 col) left + landscape (2 cols) right, ×3 row pairs.
+ */
+const lgAreaMap: Record<string, string> = {
+  "live-bass":   "lg:[grid-area:bass]",
+  "studio":      "lg:[grid-area:studio]",
+  "cory":        "lg:[grid-area:cory]",
+  "five-a-side": "lg:[grid-area:five]",
+  "reggie":      "lg:[grid-area:reggie]",
+  "oran-mor":    "lg:[grid-area:oran]",
+}
+
 export function AboutSection() {
   return (
     <section id="about" className="scroll-mt-16 md:scroll-mt-20">
@@ -19,8 +34,9 @@ export function AboutSection() {
           <div
             className={cn(
               "mt-8 grid gap-3 md:mt-10 md:gap-4 lg:mt-12",
-              "grid-cols-2 md:grid-cols-3 lg:grid-cols-4",
-              "auto-rows-[160px] md:auto-rows-[180px] lg:auto-rows-[200px]"
+              "grid-cols-2 md:grid-cols-3",
+              "auto-rows-[160px] md:auto-rows-[180px] lg:auto-rows-[220px]",
+              "lg:[grid-template-areas:'bass_studio_studio'_'bass_studio_studio'_'cory_five_five'_'cory_five_five'_'reggie_oran_oran'_'reggie_oran_oran']"
             )}
           >
             {aboutImages.map((img) => (
@@ -30,8 +46,9 @@ export function AboutSection() {
                   "relative overflow-hidden rounded-lg bg-muted",
                   img.span === "tall" && "row-span-2",
                   img.span === "full-tall" && "row-span-3",
-                  img.span === "wide" && "col-span-2",
-                  img.fullWidthMobile && "col-span-2 md:col-span-1"
+                  img.span === "wide" && "col-span-2 row-span-2",
+                  img.fullWidthMobile && "col-span-2 md:col-span-1",
+                  lgAreaMap[img.id]
                 )}
               >
                 <Image
@@ -41,10 +58,10 @@ export function AboutSection() {
                   className="object-cover"
                   sizes={
                     img.span === "wide"
-                      ? "(max-width: 768px) 100vw, 50vw"
+                      ? "(max-width: 768px) 100vw, 66vw"
                       : img.fullWidthMobile
-                        ? "(max-width: 768px) 100vw, 25vw"
-                        : "(max-width: 768px) 50vw, 25vw"
+                        ? "(max-width: 768px) 100vw, 33vw"
+                        : "(max-width: 768px) 50vw, 33vw"
                   }
                 />
               </div>
