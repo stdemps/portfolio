@@ -97,7 +97,7 @@ export const aboutImages: AboutImage[] = [
   { id: "studio", src: "/about/Studio.jpg", alt: "Recording in the studio", span: "wide" },
   { id: "cory", src: "/about/Cory.jpeg", alt: "Night out", span: "tall" },
   { id: "reggie", src: "/about/Reggie.jpg", alt: "Reggie the French Bulldog", span: "tall" },
-  { id: "five-a-side", src: "/about/Recent 5s champion.jpg", alt: "5-a-side football champions", fullWidthMobile: true },
+  { id: "five-a-side", src: "/about/Recent 5s champion.jpg", alt: "5-a-side football champions", span: "wide" },
   { id: "oran-mor", src: "/about/KH Oran Mor.jpg", alt: "Band with the crowd at Oran Mor", span: "wide" },
 ]
 
