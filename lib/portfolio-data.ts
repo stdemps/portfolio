@@ -166,6 +166,8 @@ export const projects: Project[] = [
     kind: "personal",
     mockupType: "browser",
     href: "https://gigmusician-hub.vercel.app/",
+    image: "/projects/gighub.png",
+    imageAlt: "GigHub homepage: Find gigs, Book musicians — hero with sign up and browse gigs, browse by instrument (Guitar, Drums, Piano, Vocals, Bass, Other), recent opportunities.",
   },
   {
     id: "sddesigns",
