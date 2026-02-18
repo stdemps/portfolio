@@ -159,6 +159,15 @@ export const projects: Project[] = [
     imageAlt: "Peony Blooms landing page: hero with ‘Sending Joy, Simply.’ headline, Shop Daily Blooms CTA, and bouquet in vase.",
   },
   {
+    id: "gighub",
+    title: "Connecting musicians with gigs — find opportunities and get booked",
+    tagline: "GigHub — Musicians Gig Hub",
+    subtitle: "GigHub",
+    kind: "personal",
+    mockupType: "browser",
+    href: "https://gigmusician-hub.vercel.app/",
+  },
+  {
     id: "sddesigns",
     title: "SDDesigns",
     tagline: "Client-facing app for tax and actions — home and profile flows.",
