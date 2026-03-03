@@ -18,18 +18,18 @@ export function WorkExperienceSection({ carousel = false }: WorkExperienceSectio
   const [activeBank, setActiveBank] = React.useState(0)
 
   if (carousel) {
-    const bankItems: React.ReactNode[] = [
-      <div key="intro" data-moog-bank-item className="flex flex-col justify-center">
-        <SectionLabel number="02" title="Work experience" playground />
-      </div>,
-      ...workExperience.map((item, index) => {
-        const isCurrent = item.period?.toUpperCase().includes("CURRENT")
-        return (
-          <div
-            key={`${item.title}-${item.employer}-${index}`}
-            data-moog-bank-item
-            className="moog-card flex flex-col justify-center rounded-lg p-5"
-          >
+    const bankItems: React.ReactNode[] = workExperience.map((item, index) => {
+      const isCurrent = item.period?.toUpperCase().includes("CURRENT")
+      return (
+        <div
+          key={`${item.title}-${item.employer}-${index}`}
+          data-moog-bank-item
+          className="flex flex-col justify-center gap-4"
+        >
+          {index === 0 && (
+            <SectionLabel number="02" title="Work experience" playground />
+          )}
+          <div className="moog-card flex flex-col justify-center rounded-lg p-5">
             <div className="relative flex gap-4">
               <span
                 className={cn(
@@ -59,9 +59,9 @@ export function WorkExperienceSection({ carousel = false }: WorkExperienceSectio
               </div>
             </div>
           </div>
-        )
-      }),
-    ]
+        </div>
+      )
+    })
 
     const bankCount = bankItems.length
     const displayBank = bankCount > 0 ? Math.min(activeBank, bankCount - 1) : 0

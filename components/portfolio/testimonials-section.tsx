@@ -19,16 +19,14 @@ export function TestimonialsSection({ carousel = false }: TestimonialsSectionPro
   const [activeBank, setActiveBank] = React.useState(0)
 
   if (carousel) {
-    const bankItems: React.ReactNode[] = [
-      <div key="intro" data-moog-bank-item className="flex flex-col justify-center">
-        <SectionLabel number="03" title="Testimonials" playground />
-      </div>,
-      ...testimonials.map((t) => (
-        <div key={t.id} data-moog-bank-item className="flex flex-col justify-center">
-          <TestimonialCard testimonial={t} className="moog-card h-full rounded-lg" />
-        </div>
-      )),
-    ]
+    const bankItems: React.ReactNode[] = testimonials.map((t, index) => (
+      <div key={t.id} data-moog-bank-item className="flex flex-col justify-center gap-4">
+        {index === 0 && (
+          <SectionLabel number="03" title="Testimonials" playground />
+        )}
+        <TestimonialCard testimonial={t} className="moog-card h-full rounded-lg" />
+      </div>
+    ))
 
     const bankCount = bankItems.length
     const displayBank = bankCount > 0 ? Math.min(activeBank, bankCount - 1) : 0
