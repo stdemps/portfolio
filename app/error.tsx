@@ -16,7 +16,8 @@ export default function Error({
   }, [error])
 
   return (
-    <div className="container flex min-h-[60vh] flex-col items-center justify-center px-4 py-16 md:px-6 lg:px-8">
+    <main id="main" role="main" className="flex min-h-[60vh] flex-1 flex-col">
+      <div className="container flex flex-1 flex-col items-center justify-center px-4 py-16 md:px-6 lg:px-8">
       <h1 className="font-display text-2xl font-semibold text-foreground md:text-3xl">
         Something went wrong
       </h1>
@@ -24,13 +25,14 @@ export default function Error({
         We couldn’t load this page. Please try again or head back home.
       </p>
       <div className="mt-8 flex flex-wrap justify-center gap-3">
-        <Button onClick={reset} variant="default" size="lg">
+        <Button onClick={reset} variant="default" size="lg" className="min-h-[44px]">
           Try again
         </Button>
-        <Button asChild variant="outline" size="lg">
+        <Button asChild variant="outline" size="lg" className="min-h-[44px]">
           <Link href="/">Back to home</Link>
         </Button>
       </div>
-    </div>
+      </div>
+    </main>
   )
 }

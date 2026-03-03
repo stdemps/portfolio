@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { Inter_Tight, Space_Grotesk } from "next/font/google"
+import { Inter_Tight, Space_Grotesk, JetBrains_Mono, Space_Mono, VT323 } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
@@ -17,6 +17,23 @@ const spaceGrotesk = Space_Grotesk({
   variable: "--font-body",
   display: "swap",
 })
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  display: "swap",
+})
+const vt323 = VT323({
+  subsets: ["latin"],
+  variable: "--font-vfd",
+  weight: "400",
+  display: "swap",
+})
+const spaceMono = Space_Mono({
+  subsets: ["latin"],
+  variable: "--font-synth",
+  weight: ["400", "700"],
+  display: "swap",
+})
 
 export const metadata: Metadata = {
   title: `${site.name} | Product Designer`,
@@ -29,7 +46,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${interTight.variable} ${spaceGrotesk.variable}`}>
+    <html lang="en" suppressHydrationWarning className={`${interTight.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} ${spaceMono.variable} ${vt323.variable}`}>
       <body className="font-sans antialiased">
         <a
           href="#main"

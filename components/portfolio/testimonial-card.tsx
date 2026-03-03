@@ -8,11 +8,15 @@ interface TestimonialCardProps {
 }
 
 export function TestimonialCard({ testimonial, className }: TestimonialCardProps) {
-  const initials = testimonial.name
-    .split(" ")
-    .map((n) => n.charAt(0))
-    .join("")
-    .slice(0, 2)
+  const initials =
+    testimonial.name
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((n) => n.charAt(0))
+      .join("")
+      .slice(0, 2)
+      .toUpperCase() || "?"
 
   return (
     <article
@@ -22,11 +26,11 @@ export function TestimonialCard({ testimonial, className }: TestimonialCardProps
       )}
     >
       <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0">
-          <h3 className="font-display text-lg font-medium text-foreground md:text-xl">
+        <div className="min-w-0 flex-1 overflow-hidden">
+          <h3 className="truncate font-display text-lg font-medium text-foreground md:text-xl">
             {testimonial.name}
           </h3>
-          <p className="mt-0.5 text-sm text-muted-foreground">{testimonial.role}</p>
+          <p className="mt-0.5 truncate text-sm text-muted-foreground">{testimonial.role}</p>
         </div>
         <Avatar className="h-12 w-12 shrink-0 border border-border/60 md:h-14 md:w-14">
           {testimonial.avatar ? (
@@ -37,7 +41,7 @@ export function TestimonialCard({ testimonial, className }: TestimonialCardProps
           </AvatarFallback>
         </Avatar>
       </div>
-      <p className="mt-4 flex-1 text-sm leading-relaxed text-foreground md:text-base md:leading-relaxed">
+      <p className="mt-4 flex-1 overflow-hidden text-sm leading-relaxed text-foreground md:text-base md:leading-relaxed line-clamp-6">
         {testimonial.quote}
       </p>
     </article>

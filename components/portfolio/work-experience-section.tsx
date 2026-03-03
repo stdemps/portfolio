@@ -1,9 +1,98 @@
+"use client"
+
+import * as React from "react"
+import { motion, AnimatePresence } from "framer-motion"
 import { workExperience } from "@/lib/portfolio-data"
 import { cn } from "@/lib/utils"
 import { SectionLabel } from "./section-label"
 import { ScrollReveal } from "@/components/scroll-reveal"
+import { MoogBankSelector } from "./moog-bank-selector"
 
-export function WorkExperienceSection() {
+interface WorkExperienceSectionProps {
+  /** When true, render as memory bank view (playground mode) */
+  carousel?: boolean
+  onContactClick?: () => void
+}
+
+export function WorkExperienceSection({ carousel = false }: WorkExperienceSectionProps) {
+  const [activeBank, setActiveBank] = React.useState(0)
+
+  if (carousel) {
+    const bankItems: React.ReactNode[] = [
+      <div key="intro" data-moog-bank-item className="flex flex-col justify-center">
+        <SectionLabel number="02" title="Work experience" playground />
+      </div>,
+      ...workExperience.map((item, index) => {
+        const isCurrent = item.period?.toUpperCase().includes("CURRENT")
+        return (
+          <div
+            key={`${item.title}-${item.employer}-${index}`}
+            data-moog-bank-item
+            className="moog-card flex flex-col justify-center rounded-lg p-5"
+          >
+            <div className="relative flex gap-4">
+              <span
+                className={cn(
+                  "relative z-10 flex h-2 w-2 shrink-0 self-start rounded-full mt-1.5 md:mt-2 md:h-2.5 md:w-2.5",
+                  isCurrent
+                    ? "border-2 border-muted-foreground/60 bg-background"
+                    : "border-0 bg-muted-foreground/40"
+                )}
+                aria-hidden
+              />
+              <div className="min-w-0 flex-1 flex flex-col gap-2">
+                {item.period && (
+                  <p className="text-xs font-normal uppercase tracking-wide text-muted-foreground">
+                    {item.period}
+                  </p>
+                )}
+                <p className="font-synth text-lg font-semibold text-foreground">
+                  {item.title}
+                  {", "}
+                  {item.employer}
+                </p>
+                {item.description && (
+                  <p className="max-w-prose text-sm leading-relaxed text-muted-foreground">
+                    {item.description}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        )
+      }),
+    ]
+
+    const bankCount = bankItems.length
+    const displayBank = bankCount > 0 ? Math.min(activeBank, bankCount - 1) : 0
+
+    return (
+      <section id="experience" className="flex h-full flex-col">
+        <div className="moog-screen-bank h-full w-full">
+          <div className="moog-screen-bank-content flex flex-1 flex-col px-4 py-5 md:px-6 md:py-6">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={displayBank}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                className="flex min-h-0 flex-1 flex-col justify-center"
+              >
+                {bankItems[displayBank]}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+          <MoogBankSelector
+            bankCount={bankCount}
+            activeBank={displayBank}
+            onSelect={setActiveBank}
+          />
+        </div>
+      </section>
+    )
+  }
+
   return (
     <section id="experience" className="scroll-mt-16 border-t border-border/60 md:scroll-mt-20">
       <div className="container px-4 py-12 md:px-6 md:py-16 lg:px-8 lg:py-20">

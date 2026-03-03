@@ -1,33 +1,58 @@
 # Portfolio Quality Audit Report
 
-**Date:** 2025-02-09  
-**Scope:** Single-page portfolio (Hero, Tools, Exploring, Work, Experience, Testimonials, Contact, Footer)  
-**Reference:** frontend-design skill (anti-patterns), WCAG 2.1 AA, project UI/coding rules
+**Date:** March 3, 2025  
+**Scope:** Steven Dempster portfolio (Next.js)  
+**Method:** Systematic scan across Accessibility, Performance, Theming, Responsive Design, and Anti-Patterns  
+**Reference:** frontend-design skill, WCAG 2.1 AA, project UI guidelines
 
 ---
 
 ## Anti-Patterns Verdict
 
-**Verdict: At risk.** The site avoids the worst AI slop (no gradient text, no hero metrics, no pure black/white, no cyan-on-dark) but still hits several DON'Ts from the frontend-design skill:
+**Pass (with caveats).** The site does not read as generic AI output. It has a clear aesthetic point-of-view: a Framer-matched portfolio with a distinctive **Moog synthesizer playground mode** that creates strong differentiation. Specific observations:
 
-| Tell | Location | Skill DON'T |
-|------|----------|-------------|
-| **Inter_Tight** as display font | `app/layout.tsx` | "Use overused fonts—Inter, Roboto, Arial, Open Sans" |
-| **Glassmorphism** | `site-header.tsx`: `backdrop-blur`, `bg-background/95` | "Use glassmorphism everywhere—blur effects, glass cards" |
-| **Purple/blue gradient** | `project-block.tsx`: `from-violet-50/60 via-muted/50 to-blue-50/60` (and dark variants) | "Use the AI color palette: … purple-to-blue gradients" |
-| **Uniform section spacing** | All sections: `py-12 md:py-16 lg:py-20`, `px-4 md:px-6 lg:px-8` | "Use the same spacing everywhere—without rhythm, layouts feel monotonous" |
-| **Card-heavy layout** | Project cards, testimonial cards, Exploring template links as card-style blocks | "Wrap everything in cards"; "identical card grids" (testimonials) |
+**Avoids common AI tells:**
+- No cyan-on-dark, purple-to-blue gradients, or neon accents as default aesthetic
+- No Inter/Roboto (uses Inter Tight, Space Grotesk, Space Mono, VT323)
+- No hero metric template (big number + small label + gradient accent)
+- No identical card grids—bento layout, testimonials, and work sections vary
+- No glassmorphism everywhere—backdrop blur used sparingly (header only)
+- No bounce/elastic easing—animations use ease-out, ease-in-out
 
-**What’s in good shape:** No gradient text, no hero-metric layout, no pure #000/#fff (tinted neutrals in CSS vars), no bounce/elastic easing (ticker uses linear), primary CTA is clear (hero button). Motion uses `transform` only (ticker).
+**Minor tells (acceptable in context):**
+- Colored accent text in hero (heroBlue, heroPink)—intentional brand match to Framer, not decorative gradient text
+- Moog Playground uses emerald/green accents on dark—intentional skeuomorphic VFD aesthetic, not generic “neon on dark”
+- Some rounded cards with borders—but varied layouts (bento, timeline, testimonial cards) prevent monotony
+- Moog Playground defaults to dark mode—contextual (synth hardware), not lazy “cool” default
+
+**Conclusion:** The dual Simple/Playground modes and Moog hardware theme make this feel hand-crafted, not templated. Anti-patterns verdict: **pass**.
 
 ---
 
 ## Executive Summary
 
-- **Total issues:** 15 (2 Critical, 3 High, 6 Medium, 4 Low)
-- **Most critical:** (1) Theme toggle touch target &lt; 44px; (2) External links missing “opens in new tab” for screen readers; (3) Hard-coded colors (browser dots, stars) bypass design tokens and can hurt dark mode/contrast.
-- **Overall:** Strong base (semantic HTML, skip link, focus rings, form a11y, Next/Image). Main gaps: typography/font choice, a few a11y refinements, theming consistency, and reducing anti-patterns (glass, purple/blue, spacing rhythm).
-- **Recommended next steps:** Fix Critical/High a11y and theming, then apply `/normalize` for tokens and `/polish` for spacing/typography.
+| Metric | Count |
+|--------|-------|
+| **Critical issues** | 2 |
+| **High-severity issues** | 6 |
+| **Medium-severity issues** | 12 |
+| **Low-severity issues** | 8 |
+
+**Overall quality score:** Good — solid accessibility baseline, distinctive design, and thoughtful implementation. Priority fixes: mobile navigation, KeyboardHint interaction, and touch target sizing.
+
+**Top 5 critical/high issues:**
+1. **Mobile navigation hidden** — Work, Experience, Testimonials, About, Contact links unavailable on mobile
+2. **KeyboardHint non-functional** — `pointer-events-none` blocks click-to-dismiss
+3. **Error page outside main landmark** — Skip link and semantic structure broken on error route
+4. **Touch targets &lt; 44px** — Switch, Moog LED buttons, patch dots, ControlKnob
+5. **Theme toggle redundant labels** — Potential double announcement in screen readers
+
+**Recommended next steps:**
+1. Add mobile navigation (Sheet/drawer or simplified nav bar)
+2. Fix KeyboardHint so dismiss works (remove `pointer-events-none` or use a child button)
+3. Align error page with layout landmarks
+4. Increase touch target sizes for small controls
+5. Use `/normalize` for theming consistency (hard-coded Moog colors → design tokens where possible)
 
 ---
 
@@ -35,212 +60,409 @@
 
 ### Critical Issues
 
-#### C1. Theme toggle touch target below 44px (WCAG 2.5.5)
+#### C1. Mobile navigation hidden — no access to section links on small screens
 
-- **Location:** `components/theme-toggle.tsx` (Button with `size="icon"`). `components/ui/button.tsx`: icon size is `h-9 w-9` (36px).
-- **Severity:** Critical  
-- **Category:** Accessibility (Responsive / Touch)  
-- **Description:** Icon-only theme toggle is 36×36px. WCAG 2.5.5 (Target Size) recommends at least 44×44px for pointer inputs.
-- **Impact:** Mobile and touch users may mis-tap or find the control hard to activate.
-- **WCAG:** 2.5.5 Target Size (Level AAA); project rules require “Minimum 44x44px … for interactive elements.”
-- **Recommendation:** Override size for this button so the hit area is at least 44×44px (e.g. `className="h-11 w-11"` or use a larger icon size variant) while keeping the icon visually unchanged.
-- **Suggested command:** `/normalize` or manual fix for touch targets.
+- **Location:** `components/portfolio/site-header.tsx` line 37: `<nav className="hidden md:block">`
+- **Severity:** Critical
+- **Category:** Responsive / Accessibility
+- **Description:** Navigation to Work, Experience, Testimonials, About, and Contact is hidden below `md` (768px). On mobile, users cannot reach these sections except by scrolling.
+- **Impact:** Violates "Don't hide critical functionality on mobile" (frontend-design skill). Recruiters and hiring managers on phones lose direct access to key content.
+- **WCAG/Standard:** WCAG 2.1 2.1.1 (Keyboard), 2.4.1 (Bypass Blocks) — reduced ability to navigate efficiently.
+- **Recommendation:** Add a mobile nav pattern: Sheet/drawer with section links, or a compact bottom/top bar with links. Ensure touch targets ≥ 44px.
+- **Suggested command:** `/harden` (responsive + a11y)
 
-#### C2. External links not announcing “opens in new tab”
+---
 
-- **Location:** `components/portfolio/footer.tsx` (Built with Next.js); `components/portfolio/contact-section.tsx` (LinkedIn). Both use `target="_blank"` but only the Exploring section links expose “opens in new tab” in `aria-label`.
-- **Severity:** Critical  
-- **Category:** Accessibility  
-- **Description:** Links that open in a new window/tab should be announced to screen reader users so they’re not surprised by a new tab.
-- **Impact:** Screen reader users may not know the link opens in a new tab; some users prefer to know before activating.
-- **WCAG:** 3.2.5 Change on Request (best practice to announce); G201.
-- **Recommendation:** Add `aria-label` (or visually hidden text) that includes “(opens in new tab)” for Footer and Contact external links, or use a consistent pattern (e.g. `rel="noopener noreferrer"` plus `aria-label="… (opens in new tab)"`).
-- **Suggested command:** `/normalize` or `/harden` for link a11y.
+#### C2. Error page outside main landmark — skip link and structure broken
+
+- **Location:** `app/error.tsx` — content wrapped in `<div>`, layout provides skip link to `#main`
+- **Severity:** Critical
+- **Category:** Accessibility
+- **Description:** Error route replaces children; the error content is rendered in place of `main` but may not be inside a landmark with `id="main"`. Skip link targets `#main`; if error bypasses layout or `main` is missing, skip link fails.
+- **Impact:** Screen reader users and keyboard users may not reach error content or recover from errors.
+- **WCAG/Standard:** WCAG 2.1 2.4.1 (Bypass Blocks), 4.1.2 (Name, Role, Value)
+- **Recommendation:** Ensure error content lives inside `<main id="main">` (e.g. layout always wraps children in main, or error page includes `<main id="main" role="main">`). Verify skip link behavior on error route.
+- **Suggested command:** `/harden`
 
 ---
 
 ### High-Severity Issues
 
-#### H1. Hard-coded colors for browser chrome and stars (not design tokens)
+#### H1. KeyboardHint has `pointer-events-none` but `onClick` — dismiss never fires
 
-- **Location:** `components/portfolio/project-block.tsx` lines 57–59, 81–83: `bg-red-400`, `bg-amber-400`, `bg-green-400`. `components/portfolio/testimonial-card.tsx` line 48: `fill-amber-400 text-amber-400`.
-- **Severity:** High  
-- **Category:** Theming  
-- **Description:** Decorative browser dots and star rating use raw Tailwind palette colors instead of CSS variables or semantic tokens.
-- **Impact:** In dark mode or custom themes these won’t adapt; contrast and brand consistency are harder to control. Skill: “Use modern CSS color functions” and “tint your neutrals toward your brand hue.”
-- **Recommendation:** Replace with semantic tokens (e.g. `destructive` for red, or new tokens like `chrome-red`, `chrome-amber`, `chrome-green`) or use `hsl(var(--…))` so dark mode and future themes stay consistent. Star color could use existing `--star-yellow` if defined in globals, or a token.
-- **Suggested command:** `/normalize` to align with design tokens.
+- **Location:** `components/portfolio/moog-playground.tsx` lines 454–457: `KeyboardHint` wrapper has `pointer-events-none` and `onClick={onDismiss}`
+- **Severity:** High
+- **Category:** Accessibility / Interaction
+- **Description:** The hint is not dismissible by click because the container blocks pointer events.
+- **Impact:** Users cannot dismiss the hint; only keyboard interaction or key press clears it.
+- **Recommendation:** Remove `pointer-events-none` from the interactive wrapper, or add an inner `<button>` that receives `onDismiss` and is focusable. Ensure the hint remains non-blocking for piano interaction.
+- **Suggested command:** Fix inline
 
-#### H2. Glassmorphism in header (decorative blur)
+---
 
-- **Location:** `components/portfolio/site-header.tsx`: `backdrop-blur`, `supports-[backdrop-filter]:bg-background/80`, `bg-background/95`.
-- **Severity:** High  
-- **Category:** Anti-pattern (Visual Details)  
-- **Description:** Sticky header uses backdrop blur and semi-opaque background without a clear functional need (e.g. legibility over a busy background).
-- **Impact:** Skill explicitly says “DON'T: Use glassmorphism everywhere—blur effects, glass cards, glow borders used decoratively rather than purposefully.” Reads as default “AI” styling.
-- **Recommendation:** Prefer a solid header (`bg-background` with optional `border-b`) unless the design intentionally needs content to show through. If keeping blur, document the purpose (e.g. “content scrolls under hero image”).
-- **Suggested command:** `/simplify` or `/quieter` on header.
+#### H2. Touch targets below 44×44px on mobile
 
-#### H3. Testimonials grid uses equal row heights (`auto-rows-fr`)
+- **Location:** Multiple components
+  - `components/ui/switch.tsx`: Switch `h-5 w-9` (20×36px)
+  - `components/portfolio/moog-playground.tsx`: MoogLEDButton 52×22px (line 79), RockerToggle ~28×36px (line 144), patch dots 16×16px (line 401), ControlKnob 40×40px (line 490)
+  - `components/ui/button.tsx`: default `h-9` (36px), `lg` `h-10` (40px)
+- **Severity:** High
+- **Category:** Responsive / Accessibility
+- **Description:** Interactive elements are smaller than the 44×44px minimum recommended for touch (Apple HIG, Material).
+- **Impact:** Harder to tap on mobile, risk of mis-taps and user frustration.
+- **WCAG/Standard:** WCAG 2.5.5 Target Size (Level AAA, 44×44 CSS pixels)
+- **Recommendation:** Use `min-h-[44px] min-w-[44px]` (or equivalent) for primary touch targets. Increase Switch to `h-11` (44px) where appropriate. Wrap small controls (dots, knobs) in larger hit areas with `p-2` or similar.
+- **Suggested command:** `/normalize` for component sizing
 
-- **Location:** `components/portfolio/testimonials-section.tsx` line 15: `lg:auto-rows-fr`.
-- **Severity:** High  
-- **Category:** Responsive / Layout  
-- **Description:** Same pattern that was removed from Work section: all rows get equal height, so shorter testimonial cards are stretched to match the tallest.
-- **Impact:** Empty vertical space in shorter cards; same “stretched cards” issue that was fixed for Recent work.
-- **Recommendation:** Use `lg:auto-rows-auto` (or omit so rows size to content) so card height follows content; keep `h-full` on cards so multi-column rows still align.
-- **Suggested command:** Manual fix (same approach as work section).
+---
+
+#### H3. Theme toggle redundant labels — possible double announcement
+
+- **Location:** `components/theme-toggle.tsx` lines 45–52: Button has `aria-label={ariaLabel}` and `<span className="sr-only">Toggle theme</span>`
+- **Severity:** High
+- **Category:** Accessibility
+- **Description:** Two accessible names (aria-label and sr-only span) can cause duplicate announcements in some assistive tech.
+- **Impact:** Annoying or confusing experience for screen reader users.
+- **Recommendation:** Use one label. Keep `aria-label` with the descriptive string; remove the `sr-only` span.
+- **Suggested command:** Fix inline
+
+---
+
+#### H4. Piano keys lack accessible names
+
+- **Location:** `components/portfolio/moog-playground.tsx` `PianoKey` (lines 522–548): `motion.button` without `aria-label`
+- **Severity:** High
+- **Category:** Accessibility
+- **Description:** Piano keys are interactive but have no accessible name. Screen readers announce generic "button" for 24 keys.
+- **Impact:** Users who rely on assistive tech cannot identify which note each key plays.
+- **Recommendation:** Add `aria-label={`Play note ${PIANO_NOTES[idx]}`}` (or equivalent) to each `PianoKey`. Ensure `PIANO_NOTES` is in scope.
+- **Suggested command:** Fix inline
+
+---
+
+#### H5. Section labels not associated with content in Playground mode
+
+- **Location:** `components/portfolio/section-label.tsx` — Playground mode returns `<span>` instead of `<h2>`
+- **Severity:** High
+- **Category:** Accessibility
+- **Description:** In Playground mode, section labels are `<span>` with class `moog-category-label`, so heading hierarchy and landmarks are weaker.
+- **Impact:** Screen reader users lose structural context when switching modes.
+- **Recommendation:** Prefer a heading (`h2`, `h3`) with appropriate class for styling, or ensure `role="heading"` and `aria-level` if using spans. Maintain hierarchy across Simple and Playground.
+- **Suggested command:** `/harden`
+
+---
+
+#### H6. Moog ControlKnob missing focus-visible ring
+
+- **Location:** `components/portfolio/moog-playground.tsx` lines 490–504: `ControlKnob` has `tabIndex={0}` and keyboard handlers but no visible focus style
+- **Severity:** High
+- **Category:** Accessibility
+- **Description:** Knob is keyboard-focusable but lacks a clear focus indicator (e.g. `focus-visible:ring-2 focus-visible:ring-[#e8650a]`).
+- **Impact:** Keyboard users cannot see which control has focus.
+- **Recommendation:** Add `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8650a] focus-visible:ring-offset-2` (or equivalent) for consistency with other Moog controls.
+- **Suggested command:** Fix inline
 
 ---
 
 ### Medium-Severity Issues
 
-#### M1. Overused font (Inter family)
+#### M1. Hard-coded colors in Moog Playground and globals.css
 
-- **Location:** `app/layout.tsx`: `Inter_Tight` as `--font-display`.
-- **Severity:** Medium  
-- **Category:** Anti-pattern (Typography)  
-- **Description:** Skill: “DON'T: Use overused fonts—Inter, Roboto, Arial, Open Sans.” Inter_Tight is in the Inter family and reads as generic.
-- **Impact:** Typography is a strong “AI slop” signal; limits distinctiveness.
-- **Recommendation:** Swap to a more distinctive display font (and optionally body); keep Space Grotesk only if it’s an intentional brand choice.
-- **Suggested command:** `/polish` (typography pass) or design decision.
+- **Location:** `components/portfolio/moog-playground.tsx` (50+ inline hex/rgba), `app/globals.css` (e.g. `.moog-wood`, `.moog-faceplate`, `.moog-white-key`, `.moog-black-key`)
+- **Severity:** Medium
+- **Category:** Theming
+- **Description:** Moog components use raw hex/rgba instead of design tokens. Light/dark and future theme changes are harder.
+- **Impact:** Theming inconsistencies and more maintenance when updating colors.
+- **Recommendation:** Introduce CSS variables for Moog palette (e.g. `--moog-amber`, `--moog-wood`, `--moog-faceplate`) and reference them in components and globals.css.
+- **Suggested command:** `/normalize` (design tokens)
 
-#### M2. Purple-to-blue gradient in project card backgrounds
+---
 
-- **Location:** `components/portfolio/project-block.tsx` line 25: `from-violet-50/60 … to-blue-50/60` and dark variants.
-- **Severity:** Medium  
-- **Category:** Anti-pattern (Color)  
-- **Description:** Skill: “DON'T: Use the AI color palette: … purple-to-blue gradients.” Already toned down but direction is still violet→blue.
-- **Impact:** Palette reads as default AI; doesn’t align with hero blue/pink brand.
-- **Recommendation:** Drive from hero palette (e.g. blue/pink tint) or remove gradient and use solid muted/background; avoid violet–blue as primary accent.
-- **Suggested command:** `/quieter` or color-alignment pass.
+#### M2. Moog screen bank links use hard-coded emerald
 
-#### M3. Uniform section spacing (no rhythm)
+- **Location:** `app/globals.css` lines 390–422: `rgb(74 222 128)`, `rgba(74, 222, 128, …)`
+- **Severity:** Medium
+- **Category:** Theming
+- **Description:** VFD-style links use fixed green; not derived from theme tokens.
+- **Impact:** Less cohesion if brand or theme colors change.
+- **Recommendation:** Use a token such as `--moog-vfd-link` or extend accent tokens for Moog mode.
+- **Suggested command:** `/normalize`
 
-- **Location:** All sections: same `py-12 md:py-16 lg:py-20` and container `px-4 md:px-6 lg:px-8`.
-- **Severity:** Medium  
-- **Category:** Anti-pattern (Layout & Space)  
-- **Description:** Skill: “DON'T: Use the same spacing everywhere—without rhythm, layouts feel monotonous.”
-- **Impact:** Page feels like one repeated block; no emphasis or breathing room between sections.
-- **Recommendation:** Vary vertical padding (e.g. larger for hero/work, tighter for testimonials/contact) or use fluid spacing (e.g. clamp) to create rhythm.
-- **Suggested command:** `/polish` with focus on spacing rhythm.
+---
 
-#### M4. Tool icon image uses empty `alt` when external/path
+#### M3. Hero avatar uses empty alt — acceptable but undocumented
 
-- **Location:** `components/portfolio/tool-icons.tsx` line 23: `alt=""` for Image when icon is URL or path.
-- **Severity:** Medium  
-- **Category:** Accessibility  
-- **Description:** Decorative image with empty alt is correct when the parent `<a>` has `aria-label={tool.name}`. If the link ever didn’t have that label, the image would convey nothing.
-- **Impact:** Currently OK because link has aria-label; fragile if structure changes.
-- **Recommendation:** Keep `alt=""` and ensure every tool link has `aria-label`. Consider a comment that the image is decorative and the link label provides the name.
-- **Suggested command:** Optional; low risk as-is.
+- **Location:** `components/portfolio/hero.tsx` lines 22, 64; `components/portfolio/site-header.tsx` line 27; `components/portfolio/footer.tsx` line 14
+- **Severity:** Medium
+- **Category:** Accessibility
+- **Description:** Avatar has `alt=""`; this is correct for decorative images when adjacent text provides the name.
+- **Impact:** Fine as-is; risk if structure changes and avatar becomes sole identifier.
+- **Recommendation:** Add a brief comment (e.g. `// Decorative — name in adjacent text`) or ensure avatar is consistently paired with visible name/context.
+- **Suggested command:** Optional
 
-#### M5. Work experience entries are not semantic headings
+---
 
-- **Location:** `components/portfolio/work-experience-section.tsx`: job title + employer rendered as `<p className="font-display … font-semibold">` instead of a heading.
-- **Severity:** Medium  
-- **Category:** Accessibility (Semantic HTML)  
-- **Description:** Each role is a distinct “topic” but not marked as a heading; outline/headings users don’t get a clear structure.
-- **Impact:** Headings hierarchy is h1 → h2 (section titles) only; experience items are not navigable as subheadings.
-- **Recommendation:** Use `<h3>` (or appropriate level) for “Title, Employer” so the section has a clear outline (e.g. h2 “Work experience” → h3 per role).
-- **Suggested command:** `/normalize` for semantics.
+#### M4. Project images with missing `imageAlt` fall back to empty string
 
-#### M6. Error page has no landmark or skip option
+- **Location:** `components/portfolio/project-block.tsx` lines 71, 109: `alt={project.imageAlt ?? ""}`
+- **Severity:** Medium
+- **Category:** Accessibility
+- **Description:** When `imageAlt` is missing, images get no text alternative.
+- **Impact:** Informative project screenshots may be inaccessible to screen reader users.
+- **Recommendation:** Require `imageAlt` in data, or fall back to a generated description (e.g. `project.title` + "screenshot").
+- **Suggested command:** `/harden` (data + components)
 
-- **Location:** `app/error.tsx`: single `div` with no `<main>` or `role="main"`, and no skip link (layout skip link goes to `#main` which may not exist on error route).
-- **Severity:** Medium  
-- **Category:** Accessibility  
-- **Description:** When the error boundary renders, the page may not have `main` or a way to skip to content; layout’s skip link targets `#main`.
-- **Impact:** Screen reader and keyboard users may not land on the error content in a predictable way; depends on whether error view is inside root layout’s main.
-- **Recommendation:** Ensure error content is inside a landmark (e.g. `<main id="main">` in layout so error is within it, or add `role="main"` and `id="main"` on the error wrapper). Verify skip link behavior when error is shown.
-- **Suggested command:** `/harden` for error state.
+---
+
+#### M5. ScrollReveal `asListItem` ref type mismatch
+
+- **Location:** `components/scroll-reveal.tsx` line 56: `ref` cast between `HTMLElement` and `HTMLLIElement`
+- **Severity:** Medium
+- **Category:** Performance / Code quality
+- **Description:** Ref typing is loose; runtime behavior is correct but types are inconsistent.
+- **Impact:** Potential type errors in strict mode; harder maintenance.
+- **Recommendation:** Use a generic or overloaded ref type for `asListItem` to avoid unsafe casts.
+- **Suggested command:** Code cleanup
+
+---
+
+#### M6. Accordion keyframes animate height
+
+- **Location:** `tailwind.config.ts` lines 77–92: `accordion-down` / `accordion-up` animate `height`
+- **Severity:** Medium
+- **Category:** Performance
+- **Description:** Height animation can cause layout thrashing.
+- **Impact:** Possible jank on low-end devices (Radix Accordion default behavior).
+- **Recommendation:** Consider `grid-template-rows: 0fr` → `1fr` pattern for height transitions. Only change if accordion usage is confirmed and performance is an issue.
+- **Suggested command:** `/optimize` (if accordion is used)
+
+---
+
+#### M7. Framer Motion `whileTap` animates layout properties
+
+- **Location:** `components/portfolio/moog-playground.tsx` line 789: `whileTap={{ y: 4, borderBottomWidth: "2px", borderBottomColor: "#b0b0b0" }}` for white keys
+- **Severity:** Medium
+- **Category:** Performance
+- **Description:** Animating `y` and `borderBottomWidth` can trigger layout.
+- **Impact:** Minor; Framer Motion uses transforms where possible, but `borderBottomWidth` is layout.
+- **Recommendation:** Prefer `transform: translateY()` for motion and avoid animating borders; use box-shadow or pseudo-elements for visual depth if needed.
+- **Suggested command:** `/optimize`
+
+---
+
+#### M8. Piano keyboard height in vh — may be small on short viewports
+
+- **Location:** `components/portfolio/moog-playground.tsx` line 700: `height: "28vh", minHeight: 160`
+- **Severity:** Medium
+- **Category:** Responsive
+- **Description:** On short screens (e.g. landscape mobile), 28vh can make keys very small.
+- **Impact:** Piano may feel cramped; keys harder to tap.
+- **Recommendation:** Use `clamp(160px, 28vh, 220px)` or similar to bound height. Test on real devices.
+- **Suggested command:** Manual tweak
+
+---
+
+#### M9. About bento carousel uses fixed grid columns
+
+- **Location:** `components/portfolio/about-section.tsx` lines 43–48: `gridTemplateColumns: "repeat(4, 1fr)"` for 4-column bento
+- **Severity:** Medium
+- **Category:** Responsive
+- **Description:** Four columns may be too dense on small screens.
+- **Impact:** Tiles can feel cramped on narrow viewports.
+- **Recommendation:** Use responsive `grid-template-columns` (e.g. 2 cols on mobile, 4 on larger).
+- **Suggested command:** Manual tweak
+
+---
+
+#### M10. No `prefers-reduced-motion` for Moog CRT flicker
+
+- **Location:** `app/globals.css` — `moog-crt-flicker` reduced in media query (lines 320–323), but `crt-flicker` keyframe still defined
+- **Severity:** Medium
+- **Category:** Accessibility
+- **Description:** Reduced-motion handling exists; keyframe remains in stylesheet.
+- **Impact:** Acceptable; animation is disabled when needed. No change required.
+- **Recommendation:** None; current setup is fine.
+- **Suggested command:** N/A
+
+---
+
+#### M11. ViewModeToggle Switch — small touch target
+
+- **Location:** `components/portfolio/view-mode-toggle.tsx` — Switch from `components/ui/switch.tsx` (h-5 w-9)
+- **Severity:** Medium
+- **Category:** Responsive / Accessibility
+- **Description:** Switch is below 44px touch target.
+- **Impact:** Harder to toggle on mobile.
+- **Recommendation:** Increase Switch size (e.g. `h-11`) or expand the toggle row’s tap area.
+- **Suggested command:** `/normalize`
+
+---
+
+#### M12. Tool icons Image uses `alt=""` — OK when link has aria-label
+
+- **Location:** `components/portfolio/tool-icons.tsx` line 23
+- **Severity:** Medium
+- **Category:** Accessibility
+- **Description:** Image has `alt=""`; parent link has `aria-label={tool.name}` when `tool.link` exists.
+- **Impact:** Fine when link exists; non-linked tools have no accessible name for the image.
+- **Recommendation:** Ensure all tool icons that are interactive have `aria-label`. For non-linked icons, add `aria-label` or `title` on the wrapper.
+- **Suggested command:** Review tool data
 
 ---
 
 ### Low-Severity Issues
 
-#### L1. Footer “Built with Next.js” has no visible focus ring on some browsers
+#### L1. Button default size h-9 (36px)
 
-- **Location:** `components/portfolio/footer.tsx`: link uses underline classes but no explicit `focus-visible:ring-*`. Global `a:focus-visible` in `globals.css` should apply.
-- **Severity:** Low  
-- **Category:** Accessibility  
-- **Description:** If global focus style is ever overridden or not loaded, footer link could have no visible focus. Currently covered by base styles.
-- **Impact:** Low; only if theming or scoped styles remove global focus.
-- **Recommendation:** Rely on global focus is acceptable; optionally add explicit `focus-visible:ring-2 …` on footer links for consistency.
-- **Suggested command:** Optional.
+- **Location:** `components/ui/button.tsx` line 24
+- **Severity:** Low
+- **Category:** Responsive
+- **Recommendation:** Consider `h-10` or `min-h-[44px]` for primary actions on mobile.
+- **Suggested command:** `/normalize`
 
-#### L2. Ticker animation has no reduced-motion alternative content
+---
 
-- **Location:** `components/portfolio/tool-icons.tsx`: `motion-reduce:animate-none` stops animation but leaves a long horizontal strip; no `prefers-reduced-motion` content variant.
-- **Severity:** Low  
-- **Category:** Accessibility (Motion)  
-- **Description:** With `prefers-reduced-motion: reduce`, animation is disabled but the duplicated list is still present; users might scroll horizontally or see a clipped strip.
-- **Impact:** Some users may see an odd static strip; not a critical failure.
-- **Recommendation:** Consider showing a single row of tools (no duplicate) when `motion-reduce:animate-none` is active, or ensure overflow is hidden and the static view is still usable.
-- **Suggested command:** Optional; `/adapt` if addressing.
+#### L2. Duplicate/redundant ScrollReveal wrapper in ContactSection
 
-#### L3. Contact form submit button when form is disabled (no Formspree)
+- **Location:** `components/portfolio/contact-section.tsx` — `content` variable wraps sections; structure is a bit nested
+- **Severity:** Low
+- **Category:** Code quality
+- **Recommendation:** Optional refactor for clarity.
+- **Suggested command:** Optional
 
-- **Location:** `components/portfolio/contact-section.tsx`: when `!formId`, button is disabled and message says “use the Email link below.” No `aria-disabled` or explanation on the button itself.
-- **Severity:** Low  
-- **Category:** Accessibility  
-- **Description:** Button is `disabled={status === "sending" || !formId}`. Screen readers will announce disabled; the status message explains the workaround. Could add `aria-describedby` to point to the message.
-- **Impact:** Minor; current copy and disabled state are already clear.
-- **Recommendation:** Optionally associate the “Form not configured” message with the submit button via `aria-describedby` so assistive tech can discover the reason.
-- **Suggested command:** Optional.
+---
 
-#### L4. Duplicate/redundant theme button label
+#### L3. MoogBankSelector buttons lack keyboard activation sound
 
-- **Location:** `components/theme-toggle.tsx`: Button has both `aria-label={`Toggle theme. Active: ${resolvedLabel}...`}` and `<span className="sr-only">Toggle theme</span>`.
-- **Severity:** Low  
-- **Category:** Accessibility  
-- **Description:** Two labels (aria-label and sr-only span) may both be announced; aria-label usually wins but redundancy can cause double announcement in some AT.
-- **Impact:** Possible duplicate “Toggle theme” in screen readers.
-- **Recommendation:** Use one label. Prefer `aria-label` with the descriptive string and remove the sr-only span, or keep sr-only and remove aria-label if the descriptive text is not needed.
-- **Suggested command:** Optional; `/normalize` for a11y.
+- **Location:** `components/portfolio/moog-bank-selector.tsx` — `playClickSound()` called on click, but keyboard activation (Enter/Space) may not trigger it
+- **Severity:** Low
+- **Category:** UX consistency
+- **Recommendation:** If other Moog controls play sound on activation, add keyboard handlers that also trigger sound.
+- **Suggested command:** Optional
+
+---
+
+#### L4. TestimonialCard Avatar alt empty
+
+- **Location:** `components/portfolio/testimonial-card.tsx` line 33: `AvatarImage src={...} alt=""`
+- **Severity:** Low
+- **Category:** Accessibility
+- **Description:** Name is in heading; avatar is supplemental.
+- **Recommendation:** Document that avatar is decorative, or use `alt={testimonial.name}` if avatar is primary identifier.
+- **Suggested command:** Optional
+
+---
+
+#### L5. Agentation loaded in development only
+
+- **Location:** `app/layout.tsx` line 62
+- **Severity:** Low
+- **Category:** Performance
+- **Description:** Conditional load is correct.
+- **Recommendation:** None.
+- **Suggested command:** N/A
+
+---
+
+#### L6. No explicit `color-scheme` for dark mode
+
+- **Location:** `app/globals.css` — `:root` and `.dark` define variables
+- **Severity:** Low
+- **Category:** Theming
+- **Description:** `color-scheme: dark` can improve form controls and scrollbars in dark mode.
+- **Recommendation:** Add `color-scheme: dark` to `.dark` if not already inherited from next-themes.
+- **Suggested command:** Optional
+
+---
+
+#### L7. Footer year is client-rendered
+
+- **Location:** `components/portfolio/footer.tsx` line 5: `new Date().getFullYear()`
+- **Severity:** Low
+- **Category:** Performance
+- **Description:** Footer is server-rendered; year is deterministic per request.
+- **Recommendation:** Acceptable; no change needed.
+- **Suggested command:** N/A
+
+---
+
+#### L8. Hero button uses `hover:scale-[1.02]`
+
+- **Location:** `components/portfolio/hero.tsx` line 43
+- **Severity:** Low
+- **Category:** Performance
+- **Description:** Transform scale is performant.
+- **Recommendation:** None.
+- **Suggested command:** N/A
 
 ---
 
 ## Patterns & Systemic Issues
 
-1. **Section spacing is identical** — Every section uses the same vertical and horizontal padding scale. No rhythm or emphasis. Address with a spacing scale (e.g. hero/work larger, contact/footer tighter) or fluid values.
-2. **Hard-coded palette in two components** — `project-block` (browser dots) and `testimonial-card` (stars) use raw Tailwind colors instead of design tokens. Establishes a pattern of bypassing the theme; fix these and add tokens for any future decorative colors.
-3. **Focus and links are generally good** — Global `focus-visible` ring on buttons/links/inputs, skip link, and most external links have `rel="noopener noreferrer"`. Gaps: external link announcement (Critical C2) and theme toggle size (Critical C1).
+1. **Hard-coded colors:** Moog Playground and globals.css use 100+ raw hex/rgba values. Move to CSS variables for consistency and theme support.
+2. **Touch targets:** Several controls (Switch, Moog LED buttons, patch dots, knobs) are below 44px. Standardize minimum sizes.
+3. **Mobile navigation:** `hidden md:block` removes section nav on mobile. Add a mobile-friendly nav pattern.
+4. **Focus indicators:** Most controls have focus styles; ControlKnob is the main exception.
+5. **Decorative images:** Avatar and tool icons consistently use `alt=""`; structure is mostly correct but should be documented.
 
 ---
 
 ## Positive Findings
 
-- **Semantic structure:** Single h1 (Hero), section headings as h2 (SectionLabel or section titles), testimonial names as h3. Landmarks: header, main, footer, sections with ids for in-page links.
-- **Skip link and focus:** Skip to main content is present and visible on focus; `globals.css` applies consistent `focus-visible` ring to buttons, links, and form controls.
-- **Form accessibility:** Contact form has associated labels (`htmlFor`/id), `required` and `aria-required`, error/success with `role="alert"`/`role="status"` and `aria-live="polite"`, and disabled state during submit.
-- **Images:** Next/Image used for project images with `fill` and `sizes`; `imageAlt` from data. Tool icons use `alt=""` where the link provides the name.
-- **Motion:** Ticker uses `transform` only (no layout thrushing); `motion-reduce:animate-none` respects reduced motion. No bounce/elastic easing.
-- **No pure black/white:** CSS variables use tinted neutrals (e.g. 98% background, 2.7% foreground); dark mode variables are defined.
-- **Work section row height:** Uses `lg:auto-rows-auto` so cards don’t stretch; project cards have consistent height within the row.
+- **Skip link:** Present and correctly targets `#main`.
+- **Focus visibility:** Global `focus-visible` ring on buttons, links, inputs (globals.css lines 81–86).
+- **Reduced motion:** `prefers-reduced-motion` respected for scroll-reveal and Moog animations.
+- **Scroll reveal:** Uses `transform` and `opacity` only; no layout thrashing.
+- **Semantic HTML:** Main content in `<main>`, sections with ids, articles for projects/testimonials.
+- **ARIA:** Tablists (Moog patch dots, bank selector) use `role="tablist"`, `role="tab"`, `aria-selected`.
+- **External links:** `rel="noopener noreferrer"` and `aria-label` with “opens in new tab” where relevant.
+- **Image optimization:** Next.js `Image` with `sizes` and `fill` where appropriate.
+- **Typography:** Distinct fonts (Inter Tight, Space Grotesk, Space Mono, VT323).
+- **Design tokens:** Core palette in CSS variables; `heroBlue`, `heroPink` for accent.
 
 ---
 
 ## Recommendations by Priority
 
-1. **Immediate:** Fix C1 (theme toggle 44px), C2 (external link “opens in new tab” announcement). Both are quick and close WCAG/project-rule gaps.
-2. **Short-term:** H1 (design tokens for browser dots and stars), H2 (remove or justify header glassmorphism), H3 (testimonials `auto-rows-auto`). Improves theming and layout consistency.
-3. **Medium-term:** M1 (font choice), M2 (project gradient palette), M3 (section spacing rhythm), M5 (work experience headings). Improves distinctiveness and semantics.
-4. **Long-term:** M4, M6, L1–L4 as time allows; consider container queries and more fluid typography/spacing.
+### Immediate (this sprint)
+
+1. Add mobile navigation (Sheet or compact nav).
+2. Fix KeyboardHint so click-to-dismiss works.
+3. Ensure error page is inside `main` and skip link works.
+4. Add `aria-label` to PianoKey components.
+5. Fix redundant theme toggle labels (remove sr-only span or aria-label).
+
+### Short-term (next sprint)
+
+6. Increase touch targets for Switch, Moog controls, patch dots.
+7. Add focus-visible ring to ControlKnob.
+8. Use headings (or `role="heading"`) for Playground section labels.
+9. Improve project `imageAlt` handling (require or generate fallback).
+
+### Medium-term
+
+10. Extract Moog colors to CSS variables.
+11. Add responsive grid for about bento (fewer columns on mobile).
+12. Add `aria-label` (or equivalent) for non-linked tool icons.
+
+### Long-term
+
+13. Refine Piano keyboard height for short viewports.
+14. Optionally add `color-scheme` for dark theme.
+15. Consider grid-based height animation for accordions if used.
 
 ---
 
 ## Suggested Commands for Fixes
 
-| Command | Use for |
-|--------|---------|
-| **/normalize** | Touch target (theme toggle), external link labels, semantic headings (work experience), design tokens (browser dots, stars), theme toggle duplicate label. |
-| **/simplify** or **/quieter** | Header glassmorphism (H2). |
-| **/polish** | Typography (font swap), section spacing rhythm, overall refinement. |
-| **/quieter** | Purple/blue gradient in project cards (M2). |
-| **/harden** | Error page landmark/skip (M6), link a11y (C2). |
-| **Manual** | Testimonials `lg:auto-rows-fr` → `lg:auto-rows-auto` (H3). |
+| Issue group | Command | Scope |
+|-------------|---------|-------|
+| Mobile nav, error page, section labels, ControlKnob focus | `/harden` | A11y + responsive |
+| Touch targets, button sizes, Switch | `/normalize` | Component sizing |
+| Moog colors, design tokens | `/normalize` | Theming |
+| Accordion, motion, layout tweaks | `/optimize` | Performance |
+| KeyboardHint, theme toggle, PianoKey labels | Manual fix | Specific components |
 
 ---
 
-*End of audit. No fixes were applied; address via the commands and recommendations above.*
+*Audit complete. Document issues only; no fixes applied. Use commands above to address.*

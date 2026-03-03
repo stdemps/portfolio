@@ -21,6 +21,9 @@ const config = {
   		fontFamily: {
   			sans: ['var(--font-body)', 'system-ui', 'sans-serif'],
   			display: ['var(--font-display)', 'var(--font-body)', 'system-ui', 'sans-serif'],
+  			mono: ['var(--font-mono)', 'ui-monospace', 'monospace'],
+  			vfd: ['var(--font-vfd)', 'ui-monospace', 'monospace'],
+  			synth: ['var(--font-synth)', 'var(--font-mono)', 'ui-monospace', 'monospace'],
   		},
   		colors: {
   			border: 'hsl(var(--border))',
@@ -63,7 +66,12 @@ const config = {
   			starYellow: 'hsl(var(--star-yellow))',
   			browserDotRed: 'hsl(var(--browser-dot-red))',
   			browserDotAmber: 'hsl(var(--browser-dot-amber))',
-  			browserDotGreen: 'hsl(var(--browser-dot-green))'
+  			browserDotGreen: 'hsl(var(--browser-dot-green))',
+  			moog: {
+  				amber: 'hsl(var(--moog-amber))',
+  				'amber-light': 'hsl(var(--moog-amber-light))',
+  				silkscreen: 'hsl(var(--moog-silkscreen))'
+  			}
   		},
   		borderRadius: {
   			lg: 'var(--radius)',
