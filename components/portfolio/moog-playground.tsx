@@ -1,17 +1,56 @@
 "use client"
 
 import * as React from "react"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion"
 import { useTheme } from "next-themes"
 import { useViewMode } from "@/hooks/use-view-mode"
-import { playKeyNote, playClickSound, PIANO_NOTES } from "@/lib/playground-sounds"
+import { playClickSound, playKeyNote, applyMoogFilterParams, moogParams, PIANO_NOTES, type WaveformType } from "@/lib/playground-sounds"
 import { Hero } from "@/components/portfolio/hero"
 import { WorkSection } from "@/components/portfolio/work-section"
 import { WorkExperienceSection } from "@/components/portfolio/work-experience-section"
 import { TestimonialsSection } from "@/components/portfolio/testimonials-section"
 import { AboutSection } from "@/components/portfolio/about-section"
 import { ContactSection } from "@/components/portfolio/contact-section"
+import { SynthTour } from "@/components/portfolio/synth-tour"
 import { cn } from "@/lib/utils"
+
+/* ---- Bassline data ---- */
+type BasslineStep = { idx: number; durationMs: number }
+type Bassline = { id: string; label: string; steps: BasslineStep[] }
+
+/**
+ * Note indices map to PIANO_NOTES (C3=0 … B4=23).
+ * Durations approximate 120bpm: 8th note ≈ 250ms, 16th note ≈ 125ms, quarter ≈ 500ms.
+ */
+const BASSLINES: Bassline[] = [
+  {
+    id: "holiday",
+    label: "MADONNA — HOLIDAY",
+    steps: [
+      { idx: 9,  durationMs: 250 }, // A3
+      { idx: 9,  durationMs: 250 }, // A3
+      { idx: 4,  durationMs: 250 }, // E3
+      { idx: 4,  durationMs: 250 }, // E3
+      { idx: 5,  durationMs: 250 }, // F3
+      { idx: 5,  durationMs: 250 }, // F3
+      { idx: 4,  durationMs: 500 }, // E3 (hold)
+    ],
+  },
+  {
+    id: "thriller",
+    label: "JACKSON — THRILLER",
+    steps: [
+      { idx: 5,  durationMs: 125 }, // F3
+      { idx: 5,  durationMs: 125 }, // F3
+      { idx: 5,  durationMs: 250 }, // F3
+      { idx: 8,  durationMs: 250 }, // G#3/Ab3
+      { idx: 10, durationMs: 250 }, // A#3/Bb3
+      { idx: 5,  durationMs: 125 }, // F3
+      { idx: 3,  durationMs: 125 }, // D#3/Eb3
+      { idx: 5,  durationMs: 500 }, // F3 (hold)
+    ],
+  },
+]
 
 const KEYBOARD_SEEN_KEY = "moog-keyboard-seen"
 
@@ -112,8 +151,8 @@ function MoogLEDButton({
   )
 }
 
-/* Moog-style rocker toggle — snaps between two positions like hardware */
-function RockerToggle({
+/* 3D hardware rocker switch — rectangular housing with embossed paddle that snaps between states */
+function RockerSwitch({
   topLabel,
   bottomLabel,
   isTop,
@@ -128,54 +167,98 @@ function RockerToggle({
 }) {
   return (
     <div className="flex flex-col items-center gap-0.5">
+      {/* Label above — bright when active */}
       <span
-        className="font-synth text-[7px] uppercase tracking-widest transition-colors duration-150"
-            style={{ color: isTop ? "hsl(var(--moog-silkscreen))" : "hsl(var(--moog-silkscreen) / 0.3)" }}
+        className="font-synth text-[7px] uppercase tracking-widest"
+        style={{
+          color: isTop ? "hsl(var(--moog-silkscreen))" : "hsl(var(--moog-silkscreen) / 0.3)",
+          transition: "color 0.05s linear",
+        }}
       >
         {topLabel}
       </span>
-      <motion.button
+
+      {/* Outer housing — inset shadow makes it look embedded in the panel */}
+      <button
         type="button"
         onClick={onClick}
         aria-label={ariaLabel}
         aria-pressed={isTop}
-        className="relative flex min-h-[44px] min-w-[44px] w-11 cursor-pointer flex-col overflow-hidden rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moog-amber focus-visible:ring-offset-1 focus-visible:ring-offset-[#1e1c1a]"
+        className="relative flex min-h-[44px] min-w-[44px] cursor-pointer flex-col overflow-hidden rounded-[3px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moog-amber focus-visible:ring-offset-1 focus-visible:ring-offset-[#1a1814]"
         style={{
-          height: 36,
-          background: "linear-gradient(to right, #1a1814, #252220, #1a1814)",
-          border: "1px solid #111",
-          boxShadow: "inset 0 0 4px rgba(0,0,0,0.8), 0 2px 6px rgba(0,0,0,0.6)",
+          width: 38,
+          height: 38,
+          background: "#0e0c0a",
+          border: "1px solid #080604",
+          boxShadow: "inset 0 3px 8px rgba(0,0,0,0.9), inset 0 0 2px rgba(0,0,0,0.8), 0 1px 0 rgba(255,255,255,0.06)",
+          padding: 3,
         }}
       >
-        {/* The rocker cap — snaps up or down */}
-        <motion.div
-          animate={{ y: isTop ? 0 : 18 }}
-          transition={{ duration: 0.08, ease: "easeOut" }}
-          className="absolute left-0 right-0"
-          style={{ height: 18 }}
-        >
-          <div
-            style={{
-              height: "100%",
-              background: "linear-gradient(180deg, #4a4540 0%, #2e2a26 60%, #252220 100%)",
-              borderBottom: "1px solid #111",
-              borderTop: "1px solid rgba(255,255,255,0.12)",
-              boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)",
-            }}
-          />
-        </motion.div>
-        {/* Amber LED pip — glows near the active label */}
+        {/* Top half of paddle */}
         <div
-          className={`absolute ${isTop ? "top-1" : "bottom-1"} left-1/2 -translate-x-1/2 h-1.5 w-1.5 rounded-full transition-all duration-150`}
-            style={{
-              background: isTop ? "hsl(var(--moog-amber))" : "#2a1a0a",
-              boxShadow: isTop ? "0 0 4px hsl(var(--moog-amber)), 0 0 8px hsl(var(--moog-amber) / 0.5)" : "none",
-            }}
+          style={{
+            flex: 1,
+            borderRadius: "2px 2px 0 0",
+            transition: "all 0.05s linear",
+            ...(isTop
+              ? {
+                  // Active (pushed in): dark top, slight amber tint, inset shadow
+                  background: "linear-gradient(180deg, #c85a00 0%, #8a3a00 50%, #6a2c00 100%)",
+                  boxShadow: "inset 0 3px 6px rgba(0,0,0,0.7), inset 0 1px 3px rgba(0,0,0,0.5)",
+                  borderBottom: "1px solid #3a1800",
+                }
+              : {
+                  // Inactive (raised): light highlight on top, dark bottom
+                  background: "linear-gradient(180deg, #5a5550 0%, #3a3530 60%, #2a2520 100%)",
+                  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.14), 0 2px 0 rgba(0,0,0,0.5)",
+                  borderBottom: "1px solid #1a1714",
+                }),
+          }}
         />
-      </motion.button>
+
+        {/* Bottom half of paddle */}
+        <div
+          style={{
+            flex: 1,
+            borderRadius: "0 0 2px 2px",
+            transition: "all 0.05s linear",
+            ...(!isTop
+              ? {
+                  // Active (pushed in): amber glow, inset shadow
+                  background: "linear-gradient(180deg, #8a3a00 0%, #c85a00 60%, #e06a00 100%)",
+                  boxShadow: "inset 0 -3px 6px rgba(0,0,0,0.5), inset 0 -1px 3px rgba(0,0,0,0.3)",
+                  borderTop: "1px solid #3a1800",
+                }
+              : {
+                  // Inactive (raised): light highlight, heavy bottom shadow
+                  background: "linear-gradient(180deg, #2a2520 0%, #3a3530 40%, #4a4540 100%)",
+                  boxShadow: "inset 0 -1px 0 rgba(255,255,255,0.08), 0 -2px 0 rgba(0,0,0,0.5)",
+                  borderTop: "1px solid #1a1714",
+                }),
+          }}
+        />
+
+        {/* Amber glow overlay when active */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 3,
+            borderRadius: 2,
+            pointerEvents: "none",
+            transition: "opacity 0.05s linear",
+            opacity: isTop ? 1 : 0,
+            boxShadow: "0 0 8px hsl(var(--moog-amber) / 0.6), 0 0 16px hsl(var(--moog-amber) / 0.3)",
+          }}
+        />
+      </button>
+
+      {/* Label below — bright when active */}
       <span
-        className="font-synth text-[7px] uppercase tracking-widest transition-colors duration-150"
-        style={{ color: !isTop ? "hsl(var(--moog-silkscreen))" : "hsl(var(--moog-silkscreen) / 0.3)" }}
+        className="font-synth text-[7px] uppercase tracking-widest"
+        style={{
+          color: !isTop ? "hsl(var(--moog-silkscreen))" : "hsl(var(--moog-silkscreen) / 0.3)",
+          transition: "color 0.05s linear",
+        }}
       >
         {bottomLabel}
       </span>
@@ -199,7 +282,17 @@ const BLACK_KEY_POSITIONS: { idx: number; leftPercent: number }[] = [
   { idx: 22, leftPercent: (13 / 14) * 100 - (100 / 24) / 2 }, // A#
 ]
 
+/** Shift a scientific pitch note (e.g. "C#3") by octave semitones */
+function shiftNoteByOctave(note: string, octave: number): string {
+  if (octave === 0) return note
+  const match = note.match(/^([A-G]#?)(\d+)$/)
+  if (!match) return note
+  const newOct = Math.max(0, Math.min(8, parseInt(match[2], 10) + octave))
+  return `${match[1]}${newOct}`
+}
+
 export function MoogPlayground() {
+  const reducedMotion = useReducedMotion()
   const [, setViewMode] = useViewMode()
   const { setTheme } = useTheme()
   const [patchIndex, setPatchIndex] = React.useState(0)
@@ -219,6 +312,57 @@ export function MoogPlayground() {
   const releaseFns = React.useRef<Map<number, () => void>>(new Map())
   const activeKeysRef = React.useRef(activeKeys)
   activeKeysRef.current = activeKeys
+
+  // Learn mode state
+  const [learnMode, setLearnMode] = React.useState(false)
+  const [selectedSongIdx, setSelectedSongIdx] = React.useState(0)
+  const [learnStep, setLearnStep] = React.useState(0)
+  const [demoPlaying, setDemoPlaying] = React.useState(false)
+  const demoTimers = React.useRef<ReturnType<typeof setTimeout>[]>([])
+
+  const currentBassline = BASSLINES[selectedSongIdx]
+  const highlightKeyIdx = learnMode && !demoPlaying ? currentBassline.steps[learnStep % currentBassline.steps.length]?.idx : undefined
+  const highlightKeys = React.useMemo(() => {
+    const s = new Set<number>()
+    if (highlightKeyIdx != null) s.add(highlightKeyIdx)
+    return s
+  }, [highlightKeyIdx])
+
+  const stopDemo = React.useCallback(() => {
+    demoTimers.current.forEach(clearTimeout)
+    demoTimers.current = []
+    setDemoPlaying(false)
+  }, [])
+
+  const runDemo = React.useCallback(() => {
+    stopDemo()
+    setDemoPlaying(true)
+    const steps = currentBassline.steps
+    let elapsed = 0
+    steps.forEach((step, i) => {
+      const noteOn = setTimeout(async () => {
+        setActiveKeys((s) => new Set(s).add(step.idx))
+        const release = await playKeyNote(PIANO_NOTES[step.idx], 0) // always Minimoog Bass for basslines
+        const noteOff = setTimeout(() => {
+          release()
+          setActiveKeys((s) => { const n = new Set(s); n.delete(step.idx); return n })
+        }, step.durationMs - 30)
+        demoTimers.current.push(noteOff)
+      }, elapsed)
+      demoTimers.current.push(noteOn)
+      elapsed += step.durationMs
+    })
+    const end = setTimeout(() => setDemoPlaying(false), elapsed)
+    demoTimers.current.push(end)
+  }, [currentBassline, stopDemo])
+
+  // Moog synth engine controls
+  const [octave, setOctave] = React.useState(0)
+  const [osc1Wave, setOsc1Wave] = React.useState<WaveformType>("sawtooth")
+  const [osc2Wave, setOsc2Wave] = React.useState<WaveformType>("sawtooth")
+  const [detune, setDetune] = React.useState(0.04) // 0–1 normalised → 0–50 cents
+  const [cutoff, setCutoff] = React.useState(0.45)
+  const [resonance, setResonance] = React.useState(0.35)
 
   // Check localStorage for keyboard-seen flag
   React.useEffect(() => {
@@ -278,11 +422,21 @@ export function MoogPlayground() {
   const handleKeyDown = React.useCallback(async (idx: number) => {
     if (activeKeysRef.current.has(idx)) return
     setActiveKeys((s) => new Set(s).add(idx))
-    setActiveNoteLabel(PIANO_NOTES[idx])
+    const baseNote = PIANO_NOTES[idx]
+    const shiftedNote = shiftNoteByOctave(baseNote, octave)
+    setActiveNoteLabel(shiftedNote)
     dismissKeyboardHint()
-    const release = await playKeyNote(PIANO_NOTES[idx], patchIndex)
+    // Advance learn step when correct key is pressed
+    if (learnMode && !demoPlaying) {
+      const steps = currentBassline.steps
+      if (idx === steps[learnStep % steps.length].idx) {
+        setLearnStep((s) => s + 1)
+      }
+    }
+    const activePatch = learnMode ? 0 : patchIndex // learn mode always uses Minimoog Bass
+    const release = await playKeyNote(shiftedNote, activePatch)
     releaseFns.current.set(idx, release)
-  }, [patchIndex, dismissKeyboardHint])
+  }, [octave, patchIndex, learnMode, dismissKeyboardHint, demoPlaying, currentBassline, learnStep])
 
   const handleKeyUp = React.useCallback((idx: number) => {
     const release = releaseFns.current.get(idx)
@@ -302,9 +456,9 @@ export function MoogPlayground() {
   return (
     <motion.div
       className="moog-playground-fullscreen fixed inset-0 flex flex-col overflow-hidden"
-      initial={{ opacity: 0 }}
+      initial={reducedMotion ? false : { opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
+      transition={reducedMotion ? { duration: 0 } : { duration: 0.5, ease: "easeOut" }}
     >
       {/* Main faceplate — full width, no top nav */}
       <div className="moog-wood flex flex-1 flex-col min-h-0 p-2 md:p-3">
@@ -317,19 +471,26 @@ export function MoogPlayground() {
             {/* Central control row: LCD + Nav + Knobs + Exit */}
             <div className="relative flex shrink-0 flex-nowrap items-end justify-center gap-4 md:gap-6 border-b border-stone-700/60 px-4 py-3 md:px-6 md:py-4 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {/* Exit toggle — bottom-left of panel, Moog-style rocker */}
-              <div className="absolute left-3 bottom-3 md:bottom-4">
-                <RockerToggle
+              <div className="absolute left-3 bottom-3 md:bottom-4 flex gap-3">
+                <RockerSwitch
                   topLabel="PLAY"
                   bottomLabel="SIMPLE"
                   isTop={true}
                   onClick={handleExitPlayground}
                   aria-label="Exit to Simple view"
                 />
+                <RockerSwitch
+                  topLabel="LEARN"
+                  bottomLabel="PLAY"
+                  isTop={learnMode}
+                  onClick={() => { setLearnMode((m) => !m); setLearnStep(0); stopDemo() }}
+                  aria-label="Toggle bassline learn mode"
+                />
               </div>
-              <div className="flex flex-col items-center gap-0.5">
+              <div className="flex flex-col items-center gap-0.5" data-tour="nav">
                 <MoogLEDButton onClick={handlePrevPatch} label="PREV" aria-label="Previous patch" />
               </div>
-              <div className="flex flex-col items-center gap-1">
+              <div className="flex flex-col items-center gap-1" data-tour="screen">
                 <div
                   className="relative flex w-[340px] flex-col items-center justify-center overflow-hidden rounded border border-black/80 px-4 pb-2 pt-1.5 md:w-[380px] md:px-6"
                   style={{
@@ -374,8 +535,8 @@ export function MoogPlayground() {
                     <motion.span
                       className="inline-block w-[2px] text-transparent select-none bg-moog-amber-light"
                       style={{ height: "0.75em", verticalAlign: "-0.05em", boxShadow: "0 0 6px hsl(var(--moog-amber))" }}
-                      animate={{ opacity: [1, 1, 0, 0] }}
-                      transition={{ duration: 1.1, repeat: Infinity, times: [0, 0.45, 0.5, 0.95] }}
+                      animate={reducedMotion ? { opacity: 1 } : { opacity: [1, 1, 0, 0] }}
+                      transition={reducedMotion ? { duration: 0 } : { duration: 1.1, repeat: Infinity, times: [0, 0.45, 0.5, 0.95] }}
                     >
                       _
                     </motion.span>
@@ -385,7 +546,7 @@ export function MoogPlayground() {
                     className="font-synth relative z-10 text-[7px] tracking-[0.2em] text-moog-amber-light/45 md:text-[8px]"
                     style={{ textShadow: "0 0 4px hsl(var(--moog-amber) / 0.15)" }}
                   >
-                    {patch.tone}
+                    {learnMode ? "BASSLINE TRAINER" : patch.tone}
                   </span>
                 </div>
                 {/* Patch position dots — amber LEDs */}
@@ -398,7 +559,7 @@ export function MoogPlayground() {
                       aria-selected={i === patchIndex}
                       aria-label={`Go to ${p.label}`}
                       onClick={() => handleDotClick(i)}
-                      className="flex h-6 w-6 min-h-[44px] min-w-[44px] items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-moog-amber/60 rounded-full"
+                      className="flex h-6 w-6 min-h-[44px] min-w-[44px] items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moog-amber focus-visible:ring-offset-1 focus-visible:ring-offset-[#1a1814] rounded-full"
                     >
                       <div
                         className="rounded-full transition-all duration-200"
@@ -413,15 +574,32 @@ export function MoogPlayground() {
                   ))}
                 </div>
               </div>
-              <div className="flex flex-col items-center gap-0.5">
+              <div className="flex flex-col items-center gap-0.5" data-tour="nav-end">
                 <MoogLEDButton onClick={handleNextPatch} label="NEXT" aria-label="Next patch" />
               </div>
 
-              <div className="flex gap-4 md:gap-5">
+              <div className="flex gap-4 md:gap-5" data-tour="knobs">
                 <ControlKnob label="BRIGHT" value={brightness} onChange={setBrightness} />
                 <ControlKnob label="REVERB" value={reverb} onChange={setReverb} />
               </div>
             </div>
+
+            {/* Synth engine strip — oscillators, filter, octave */}
+            <SynthEngineStrip
+              octave={octave}
+              onOctaveDown={() => setOctave((o) => Math.max(-2, o - 1))}
+              onOctaveUp={() => setOctave((o) => Math.min(2, o + 1))}
+              osc1Wave={osc1Wave}
+              onOsc1Wave={setOsc1Wave}
+              osc2Wave={osc2Wave}
+              onOsc2Wave={setOsc2Wave}
+              detune={detune}
+              onDetune={(v: number) => { setDetune(v); moogParams.detune = Math.round(v * 50) }}
+              cutoff={cutoff}
+              onCutoff={(v: number) => { setCutoff(v); moogParams.cutoff = v; applyMoogFilterParams() }}
+              resonance={resonance}
+              onResonance={(v: number) => { setResonance(v); moogParams.resonance = v; applyMoogFilterParams() }}
+            />
 
             {/* Main content — backlit projection / embedded screen in faceplate */}
             <div
@@ -432,24 +610,48 @@ export function MoogPlayground() {
               }}
             >
               <AnimatePresence mode="wait">
-                <motion.div
-                  key={crtKey}
-                  initial={false}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.15 }}
-                  className={cn(
-                    "h-full overflow-hidden",
-                    crtKey > 0 && "moog-crt-flicker"
-                  )}
-                  style={{
-                    filter: `brightness(${0.7 + brightness * 0.6})`,
-                  }}
-                >
-                  <div className="h-full [&_.container]:max-w-none">
-                    <PatchContent carousel={carousel} onContactClick={handleContactClick} />
-                  </div>
-                </motion.div>
+                {learnMode ? (
+                  <motion.div
+                    key="learn"
+                    initial={reducedMotion ? false : { opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: reducedMotion ? 0 : 0.2 }}
+                    className="h-full overflow-hidden"
+                    style={{ filter: `brightness(${0.7 + brightness * 0.6})` }}
+                  >
+                    <LearnScreen
+                      basslines={BASSLINES}
+                      selectedIdx={selectedSongIdx}
+                      onSelect={(i) => { setSelectedSongIdx(i); setLearnStep(0); stopDemo() }}
+                      step={learnStep}
+                      totalSteps={currentBassline.steps.length}
+                      demoPlaying={demoPlaying}
+                      onDemo={runDemo}
+                      onStopDemo={stopDemo}
+                      onExit={() => { setLearnMode(false); setLearnStep(0); stopDemo() }}
+                    />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key={crtKey}
+                    initial={false}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: reducedMotion ? 0 : 0.15 }}
+                    className={cn(
+                      "h-full overflow-hidden",
+                      crtKey > 0 && "moog-crt-flicker"
+                    )}
+                    style={{
+                      filter: `brightness(${0.7 + brightness * 0.6})`,
+                    }}
+                  >
+                    <div className="h-full [&_.container]:max-w-none">
+                      <PatchContent carousel={carousel} onContactClick={handleContactClick} />
+                    </div>
+                  </motion.div>
+                )}
               </AnimatePresence>
 
               {/* Phosphor screen vignette — warm amber falloff toward edges, like a CRT display */}
@@ -480,6 +682,7 @@ export function MoogPlayground() {
       <KeyboardHint
         visible={keyboardHintVisible && !keyboardSeen}
         onDismiss={dismissKeyboardHint}
+        reducedMotion={!!reducedMotion}
       />
 
       {/* Note name HUD — shows above keyboard while a key is held */}
@@ -488,10 +691,10 @@ export function MoogPlayground() {
           <motion.div
             key={activeNoteLabel}
             className="pointer-events-none absolute bottom-[28vh] left-1/2 z-30 -translate-x-1/2"
-            initial={{ opacity: 0, y: 4 }}
+            initial={reducedMotion ? false : { opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.1 }}
+            transition={{ duration: reducedMotion ? 0 : 0.1 }}
           >
             <span
               className="font-synth rounded border border-moog-amber/40 bg-black/70 px-2 py-0.5 text-sm tracking-widest text-moog-amber-light shadow backdrop-blur-sm"
@@ -503,13 +706,21 @@ export function MoogPlayground() {
         )}
       </AnimatePresence>
 
-      {/* Keyboard — foundation, 25–30% height, full width */}
-      <PianoKeyboard
-        activeKeys={activeKeys}
-        onKeyDown={handleKeyDown}
-        onKeyUp={handleKeyUp}
-        onFirstHover={!keyboardSeen ? () => setKeyboardHintVisible(true) : undefined}
-      />
+      {/* Keyboard row — wheels on the left, keys fill remaining width */}
+      <div className="flex shrink-0 w-full" style={{ height: "28vh", minHeight: 160 }}>
+        <WheelBlock />
+        <PianoKeyboard
+          activeKeys={activeKeys}
+          highlightKeys={highlightKeys}
+          onKeyDown={handleKeyDown}
+          onKeyUp={handleKeyUp}
+          onFirstHover={!keyboardSeen ? () => setKeyboardHintVisible(true) : undefined}
+          reducedMotion={!!reducedMotion}
+        />
+      </div>
+
+      {/* Guided onboarding tour */}
+      <SynthTour />
     </motion.div>
   )
 }
@@ -598,18 +809,210 @@ function ControlKnob({
   )
 }
 
+/* ---- Waveform Selector — horizontal row of ON/OFF caps (one active, rest dark) ---- */
+const WAVEFORMS: WaveformType[] = ["sawtooth", "square", "triangle"]
+const WAVE_LABELS: Record<WaveformType, string> = { sawtooth: "SAW", square: "SQR", triangle: "TRI" }
+
+/* Single-label cap button: active = amber glow, inactive = dark. For radio-style waveform row. */
+function WaveformCap({
+  label,
+  active,
+  onClick,
+  "aria-label": ariaLabel,
+}: {
+  label: string
+  active: boolean
+  onClick: () => void
+  "aria-label"?: string
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={ariaLabel}
+      aria-pressed={active}
+      className="waveform-cap group relative flex h-11 min-w-[44px] cursor-pointer items-center justify-center overflow-hidden rounded-[3px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moog-amber focus-visible:ring-offset-1 focus-visible:ring-offset-[#1a1814] transition-[background,box-shadow,border-color,transform] duration-150 ease-out active:scale-[0.98] motion-reduce:transition-none motion-reduce:active:scale-100"
+      style={{
+        width: 44,
+        background: active
+          ? "linear-gradient(180deg, #c85a00 0%, #8a3a00 50%, #6a2c00 100%)"
+          : "#0e0c0a",
+        border: active ? "1px solid #6a2c00" : "1px solid #080604",
+        boxShadow: active
+          ? "inset 0 2px 4px rgba(0,0,0,0.6), 0 0 10px hsl(var(--moog-amber) / 0.5), 0 0 20px hsl(var(--moog-amber) / 0.2)"
+          : "inset 0 3px 8px rgba(0,0,0,0.9), inset 0 0 2px rgba(0,0,0,0.8), 0 1px 0 rgba(255,255,255,0.06)",
+      }}
+    >
+      <span
+        className="font-synth text-[10px] uppercase tracking-widest transition-[color,text-shadow] duration-150 ease-out motion-reduce:transition-none"
+        style={{
+          color: active ? "hsl(var(--moog-silkscreen))" : "hsl(var(--moog-silkscreen) / 0.25)",
+          textShadow: active ? "0 0 6px hsl(var(--moog-amber) / 0.8)" : "none",
+        }}
+      >
+        {label}
+      </span>
+      {/* Hover feedback: subtle lightening without changing gradient */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0 rounded-[3px] bg-white/0 transition-colors duration-150 ease-out group-hover:bg-white/10 motion-reduce:transition-none"
+      />
+    </button>
+  )
+}
+
+function WaveformSelector({
+  label,
+  value,
+  onChange,
+}: {
+  label: string
+  value: WaveformType
+  onChange: (w: WaveformType) => void
+}) {
+  return (
+    <div className="flex flex-col items-center gap-1">
+      <span className="font-synth text-[7px] uppercase tracking-widest" style={{ color: "hsl(var(--moog-silkscreen) / 0.5)" }}>
+        {label}
+      </span>
+      <div
+        className="flex flex-row flex-nowrap items-center justify-center gap-1.5"
+        role="radiogroup"
+        aria-label={`${label} waveform`}
+      >
+        {WAVEFORMS.map((w) => (
+          <WaveformCap
+            key={w}
+            label={WAVE_LABELS[w]}
+            active={w === value}
+            onClick={() => onChange(w)}
+            aria-label={`${label} ${WAVE_LABELS[w]}`}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/* ---- SynthEngineStrip — OSC 1, OSC 2 + Detune, Filter section ---- */
+function SynthEngineStrip({
+  octave, onOctaveDown, onOctaveUp,
+  osc1Wave, onOsc1Wave,
+  osc2Wave, onOsc2Wave,
+  detune, onDetune,
+  cutoff, onCutoff,
+  resonance, onResonance,
+}: {
+  octave: number
+  onOctaveDown: () => void
+  onOctaveUp: () => void
+  osc1Wave: WaveformType
+  onOsc1Wave: (w: WaveformType) => void
+  osc2Wave: WaveformType
+  onOsc2Wave: (w: WaveformType) => void
+  detune: number
+  onDetune: (v: number) => void
+  cutoff: number
+  onCutoff: (v: number) => void
+  resonance: number
+  onResonance: (v: number) => void
+}) {
+  return (
+    <div
+      className="flex shrink-0 flex-nowrap items-center justify-center gap-0 border-b border-stone-700/40 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      style={{
+        background: "linear-gradient(180deg, #181512 0%, #141210 100%)",
+        borderTop: "1px solid rgba(255,255,255,0.04)",
+        minHeight: 64,
+      }}
+    >
+      {/* OCTAVE section */}
+      <SynthSection label="OCTAVE">
+        <div className="flex items-center gap-1.5">
+          <MoogLEDButton label="OCT−" onClick={onOctaveDown} aria-label="Octave down" />
+          <span
+            className="font-synth text-sm w-6 text-center tabular-nums"
+            style={{ color: "hsl(var(--moog-amber))", textShadow: "0 0 6px hsl(var(--moog-amber) / 0.6)" }}
+          >
+            {octave > 0 ? `+${octave}` : octave}
+          </span>
+          <MoogLEDButton label="OCT+" onClick={onOctaveUp} aria-label="Octave up" />
+        </div>
+      </SynthSection>
+
+      <StripDivider />
+
+      {/* OSC 1 section */}
+      <SynthSection label="OSC 1">
+        <WaveformSelector label="WAVE" value={osc1Wave} onChange={onOsc1Wave} />
+      </SynthSection>
+
+      <StripDivider />
+
+      {/* OSC 2 section */}
+      <SynthSection label="OSC 2">
+        <div className="flex items-center gap-3">
+          <WaveformSelector label="WAVE" value={osc2Wave} onChange={onOsc2Wave} />
+          <ControlKnob label="DETUNE" value={detune} onChange={onDetune} />
+        </div>
+      </SynthSection>
+
+      <StripDivider />
+
+      {/* FILTER section */}
+      <SynthSection label="FILTER · LPF">
+        <div className="flex items-center gap-3">
+          <ControlKnob label="CUTOFF" value={cutoff} onChange={onCutoff} />
+          <ControlKnob label="RESON" value={resonance} onChange={onResonance} />
+        </div>
+      </SynthSection>
+    </div>
+  )
+}
+
+function SynthSection({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex flex-col items-center gap-1.5 px-4 py-2">
+      <span
+        className="font-synth text-[7px] uppercase tracking-[0.2em]"
+        style={{ color: "hsl(var(--moog-silkscreen) / 0.3)" }}
+      >
+        {label}
+      </span>
+      {children}
+    </div>
+  )
+}
+
+function StripDivider() {
+  return (
+    <div
+      className="self-stretch shrink-0"
+      style={{ width: 1, background: "linear-gradient(180deg, transparent, rgba(255,255,255,0.06), transparent)" }}
+    />
+  )
+}
+
 /* ---- Keyboard hint — shown on first visit until dismissed ---- */
-function KeyboardHint({ visible, onDismiss }: { visible: boolean; onDismiss: () => void }) {
+function KeyboardHint({
+  visible,
+  onDismiss,
+  reducedMotion = false,
+}: {
+  visible: boolean
+  onDismiss: () => void
+  reducedMotion?: boolean
+}) {
   return (
     <AnimatePresence>
       {visible && (
         <motion.button
           type="button"
           className="absolute bottom-[30vh] left-1/2 z-30 -translate-x-1/2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moog-amber focus-visible:ring-offset-2 focus-visible:ring-offset-[#1a1814]"
-          initial={{ opacity: 0, y: 4 }}
+          initial={reducedMotion ? false : { opacity: 0, y: 4 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -4 }}
-          transition={{ duration: 0.4 }}
+          exit={reducedMotion ? { opacity: 0 } : { opacity: 0, y: -4 }}
+          transition={{ duration: reducedMotion ? 0 : 0.4 }}
           onClick={onDismiss}
           aria-label="Dismiss keyboard hint — press any key to play"
         >
@@ -627,17 +1030,245 @@ function KeyboardHint({ visible, onDismiss }: { visible: boolean; onDismiss: () 
   )
 }
 
+/* ---- Phillips screw head — reused in WheelBlock corners ---- */
+function PhillipsScrew({ style }: { style?: React.CSSProperties }) {
+  return (
+    <div aria-hidden style={{
+      position: "absolute", width: 8, height: 8, borderRadius: "50%",
+      background: "radial-gradient(circle at 36% 30%, #5a5650, #28241e)",
+      boxShadow: "0 1px 3px rgba(0,0,0,0.9), inset 0 1px 0 rgba(255,255,255,0.12)",
+      ...style,
+    }}>
+      {/* Cross slot */}
+      <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ position: "absolute", width: "60%", height: 1, background: "rgba(0,0,0,0.7)" }} />
+        <div style={{ position: "absolute", width: 1, height: "60%", background: "rgba(0,0,0,0.7)" }} />
+      </div>
+    </div>
+  )
+}
+
+/* ---- LED position track — 7 segments, active segment glows amber ---- */
+function LedTrack({ trackRef }: { trackRef: React.RefObject<HTMLDivElement | null> }) {
+  const SEGS = 7
+  return (
+    <div ref={trackRef} style={{ display: "flex", flexDirection: "column", gap: 2, justifyContent: "center", height: "100%" }}>
+      {Array.from({ length: SEGS }).map((_, i) => (
+        <div
+          key={i}
+          data-seg={i}
+          style={{
+            width: 4, height: 6, borderRadius: 1,
+            background: i === Math.floor(SEGS / 2) ? "#c8702a" : "#2a1a08",
+            boxShadow: i === Math.floor(SEGS / 2) ? "0 0 4px #c8702a, 0 0 8px rgba(200,112,42,0.6)" : "none",
+            transition: "background 0.06s, box-shadow 0.06s",
+          }}
+        />
+      ))}
+    </div>
+  )
+}
+
+/* ---- Pitch & Mod Wheels ---- */
+function WheelBlock() {
+  const pitchCylRef = React.useRef<HTMLDivElement>(null)
+  const modCylRef   = React.useRef<HTMLDivElement>(null)
+  const pitchLedRef = React.useRef<HTMLDivElement>(null)
+  const modLedRef   = React.useRef<HTMLDivElement>(null)
+
+  const SEGS = 7
+
+  /** Update the LED track to highlight the segment closest to current wheel position */
+  function updateLed(ledTrack: HTMLDivElement, topPx: number, housingH: number, cylH: number) {
+    const minTop = 4, maxTop = housingH - cylH - 4
+    const ratio = 1 - (topPx - minTop) / Math.max(1, maxTop - minTop) // 0=bottom, 1=top
+    const activeSeg = Math.round(ratio * (SEGS - 1))
+    ledTrack.querySelectorAll<HTMLDivElement>("[data-seg]").forEach((el) => {
+      const seg = parseInt(el.dataset.seg ?? "0", 10)
+      const on = seg === activeSeg
+      el.style.background = on ? "#c8702a" : "#2a1a08"
+      el.style.boxShadow  = on ? "0 0 4px #c8702a, 0 0 8px rgba(200,112,42,0.6)" : "none"
+    })
+  }
+
+  function makeWheelHandler(
+    cylinderRef: React.RefObject<HTMLDivElement | null>,
+    ledRef: React.RefObject<HTMLDivElement | null>,
+    snapsBack: boolean,
+  ) {
+    return function onPointerDown(e: React.PointerEvent<HTMLDivElement>) {
+      const housing = e.currentTarget
+      if (!cylinderRef.current) return
+      const cyl = cylinderRef.current
+      e.preventDefault()
+      housing.setPointerCapture(e.pointerId)
+
+      const housingH  = housing.clientHeight
+      const cylH      = cyl.clientHeight
+      const minTop    = 4
+      const maxTop    = housingH - cylH - 4
+      const centerTop = Math.round((housingH - cylH) / 2)
+      let startY   = e.clientY
+      let startTop = cyl.offsetTop
+
+      function onMove(ev: PointerEvent) {
+        const next = Math.min(maxTop, Math.max(minTop, startTop + ev.clientY - startY))
+        cyl.style.top = next + "px"
+        if (ledRef.current) updateLed(ledRef.current, next, housingH, cylH)
+      }
+      function onUp() {
+        if (snapsBack) {
+          cyl.style.transition = "top 0.2s ease"
+          cyl.style.top = centerTop + "px"
+          if (ledRef.current) updateLed(ledRef.current, centerTop, housingH, cylH)
+          setTimeout(() => { cyl.style.transition = "top 0.05s ease" }, 220)
+        }
+        housing.removeEventListener("pointermove", onMove)
+        housing.removeEventListener("pointerup", onUp)
+      }
+      housing.addEventListener("pointermove", onMove)
+      housing.addEventListener("pointerup", onUp)
+    }
+  }
+
+  return (
+    <div
+      className="relative flex shrink-0 flex-col"
+      style={{
+        width: 100,
+        background: "linear-gradient(180deg, #181614 0%, #111008 60%, #0c0a07 100%)",
+        borderRight: "1px solid #0a0806",
+        boxShadow: "inset -4px 0 16px rgba(0,0,0,0.7), inset 0 6px 20px rgba(0,0,0,0.6)",
+      }}
+    >
+      {/* Phillips screws — four corners */}
+      <PhillipsScrew style={{ top: 5, left: 5 }} />
+      <PhillipsScrew style={{ top: 5, right: 5 }} />
+      <PhillipsScrew style={{ bottom: 18, left: 5 }} />
+      <PhillipsScrew style={{ bottom: 18, right: 5 }} />
+
+      {/* Bottom-left brushed corner accent */}
+      <div aria-hidden style={{
+        position: "absolute", bottom: 0, left: 0, width: 18, height: 18,
+        background: "linear-gradient(135deg, #2a2620 0%, #1a1612 50%, transparent 100%)",
+        borderTop: "1px solid rgba(255,255,255,0.06)",
+        borderRight: "1px solid rgba(255,255,255,0.04)",
+      }} />
+
+      {/* Wheels row — fills height minus label strip */}
+      <div className="flex flex-1 items-center justify-center gap-3" style={{ padding: "14px 10px 8px" }}>
+
+        {/* PITCH: LED track left · cutout · */}
+        <div className="flex items-center gap-1.5" style={{ height: "100%" }}>
+          <LedTrack trackRef={pitchLedRef} />
+          {/* Cutout housing */}
+          <div
+            style={{
+              width: 28, height: "78%", borderRadius: 4,
+              background: "#050505",
+              boxShadow: "inset 0px 15px 20px rgba(0,0,0,0.9), inset 0px -5px 10px rgba(0,0,0,0.7), 0 1px 0 rgba(255,255,255,0.08)",
+              border: "1px solid #1a1a1a",
+              borderBottom: "1px solid #2a2a2a",
+              position: "relative", overflow: "hidden", cursor: "ns-resize",
+            }}
+            onPointerDown={makeWheelHandler(pitchCylRef, pitchLedRef, true)}
+          >
+            {/* Pitch-neutral center mark */}
+            <div style={{ position: "absolute", left: 0, right: 0, top: "50%", height: 1, background: "rgba(200,112,42,0.45)", zIndex: 3, pointerEvents: "none" }} />
+            {/* Wheel cylinder */}
+            <div ref={pitchCylRef} style={{
+              position: "absolute", left: 1, right: 1,
+              top: "calc(50% - 30%)", height: "60%",
+              borderRadius: 3,
+              background: "linear-gradient(to bottom, #111 0%, #333 15%, #888 35%, #999 40%, #222 60%, #0a0a0a 100%)",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.9), 0 -2px 6px rgba(0,0,0,0.6)",
+              transition: "top 0.05s ease",
+              overflow: "hidden",
+            }}>
+              {/* Texture overlay — horizontal ridges wrapping the 3D gradient */}
+              <div aria-hidden style={{
+                position: "absolute", inset: 0,
+                backgroundImage: "repeating-linear-gradient(180deg, transparent 0px, transparent 3px, rgba(0,0,0,0.4) 3px, rgba(0,0,0,0.4) 4px, transparent 4px, transparent 5px, rgba(255,255,255,0.05) 5px, rgba(255,255,255,0.05) 6px)",
+                borderRadius: 3, pointerEvents: "none",
+              }} />
+              {/* Center groove — vertical dark strip, no ridges */}
+              <div aria-hidden style={{
+                position: "absolute", top: 0, bottom: 0,
+                left: "42%", width: "16%",
+                background: "linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.7) 40%, rgba(0,0,0,0.8) 50%, rgba(0,0,0,0.7) 60%, rgba(0,0,0,0.1) 100%)",
+                pointerEvents: "none",
+              }} />
+            </div>
+          </div>
+        </div>
+
+        {/* MOD: cutout · LED track right */}
+        <div className="flex items-center gap-1.5" style={{ height: "100%" }}>
+          {/* Cutout housing */}
+          <div
+            style={{
+              width: 28, height: "78%", borderRadius: 4,
+              background: "#050505",
+              boxShadow: "inset 0px 15px 20px rgba(0,0,0,0.9), inset 0px -5px 10px rgba(0,0,0,0.7), 0 1px 0 rgba(255,255,255,0.08)",
+              border: "1px solid #1a1a1a",
+              borderBottom: "1px solid #2a2a2a",
+              position: "relative", overflow: "hidden", cursor: "ns-resize",
+            }}
+            onPointerDown={makeWheelHandler(modCylRef, modLedRef, false)}
+          >
+            <div ref={modCylRef} style={{
+              position: "absolute", left: 1, right: 1,
+              top: "calc(50% - 30%)", height: "60%",
+              borderRadius: 3,
+              background: "linear-gradient(to bottom, #111 0%, #333 15%, #888 35%, #999 40%, #222 60%, #0a0a0a 100%)",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.9), 0 -2px 6px rgba(0,0,0,0.6)",
+              transition: "top 0.05s ease",
+              overflow: "hidden",
+            }}>
+              {/* Texture overlay */}
+              <div aria-hidden style={{
+                position: "absolute", inset: 0,
+                backgroundImage: "repeating-linear-gradient(180deg, transparent 0px, transparent 3px, rgba(0,0,0,0.4) 3px, rgba(0,0,0,0.4) 4px, transparent 4px, transparent 5px, rgba(255,255,255,0.05) 5px, rgba(255,255,255,0.05) 6px)",
+                borderRadius: 3, pointerEvents: "none",
+              }} />
+              {/* Center groove */}
+              <div aria-hidden style={{
+                position: "absolute", top: 0, bottom: 0,
+                left: "42%", width: "16%",
+                background: "linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.7) 40%, rgba(0,0,0,0.8) 50%, rgba(0,0,0,0.7) 60%, rgba(0,0,0,0.1) 100%)",
+                pointerEvents: "none",
+              }} />
+            </div>
+          </div>
+          <LedTrack trackRef={modLedRef} />
+        </div>
+
+      </div>
+
+      {/* Label strip */}
+      <div className="flex shrink-0" style={{ height: 18, paddingBottom: 2, alignItems: "center", justifyContent: "space-around" }}>
+        <span style={{ fontSize: 7, letterSpacing: "0.18em", textTransform: "uppercase", color: "#8a7248", fontFamily: "'Courier New', monospace" }}>PITCH</span>
+        <span style={{ fontSize: 7, letterSpacing: "0.18em", textTransform: "uppercase", color: "#8a7248", fontFamily: "'Courier New', monospace" }}>MOD</span>
+      </div>
+    </div>
+  )
+}
+
 /* ---- Piano Keyboard —— professional instrument, full width, 25–30% height ---- */
 function PianoKeyboard({
   activeKeys,
+  highlightKeys,
   onKeyDown,
   onKeyUp,
   onFirstHover,
+  reducedMotion = false,
 }: {
   activeKeys: Set<number>
+  highlightKeys?: Set<number>
   onKeyDown: (idx: number) => void
   onKeyUp: (idx: number) => void
   onFirstHover?: () => void
+  reducedMotion?: boolean
 }) {
   const keyMap = React.useMemo(() => {
     const map: Record<string, number> = {}
@@ -678,8 +1309,8 @@ function PianoKeyboard({
 
   return (
     <div
-      className="moog-wood moog-keybed flex shrink-0 flex-col w-full"
-      style={{ height: "28vh", minHeight: 160 }}
+      data-tour="keyboard"
+      className="moog-wood moog-keybed flex flex-col flex-1 min-w-0"
       onMouseEnter={onFirstHover}
     >
       {/* Key-stop shadow where keys meet faceplate */}
@@ -696,9 +1327,11 @@ function PianoKeyboard({
             idx={idx}
             isBlack={false}
             isActive={activeKeys.has(idx)}
+            isHighlighted={highlightKeys?.has(idx) ?? false}
             onPointerDown={() => onKeyDown(idx)}
             onPointerUp={() => onKeyUp(idx)}
             style={{ flex: 1 }}
+            reducedMotion={reducedMotion}
           />
         ))}
         {/* Black keys — position absolute, width calc(100%/24), over seams */}
@@ -715,9 +1348,11 @@ function PianoKeyboard({
               idx={idx}
               isBlack
               isActive={activeKeys.has(idx)}
+              isHighlighted={highlightKeys?.has(idx) ?? false}
               onPointerDown={() => onKeyDown(idx)}
               onPointerUp={() => onKeyUp(idx)}
               style={{ width: "100%", height: "100%" }}
+              reducedMotion={reducedMotion}
             />
           </div>
         ))}
@@ -730,16 +1365,20 @@ function PianoKey({
   idx,
   isBlack,
   isActive,
+  isHighlighted = false,
   onPointerDown,
   onPointerUp,
   style: styleProp,
+  reducedMotion = false,
 }: {
   idx?: number
   isBlack: boolean
   isActive: boolean
+  isHighlighted?: boolean
   onPointerDown: () => void
   onPointerUp: () => void
   style?: React.CSSProperties
+  reducedMotion?: boolean
 }) {
   const noteLabel = idx != null && idx < PIANO_NOTES.length ? PIANO_NOTES[idx] : "piano key"
   return (
@@ -791,6 +1430,25 @@ function PianoKey({
             : "none",
         }}
       />
+      {/* Cyan highlight — pulses to show next key in learn mode (static when reduced motion) */}
+      <motion.div
+        className="absolute inset-0 rounded-b-[4px] pointer-events-none"
+        initial={false}
+        animate={{
+          boxShadow: isHighlighted
+            ? reducedMotion
+              ? "inset 0 -10px 28px rgba(34,211,238,0.5)"
+              : ["inset 0 -10px 28px rgba(34,211,238,0.5)", "inset 0 -10px 28px rgba(34,211,238,0.2)", "inset 0 -10px 28px rgba(34,211,238,0.5)"]
+            : "none",
+        }}
+        transition={
+          isHighlighted
+            ? reducedMotion
+              ? { duration: 0 }
+              : { duration: 0.9, repeat: Infinity, ease: "easeInOut" }
+            : { duration: 0.15 }
+        }
+      />
       {/* Amber light bleed — spills upward onto wood/metal when active */}
       {isActive && (
         <div
@@ -802,5 +1460,124 @@ function PianoKey({
         />
       )}
     </motion.button>
+  )
+}
+
+/* ---- Learn Screen — rendered inside the CRT area when learn mode is active ---- */
+function LearnScreen({
+  basslines,
+  selectedIdx,
+  onSelect,
+  step,
+  totalSteps,
+  demoPlaying,
+  onDemo,
+  onStopDemo,
+  onExit,
+}: {
+  basslines: Bassline[]
+  selectedIdx: number
+  onSelect: (i: number) => void
+  step: number
+  totalSteps: number
+  demoPlaying: boolean
+  onDemo: () => void
+  onStopDemo: () => void
+  onExit: () => void
+}) {
+  const stepInLoop = step % totalSteps
+  const loopsDone = Math.floor(step / totalSteps)
+
+  return (
+    <div className="flex h-full flex-col items-center justify-center gap-3 px-6 py-4 font-synth select-none">
+      {/* Song selector */}
+      <select
+        value={selectedIdx}
+        onChange={(e) => onSelect(Number(e.target.value))}
+        className="font-synth text-[9px] uppercase tracking-widest rounded px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moog-amber focus-visible:ring-offset-1 focus-visible:ring-offset-black"
+        style={{
+          background: "#0d0b08",
+          border: "1px solid rgba(255,255,255,0.08)",
+          color: "hsl(var(--moog-amber))",
+          textShadow: "0 0 6px hsl(var(--moog-amber) / 0.5)",
+        }}
+        aria-label="Select bassline"
+      >
+        {basslines.map((b, i) => (
+          <option key={b.id} value={i}>{b.label}</option>
+        ))}
+      </select>
+
+      {/* Step dots — lit amber up to current step */}
+      <div className="flex items-center gap-1.5" aria-label={`Step ${stepInLoop + 1} of ${totalSteps}`}>
+        {Array.from({ length: totalSteps }).map((_, i) => (
+          <div
+            key={i}
+            className="rounded-full transition-all duration-150"
+            style={{
+              width: i === stepInLoop ? 8 : 5,
+              height: i === stepInLoop ? 8 : 5,
+              background: i < stepInLoop
+                ? "hsl(var(--moog-amber) / 0.5)"
+                : i === stepInLoop
+                ? "hsl(var(--moog-amber))"
+                : "hsl(var(--moog-amber) / 0.12)",
+              boxShadow: i === stepInLoop ? "0 0 6px hsl(var(--moog-amber)), 0 0 12px hsl(var(--moog-amber) / 0.4)" : "none",
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Instruction */}
+      <span
+        className="text-[9px] tracking-[0.15em] text-center"
+        style={{ color: "hsl(var(--moog-silkscreen) / 0.55)" }}
+      >
+        {demoPlaying ? "LISTENING…" : "PRESS THE GLOWING KEY"}
+      </span>
+
+      {/* Loops badge */}
+      {loopsDone > 0 && (
+        <span
+          className="text-[8px] tracking-widest"
+          style={{ color: "hsl(var(--moog-amber) / 0.6)" }}
+        >
+          ×{loopsDone} LOOPS COMPLETE
+        </span>
+      )}
+
+      {/* Buttons */}
+      <div className="flex items-center gap-3 mt-1">
+        <motion.button
+          type="button"
+          whileTap={{ y: 1 }}
+          onClick={demoPlaying ? onStopDemo : onDemo}
+          className="font-synth text-[8px] uppercase tracking-widest rounded px-3 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moog-amber focus-visible:ring-offset-1 focus-visible:ring-offset-black"
+          style={{
+            background: demoPlaying ? "rgba(232,101,10,0.2)" : "#0d0b08",
+            border: "1px solid rgba(232,101,10,0.3)",
+            color: "hsl(var(--moog-amber))",
+            textShadow: "0 0 6px hsl(var(--moog-amber) / 0.5)",
+          }}
+          aria-label={demoPlaying ? "Stop demo" : "Play demo"}
+        >
+          {demoPlaying ? "■ STOP" : "▶ DEMO"}
+        </motion.button>
+        <motion.button
+          type="button"
+          whileTap={{ y: 1 }}
+          onClick={onExit}
+          className="font-synth text-[8px] uppercase tracking-widest rounded px-3 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moog-amber focus-visible:ring-offset-1 focus-visible:ring-offset-black"
+          style={{
+            background: "#0d0b08",
+            border: "1px solid rgba(255,255,255,0.08)",
+            color: "hsl(var(--moog-silkscreen) / 0.5)",
+          }}
+          aria-label="Exit learn mode"
+        >
+          EXIT
+        </motion.button>
+      </div>
+    </div>
   )
 }

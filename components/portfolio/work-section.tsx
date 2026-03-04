@@ -75,13 +75,15 @@ export function WorkSection({ carousel = false, onContactClick }: WorkSectionPro
         </p>
         <div className="mt-5">
           {onContactClick ? (
-            <Button variant="outline" size="default" className="moog-cta gap-2" onClick={onContactClick}>
-              Get in touch →
+            <Button variant="outline" size="default" className="moog-cta group gap-2" onClick={onContactClick}>
+              Get in touch{" "}
+              <span className="cta-arrow inline-block transition-transform duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:translate-x-0.5" aria-hidden>→</span>
             </Button>
           ) : (
-            <Button variant="outline" size="default" className="moog-cta gap-2" asChild>
+            <Button variant="outline" size="default" className="moog-cta group gap-2" asChild>
               <Link href="#contact">
-                Get in touch →
+                Get in touch{" "}
+                <span className="cta-arrow inline-block transition-transform duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:translate-x-0.5" aria-hidden>→</span>
               </Link>
             </Button>
           )}
@@ -224,9 +226,12 @@ export function WorkSection({ carousel = false, onContactClick }: WorkSectionPro
             {workSectionLabels.workProjectsDescription}
           </p>
           <div className="mt-5 md:mt-6">
-            <Button variant="outline" size="default" className="gap-2" asChild>
+            <Button variant="outline" size="default" className="group gap-2" asChild>
               <Link href="#contact">
-                Get in touch →
+                Get in touch{" "}
+                <span className="cta-arrow inline-block transition-transform duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:translate-x-0.5" aria-hidden>
+                  →
+                </span>
               </Link>
             </Button>
           </div>
@@ -254,11 +259,11 @@ export function WorkSection({ carousel = false, onContactClick }: WorkSectionPro
         ) : (
           <ScrollReveal delay={80}>
             <p className="mt-4 text-sm text-muted-foreground md:mt-5">
-              No prototypes to show yet.{" "}
-              <Link href="#contact" className="underline hover:text-foreground">
+              Nothing here yet — more to come soon.{" "}
+              <Link href="#contact" className="underline decoration-primary/30 underline-offset-2 transition-colors hover:text-foreground hover:decoration-primary">
                 Get in touch
               </Link>{" "}
-              to see work samples.
+              and I can share work samples.
             </p>
           </ScrollReveal>
         )}

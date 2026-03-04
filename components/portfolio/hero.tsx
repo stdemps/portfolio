@@ -39,11 +39,14 @@ export function Hero({ carousel = false, onContactClick }: HeroProps) {
           <Button
             variant="default"
             size="lg"
-            className="gap-2 px-6 text-base font-semibold shadow-md transition-transform duration-200 hover:scale-[1.02] focus-visible:ring-2 focus-visible:ring-offset-2 md:px-8"
+            className="group gap-2 px-6 text-base font-semibold shadow-md transition-transform duration-200 hover:scale-[1.02] focus-visible:ring-2 focus-visible:ring-offset-2 md:px-8"
             asChild
           >
             <Link href="#contact">
-              Let&apos;s chat →
+              Let&apos;s chat{" "}
+              <span className="cta-arrow inline-block transition-transform duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:translate-x-0.5" aria-hidden>
+                →
+              </span>
             </Link>
           </Button>
         </div>
@@ -82,14 +85,18 @@ export function Hero({ carousel = false, onContactClick }: HeroProps) {
                   <Button
                     variant="outline"
                     size="lg"
-                    className="moog-cta h-11 gap-2 px-6 text-base font-semibold md:h-12 md:px-8"
+                    className="moog-cta group h-11 gap-2 px-6 text-base font-semibold md:h-12 md:px-8"
                     onClick={onContactClick}
                   >
-                    Let&apos;s chat →
+                    Let&apos;s chat{" "}
+                    <span className="cta-arrow inline-block transition-transform duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:translate-x-0.5" aria-hidden>→</span>
                   </Button>
                 ) : (
-                  <Button variant="outline" size="lg" className="moog-cta h-11 gap-2 px-6 text-base font-semibold md:h-12 md:px-8" asChild>
-                    <Link href="#contact">Let&apos;s chat →</Link>
+                  <Button variant="outline" size="lg" className="moog-cta group h-11 gap-2 px-6 text-base font-semibold md:h-12 md:px-8" asChild>
+                    <Link href="#contact">
+                      Let&apos;s chat{" "}
+                      <span className="cta-arrow inline-block transition-transform duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:translate-x-0.5" aria-hidden>→</span>
+                    </Link>
                   </Button>
                 )}
               </div>

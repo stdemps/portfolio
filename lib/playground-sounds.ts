@@ -221,3 +221,105 @@ export async function playKeyNote(
     return () => {}
   }
 }
+
+/* ---- Moog Engine: dual oscillator + ladder filter ---- */
+
+export type WaveformType = "sawtooth" | "square" | "triangle"
+
+/** Live-mutable params for the Moog engine — mutate these directly before playing */
+export const moogParams = {
+  osc1Wave: "sawtooth" as WaveformType,
+  osc2Wave: "sawtooth" as WaveformType,
+  /** OSC 2 detune in cents */
+  detune: 8,
+  /** LPF cutoff frequency in Hz (0–1 normalised → mapped to 80–8000 Hz) */
+  cutoff: 0.45,
+  /** Filter resonance 0–1 (mapped to Q 0.5–18) */
+  resonance: 0.35,
+}
+
+/** Active Moog voice map: note → [osc1, osc2, gainNode] */
+const moogVoices = new Map<string, [Tone.Oscillator, Tone.Oscillator, Tone.Gain]>()
+let moogFilter: Tone.Filter | null = null
+
+function getMoogFilter(): Tone.Filter {
+  if (!moogFilter) {
+    moogFilter = new Tone.Filter({
+      type: "lowpass",
+      rolloff: -24,
+      frequency: normalisedCutoffToHz(moogParams.cutoff),
+      Q: normalisedResonanceToQ(moogParams.resonance),
+    }).connect(getLimiter())
+  }
+  return moogFilter
+}
+
+function normalisedCutoffToHz(v: number): number {
+  // exponential map: 0→80Hz, 1→8000Hz
+  return Math.round(80 * Math.pow(100, v))
+}
+
+function normalisedResonanceToQ(v: number): number {
+  // 0→0.5, 1→18
+  return 0.5 + v * 17.5
+}
+
+/** Update filter from current moogParams — call after changing cutoff/resonance */
+export function applyMoogFilterParams(): void {
+  const f = getMoogFilter()
+  f.frequency.rampTo(normalisedCutoffToHz(moogParams.cutoff), 0.02)
+  f.Q.rampTo(normalisedResonanceToQ(moogParams.resonance), 0.02)
+}
+
+/**
+ * Play a note through the Moog dual-oscillator engine.
+ * Returns a release function.
+ */
+export async function playMoogNote(note: string): Promise<() => void> {
+  try {
+    await ensureAudioReady()
+    if (moogVoices.has(note)) return () => releaseMoogNote(note)
+
+    const filter = getMoogFilter()
+    const gain = new Tone.Gain(0.4).connect(filter)
+
+    const osc1 = new Tone.Oscillator({
+      frequency: note,
+      type: moogParams.osc1Wave,
+    }).connect(gain)
+
+    const osc2 = new Tone.Oscillator({
+      frequency: note,
+      type: moogParams.osc2Wave,
+      detune: moogParams.detune,
+    }).connect(gain)
+
+    osc1.start()
+    osc2.start()
+
+    // Quick attack ramp to avoid click
+    gain.gain.setValueAtTime(0, Tone.now())
+    gain.gain.linearRampToValueAtTime(0.4, Tone.now() + 0.01)
+
+    moogVoices.set(note, [osc1, osc2, gain])
+
+    return () => releaseMoogNote(note)
+  } catch {
+    return () => {}
+  }
+}
+
+function releaseMoogNote(note: string): void {
+  const voice = moogVoices.get(note)
+  if (!voice) return
+  const [osc1, osc2, gain] = voice
+  const now = Tone.now()
+  gain.gain.setValueAtTime(gain.gain.value, now)
+  gain.gain.linearRampToValueAtTime(0, now + 0.15)
+  setTimeout(() => {
+    try { osc1.stop(); osc1.dispose() } catch { /* ok */ }
+    try { osc2.stop(); osc2.dispose() } catch { /* ok */ }
+    try { gain.dispose() } catch { /* ok */ }
+  }, 200)
+  moogVoices.delete(note)
+}

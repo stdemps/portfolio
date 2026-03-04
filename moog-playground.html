@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Moog Playground — Hardware Mockup</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #0e0e0e;
+  font-family: 'Courier New', Courier, monospace;
+  color: #ccc;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 12px;
+  gap: 14px;
+}
+
+h1 {
+  font-size: 10px;
+  font-weight: 400;
+  color: #3a3a3a;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* ── PRESET BAR ── */
+.presets {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.preset-btn {
+  background: #181818;
+  border: 1px solid #2e2e2e;
+  color: #666;
+  font-size: 9px;
+  padding: 4px 12px;
+  border-radius: 2px;
+  cursor: pointer;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: all 0.1s;
+}
+.preset-btn:hover { background: #222; color: #aaa; }
+.preset-btn.active { background: #b85c1a; border-color: #b85c1a; color: #fff; }
+
+/* ── WOOD SHELL ── */
+.wood-shell {
+  width: 100%;
+  max-width: 1060px;
+  background:
+    repeating-linear-gradient(93deg, transparent 0, transparent 5px, rgba(0,0,0,0.04) 5px, rgba(0,0,0,0.04) 6px, transparent 6px, transparent 13px, rgba(255,255,255,0.015) 13px, rgba(255,255,255,0.015) 14px),
+    linear-gradient(170deg, #7e5535 0%, #5e3c1a 20%, #4a2e0e 45%, #5e3c1a 70%, #7e5535 100%);
+  border-radius: 8px;
+  padding: 10px 14px 14px;
+  box-shadow:
+    0 16px 48px rgba(0,0,0,0.8),
+    inset 0 1px 0 rgba(255,255,255,0.14),
+    inset 0 -3px 6px rgba(0,0,0,0.5);
+  position: relative;
+}
+
+/* Corner screws */
+.screw {
+  position: absolute;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 32%, #d0c0a0, #4a4030);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.2);
+}
+.screw::before {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-top: 1px solid rgba(255,255,255,0.4);
+  transform: rotate(45deg);
+}
+.screw.tl { top: 6px; left: 8px; }
+.screw.tr { top: 6px; right: 8px; }
+.screw.bl { bottom: 10px; left: 8px; }
+.screw.br { bottom: 10px; right: 8px; }
+
+/* ── FACEPLATE ── */
+.faceplate {
+  border-radius: 4px;
+  border: 1px solid #111;
+  overflow: hidden;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+  /* brushed metal horizontal texture */
+  background:
+    repeating-linear-gradient(180deg, transparent 0, transparent 1px, rgba(255,255,255,0.012) 1px, rgba(255,255,255,0.012) 2px),
+    linear-gradient(180deg, #232220 0%, #1e1c1a 40%, #1a1816 100%);
+}
+
+/* ── TOP ROW (LCD + nav) ── */
+.top-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 18px;
+  padding: 10px 80px 12px;
+  border-bottom: 1px solid #111;
+  position: relative;
+  overflow-x: auto;
+  scrollbar-width: none;
+  background: linear-gradient(180deg, #1e1c1a 0%, #1a1816 100%);
+}
+.top-row::-webkit-scrollbar { display: none; }
+
+.rockers-left {
+  position: absolute;
+  left: 12px;
+  bottom: 10px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+/* Rocker toggle — Moog style physical snap */
+.rocker-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  cursor: pointer;
+  user-select: none;
+}
+.rocker-top-label, .rocker-bot-label {
+  font-size: 7px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1.2;
+  transition: color 0.12s;
+}
+.rocker-body {
+  width: 32px; height: 22px;
+  border-radius: 2px;
+  background: linear-gradient(to right, #181614, #222018, #181614);
+  border: 1px solid #0e0c0a;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.04);
+  position: relative;
+  overflow: hidden;
+}
+.rocker-lever {
+  position: absolute;
+  left: 3px; right: 3px;
+  height: 11px;
+  background: linear-gradient(180deg, #504540 0%, #383028 60%, #2e2820 100%);
+  border-radius: 2px;
+  border: 1px solid #181410;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  transition: top 0.08s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+.rocker-wrap.top .rocker-lever { top: 1px; }
+.rocker-wrap.bot .rocker-lever { top: 9px; }
+.rocker-pip {
+  position: absolute;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  left: 50%; transform: translateX(-50%);
+  transition: all 0.12s;
+}
+.rocker-wrap.top .rocker-pip { top: 2px; background: #c8702a; box-shadow: 0 0 5px #c8702a; }
+.rocker-wrap.bot .rocker-pip { bottom: 2px; background: #2a1a08; }
+
+/* LED button (PREV/NEXT) */
+.led-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  cursor: pointer;
+  user-select: none;
+  flex-shrink: 0;
+}
+.led-btn-body {
+  width: 52px; height: 22px;
+  background: linear-gradient(180deg, #2c2926 0%, #1e1c18 55%, #161410 100%);
+  border: 1px solid #0e0c0a;
+  border-top: 1px solid rgba(255,255,255,0.09);
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05);
+  transition: all 0.08s;
+}
+.led-btn:active .led-btn-body { transform: translateY(1px); box-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+.led-btn-label-text {
+  flex: 1;
+  font-size: 7px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  text-align: center;
+  padding-left: 4px;
+  color: rgba(210,195,170,0.55);
+}
+.led-window {
+  width: 14px;
+  height: 100%;
+  flex-shrink: 0;
+  border-left: 1px solid #0e0c0a;
+  background: linear-gradient(180deg, #2a1006 0%, #180a02 100%);
+  position: relative;
+}
+.led-window::after {
+  content: '';
+  position: absolute;
+  top: 4px; left: 50%; transform: translateX(-50%);
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: #c8702a;
+  box-shadow: 0 0 5px #c8702a, 0 0 10px rgba(200,112,42,0.5);
+}
+.led-btn:active .led-window { background: linear-gradient(180deg, #ff8020 0%, #c85000 100%); }
+
+/* LCD SCREEN */
+.lcd-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.lcd {
+  width: 340px;
+  background: #080604;
+  border: 1px solid #060504;
+  border-radius: 3px;
+  padding: 5px 16px 7px;
+  box-shadow: inset 0 3px 12px rgba(0,0,0,0.95), 0 1px 0 rgba(255,255,255,0.05);
+  background-image: repeating-linear-gradient(0deg, transparent 0px, transparent 2px, rgba(0,0,0,0.1) 2px, rgba(0,0,0,0.1) 3px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+.lcd-header { font-size: 7px; letter-spacing: 0.3em; color: rgba(210,185,150,0.28); text-transform: uppercase; }
+.lcd-patch {
+  font-size: 19px;
+  letter-spacing: 0.18em;
+  font-weight: bold;
+  color: #e8a045;
+  text-shadow: 0 0 8px #c8702a, 0 0 22px rgba(200,112,42,0.35);
+  white-space: nowrap;
+}
+.lcd-tone { font-size: 7px; letter-spacing: 0.24em; color: rgba(232,160,69,0.38); text-transform: uppercase; }
+.patch-dots { display: flex; gap: 5px; align-items: center; }
+.patch-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: rgba(200,112,42,0.18);
+  cursor: pointer;
+  border: none;
+  padding: 0;
+  transition: all 0.15s;
+}
+.patch-dot.active {
+  width: 7px; height: 7px;
+  background: #c8702a;
+  box-shadow: 0 0 5px #c8702a, 0 0 10px rgba(200,112,42,0.4);
+}
+
+/* Right knobs */
+.top-knobs { display: flex; gap: 14px; align-items: flex-end; }
+
+/* ── ENGINE STRIP — the main panel ── */
+.engine-strip {
+  display: flex;
+  align-items: stretch;
+  min-height: 200px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.engine-strip::-webkit-scrollbar { display: none; }
+
+/* Each section */
+.section {
+  display: flex;
+  flex-direction: column;
+  padding: 14px 0 0;
+  flex-shrink: 0;
+  border-right: 1px solid rgba(255,255,255,0.055);
+  position: relative;
+}
+.section:last-child { border-right: none; }
+
+.section-inner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px 12px;
+  gap: 10px;
+}
+
+/* Section label band — at bottom like real Minimoog */
+.section-label-band {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  border-top: 1px solid rgba(255,255,255,0.04);
+  background: linear-gradient(180deg, #161412 0%, #121008 100%);
+}
+.section-label-text {
+  font-size: 7.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(210,195,170,0.35);
+}
+.section-label-text.new { color: rgba(200,112,42,0.6); }
+
+/* ── LARGE KNOB (Moog style) ── */
+.knob-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: ns-resize;
+  user-select: none;
+}
+.knob-label {
+  font-size: 7px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(210,195,170,0.45);
+  text-align: center;
+  line-height: 1.2;
+}
+/* SVG knob drawn in JS for size flexibility */
+.knob-svg {
+  display: block;
+  filter: drop-shadow(0 3px 6px rgba(0,0,0,0.8));
+  transition: filter 0.1s;
+}
+.knob-wrap:hover .knob-svg { filter: drop-shadow(0 3px 8px rgba(200,112,42,0.5)); }
+.knob-wrap.dragging .knob-svg { filter: drop-shadow(0 3px 10px rgba(200,112,42,0.8)); }
+
+/* row of knobs */
+.knob-row { display: flex; align-items: flex-end; gap: 12px; }
+
+/* ── WAVEFORM SELECTOR ── */
+.wave-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+.wave-group-label {
+  font-size: 7px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(210,195,170,0.3);
+}
+.wave-btns { display: flex; gap: 1px; }
+.wave-btn {
+  background: #161412;
+  border: 1px solid #2a2520;
+  color: rgba(210,195,170,0.3);
+  font-size: 9px;
+  width: 28px; height: 22px;
+  border-radius: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: all 0.1s;
+  font-family: monospace;
+  letter-spacing: 0;
+}
+.wave-btn:first-child { border-radius: 2px 0 0 2px; }
+.wave-btn:last-child { border-radius: 0 2px 2px 0; }
+.wave-btn.active {
+  background: linear-gradient(180deg, #c8702a 0%, #a05020 100%);
+  border-color: #c8702a;
+  color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), 0 0 8px rgba(200,112,42,0.3);
+}
+.wave-btn:hover:not(.active) { border-color: #3a3530; color: rgba(210,195,170,0.7); }
+
+/* ── ORANGE LEVER TOGGLE (OSC 3 CONTROL style) ── */
+.lever-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+  user-select: none;
+}
+.lever-label { font-size: 6.5px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(210,195,170,0.35); text-align: center; line-height: 1.2; }
+.lever-track {
+  width: 14px; height: 32px;
+  background: linear-gradient(to right, #0e0c0a, #161412, #0e0c0a);
+  border: 1px solid #0a0806;
+  border-radius: 3px;
+  position: relative;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.6);
+}
+.lever-thumb {
+  position: absolute;
+  left: 1px; right: 1px;
+  height: 13px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #e07820 0%, #b85010 60%, #a04008 100%);
+  border: 1px solid #7a3008;
+  border-top: 1px solid rgba(255,255,255,0.2);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.15);
+  transition: top 0.1s ease;
+}
+.lever-wrap.on .lever-thumb { top: 1px; }
+.lever-wrap.off .lever-thumb { top: 16px; }
+
+/* OCT display */
+.oct-display { display: flex; align-items: center; gap: 6px; }
+.oct-val {
+  font-size: 16px;
+  color: #c8702a;
+  text-shadow: 0 0 8px rgba(200,112,42,0.7);
+  width: 28px;
+  text-align: center;
+}
+
+/* ── PITCH / MOD WHEELS ── */
+.keyboard-row {
+  display: flex;
+  align-items: stretch;
+  border-top: 1px solid #111;
+}
+
+.wheels-block {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  padding: 12px 14px 14px;
+  background: linear-gradient(180deg, #0c0a08 0%, #080604 100%);
+  border-right: 1px solid #111;
+  /* Recessed housing carved into the panel */
+  box-shadow: inset 2px 2px 8px rgba(0,0,0,0.7), inset -1px -1px 4px rgba(0,0,0,0.4);
+  flex-shrink: 0;
+}
+
+.wheel-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.wheel-label {
+  font-size: 7px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #c8702a;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.wheel-housing {
+  width: 28px;
+  height: 100px;
+  border-radius: 6px;
+  background: #0a0806;
+  /* Deeply recessed slot */
+  box-shadow:
+    inset 0 4px 12px rgba(0,0,0,0.9),
+    inset 0 -2px 6px rgba(0,0,0,0.6),
+    inset 2px 0 6px rgba(0,0,0,0.5),
+    inset -2px 0 6px rgba(0,0,0,0.5);
+  border: 1px solid #050402;
+  position: relative;
+  overflow: hidden;
+  cursor: ns-resize;
+}
+
+.wheel-cylinder {
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  height: 52px;
+  border-radius: 4px;
+  /* 3D cylindrical appearance — highlights on center, dark on edges */
+  background: linear-gradient(
+    to right,
+    #1a1410 0%,
+    #2e2820 12%,
+    #4a3e30 28%,
+    #5a4a38 42%,
+    #5a4a38 58%,
+    #4a3e30 72%,
+    #2e2820 88%,
+    #1a1410 100%
+  );
+  box-shadow:
+    0 2px 8px rgba(0,0,0,0.7),
+    0 -1px 4px rgba(0,0,0,0.4),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+  /* Horizontal grip ridges via repeating gradient */
+  background-image:
+    repeating-linear-gradient(
+      180deg,
+      transparent 0px,
+      transparent 5px,
+      rgba(0,0,0,0.35) 5px,
+      rgba(0,0,0,0.35) 6px,
+      transparent 6px,
+      transparent 7px,
+      rgba(255,255,255,0.04) 7px,
+      rgba(255,255,255,0.04) 8px
+    ),
+    linear-gradient(
+      to right,
+      #1a1410 0%,
+      #2e2820 12%,
+      #4a3e30 28%,
+      #5a4a38 42%,
+      #5a4a38 58%,
+      #4a3e30 72%,
+      #2e2820 88%,
+      #1a1410 100%
+    );
+  transition: top 0.05s ease;
+}
+
+.wheel-cylinder::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 4px;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(255,255,255,0.06) 35%,
+    rgba(255,255,255,0.10) 50%,
+    rgba(255,255,255,0.06) 65%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+/* Center line marker on the pitch wheel housing */
+.wheel-housing.pitch::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  top: 50%;
+  height: 1px;
+  background: rgba(200,112,42,0.35);
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* ── PROMPT ── */
+.prompt-area {
+  width: 100%;
+  max-width: 1060px;
+  background: #0a0a0a;
+  border: 1px solid #1e1e1e;
+  border-radius: 4px;
+  padding: 10px 14px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.prompt-text {
+  flex: 1;
+  font-size: 10px;
+  color: #666;
+  line-height: 1.7;
+  min-height: 28px;
+}
+.copy-btn {
+  background: #161616;
+  border: 1px solid #2a2a2a;
+  color: #555;
+  font-size: 9px;
+  padding: 5px 12px;
+  border-radius: 2px;
+  cursor: pointer;
+  white-space: nowrap;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: all 0.1s;
+  flex-shrink: 0;
+}
+.copy-btn:hover { background: #1e1e1e; color: #999; }
+.copy-btn.copied { background: #0a1a0a; border-color: #1e4a1e; color: #4aff4a; }
+</style>
+</head>
+<body>
+
+<h1>Moog Hardware Mockup</h1>
+
+<div class="presets">
+  <button class="preset-btn active" data-preset="hero">Hero · Bass Lead</button>
+  <button class="preset-btn" data-preset="lead">Lead Synth</button>
+  <button class="preset-btn" data-preset="bass">Fat Bass</button>
+  <button class="preset-btn" data-preset="pad">Warm Pad</button>
+  <button class="preset-btn" data-preset="arp">Sci-Fi Arp</button>
+</div>
+
+<div class="wood-shell">
+  <div class="screw tl"></div><div class="screw tr"></div>
+  <div class="screw bl"></div><div class="screw br"></div>
+
+  <div class="faceplate">
+
+    <!-- TOP ROW -->
+    <div class="top-row">
+      <div class="rockers-left">
+        <div class="rocker-wrap top" id="rockerPlay">
+          <span class="rocker-top-label" style="color:rgba(210,195,170,0.7)">PLAY</span>
+          <div class="rocker-body">
+            <div class="rocker-lever"></div>
+            <div class="rocker-pip"></div>
+          </div>
+          <span class="rocker-bot-label" style="color:rgba(210,195,170,0.28)">SIMPLE</span>
+        </div>
+        <div class="rocker-wrap bot" id="rockerLearn">
+          <span class="rocker-top-label" style="color:rgba(210,195,170,0.28)">LEARN</span>
+          <div class="rocker-body">
+            <div class="rocker-lever"></div>
+            <div class="rocker-pip"></div>
+          </div>
+          <span class="rocker-bot-label" style="color:rgba(210,195,170,0.7)">PLAY</span>
+        </div>
+      </div>
+
+      <div class="led-btn" id="btnPrev">
+        <div class="led-btn-body">
+          <span class="led-btn-label-text">PREV</span>
+          <div class="led-window"></div>
+        </div>
+      </div>
+
+      <div class="lcd-wrap">
+        <div class="lcd">
+          <span class="lcd-header">SD PORTFOLIO // PLAYGROUND</span>
+          <span class="lcd-patch" id="lcdPatch">PATCH 01: HERO</span>
+          <span class="lcd-tone" id="lcdTone">BASS LEAD</span>
+        </div>
+        <div class="patch-dots" id="patchDots"></div>
+      </div>
+
+      <div class="led-btn" id="btnNext">
+        <div class="led-btn-body">
+          <span class="led-btn-label-text">NEXT</span>
+          <div class="led-window"></div>
+        </div>
+      </div>
+
+      <div class="top-knobs">
+        <div class="knob-wrap" data-key="brightness" data-min="0" data-max="1" data-default="0.5">
+          <span class="knob-label">BRIGHT</span>
+          <canvas class="knob-svg" width="40" height="40" data-size="40"></canvas>
+        </div>
+        <div class="knob-wrap" data-key="reverb" data-min="0" data-max="1" data-default="0.3">
+          <span class="knob-label">REVERB</span>
+          <canvas class="knob-svg" width="40" height="40" data-size="40"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- ENGINE STRIP -->
+    <div class="engine-strip" id="engineStrip">
+
+      <!-- OCTAVE -->
+      <div class="section" style="min-width:110px">
+        <div class="section-inner">
+          <div class="oct-display">
+            <div class="led-btn" id="btnOctDown" style="transform:scale(0.88)">
+              <div class="led-btn-body"><span class="led-btn-label-text">OCT−</span><div class="led-window"></div></div>
+            </div>
+            <span class="oct-val" id="octVal">0</span>
+            <div class="led-btn" id="btnOctUp" style="transform:scale(0.88)">
+              <div class="led-btn-body"><span class="led-btn-label-text">OCT+</span><div class="led-window"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="section-label-band"><span class="section-label-text">OCTAVE</span></div>
+      </div>
+
+      <!-- OSCILLATOR BANK -->
+      <div class="section" style="min-width:340px">
+        <div class="section-inner" style="flex-direction:row;gap:0;padding:0;align-items:stretch">
+
+          <!-- OSC 1 sub-section -->
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:10px 14px 10px;border-right:1px solid rgba(255,255,255,0.04);flex:1">
+            <span style="font-size:7px;letter-spacing:0.2em;color:rgba(210,195,170,0.25);text-transform:uppercase">OSC 1</span>
+            <div class="wave-group">
+              <span class="wave-group-label">WAVE</span>
+              <div class="wave-btns" data-osc="1">
+                <button class="wave-btn active" data-wave="saw">SAW</button>
+                <button class="wave-btn" data-wave="sqr">SQR</button>
+                <button class="wave-btn" data-wave="tri">TRI</button>
+              </div>
+            </div>
+            <div class="knob-wrap" data-key="osc1range" data-min="0" data-max="1" data-default="0.5">
+              <canvas class="knob-svg" width="44" height="44" data-size="44"></canvas>
+              <span class="knob-label">RANGE</span>
+            </div>
+          </div>
+
+          <!-- OSC 2 sub-section -->
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:10px 14px 10px;border-right:1px solid rgba(255,255,255,0.04);flex:1">
+            <span style="font-size:7px;letter-spacing:0.2em;color:rgba(210,195,170,0.25);text-transform:uppercase">OSC 2</span>
+            <div class="wave-group">
+              <span class="wave-group-label">WAVE</span>
+              <div class="wave-btns" data-osc="2">
+                <button class="wave-btn active" data-wave="saw">SAW</button>
+                <button class="wave-btn" data-wave="sqr">SQR</button>
+                <button class="wave-btn" data-wave="tri">TRI</button>
+              </div>
+            </div>
+            <div class="knob-wrap" data-key="detune" data-min="0" data-max="1" data-default="0.08">
+              <canvas class="knob-svg" width="44" height="44" data-size="44"></canvas>
+              <span class="knob-label">DETUNE</span>
+            </div>
+          </div>
+
+          <!-- OSC 3 sub-section -->
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:10px 14px 10px;flex:1;position:relative">
+            <div style="display:flex;align-items:center;gap:6px">
+              <span style="font-size:7px;letter-spacing:0.2em;color:rgba(210,195,170,0.25);text-transform:uppercase">OSC 3</span>
+              <span style="font-size:6px;color:rgba(200,112,42,0.55);letter-spacing:0.08em;text-transform:uppercase">new</span>
+            </div>
+            <div class="wave-group">
+              <span class="wave-group-label">WAVE</span>
+              <div class="wave-btns" data-osc="3">
+                <button class="wave-btn" data-wave="saw">SAW</button>
+                <button class="wave-btn active" data-wave="sqr">SQR</button>
+                <button class="wave-btn" data-wave="tri">TRI</button>
+              </div>
+            </div>
+            <div style="display:flex;align-items:flex-end;gap:10px">
+              <div class="knob-wrap" data-key="osc3freq" data-min="0" data-max="1" data-default="0.5">
+                <canvas class="knob-svg" width="44" height="44" data-size="44"></canvas>
+                <span class="knob-label">FREQ</span>
+              </div>
+              <div class="lever-wrap on" id="leverOsc3" title="OSC 3 Control">
+                <span class="lever-label">OSC 3<br>CTRL</span>
+                <div class="lever-track"><div class="lever-thumb"></div></div>
+                <span class="lever-label">ON</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="section-label-band"><span class="section-label-text">OSCILLATOR BANK</span></div>
+      </div>
+
+      <!-- MIXER -->
+      <div class="section" style="min-width:200px">
+        <div class="section-inner">
+          <div class="knob-row">
+            <div class="knob-wrap" data-key="vol1" data-min="0" data-max="1" data-default="0.8">
+              <canvas class="knob-svg" width="44" height="44" data-size="44"></canvas>
+              <span class="knob-label">OSC 1</span>
+            </div>
+            <div class="knob-wrap" data-key="vol2" data-min="0" data-max="1" data-default="0.6">
+              <canvas class="knob-svg" width="44" height="44" data-size="44"></canvas>
+              <span class="knob-label">OSC 2</span>
+            </div>
+            <div class="knob-wrap" data-key="vol3" data-min="0" data-max="1" data-default="0.35">
+              <canvas class="knob-svg" width="44" height="44" data-size="44"></canvas>
+              <span class="knob-label" style="color:rgba(200,112,42,0.6)">OSC 3</span>
+            </div>
+          </div>
+        </div>
+        <div class="section-label-band"><span class="section-label-text new">MIXER · NEW</span></div>
+      </div>
+
+      <!-- MODIFIERS -->
+      <div class="section" style="min-width:300px">
+        <div class="section-inner" style="flex-direction:row;gap:0;padding:0;align-items:stretch">
+
+          <!-- Filter sub -->
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:10px 14px 10px;border-right:1px solid rgba(255,255,255,0.04)">
+            <span style="font-size:7px;letter-spacing:0.18em;color:rgba(210,195,170,0.25);text-transform:uppercase">FILTER · LPF</span>
+            <div class="knob-row">
+              <div class="knob-wrap" data-key="cutoff" data-min="0" data-max="1" data-default="0.45">
+                <canvas class="knob-svg" width="50" height="50" data-size="50"></canvas>
+                <span class="knob-label">CUTOFF FREQ</span>
+              </div>
+              <div class="knob-wrap" data-key="resonance" data-min="0" data-max="1" data-default="0.35">
+                <canvas class="knob-svg" width="44" height="44" data-size="44"></canvas>
+                <span class="knob-label">EMPHASIS</span>
+              </div>
+              <div class="knob-wrap" data-key="contour" data-min="0" data-max="1" data-default="0.5">
+                <canvas class="knob-svg" width="44" height="44" data-size="44"></canvas>
+                <span class="knob-label">CONTOUR</span>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:flex-end">
+              <div class="lever-wrap on" id="leverFiltMod" title="Filter Modulation">
+                <span class="lever-label">FILTER<br>MOD</span>
+                <div class="lever-track"><div class="lever-thumb"></div></div>
+                <span class="lever-label">ON</span>
+              </div>
+              <div class="lever-wrap on" id="leverKbd" title="Keyboard Control">
+                <span class="lever-label">KBD<br>CTRL</span>
+                <div class="lever-track"><div class="lever-thumb"></div></div>
+                <span class="lever-label">ON</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ADS sub -->
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:10px 14px 10px">
+            <span style="font-size:7px;letter-spacing:0.18em;color:rgba(210,195,170,0.25);text-transform:uppercase">LOUDNESS CONTOUR</span>
+            <div class="knob-row">
+              <div class="knob-wrap" data-key="attack" data-min="0" data-max="1" data-default="0.04">
+                <canvas class="knob-svg" width="44" height="44" data-size="44"></canvas>
+                <span class="knob-label">ATTACK</span>
+              </div>
+              <div class="knob-wrap" data-key="decay" data-min="0" data-max="1" data-default="0.38">
+                <canvas class="knob-svg" width="44" height="44" data-size="44"></canvas>
+                <span class="knob-label">DECAY</span>
+              </div>
+              <div class="knob-wrap" data-key="sustain" data-min="0" data-max="1" data-default="0.7">
+                <canvas class="knob-svg" width="44" height="44" data-size="44"></canvas>
+                <span class="knob-label">SUSTAIN</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="section-label-band"><span class="section-label-text">MODIFIERS</span></div>
+      </div>
+
+      <!-- VOLUME -->
+      <div class="section" style="min-width:80px">
+        <div class="section-inner">
+          <div class="knob-wrap" data-key="masterVol" data-min="0" data-max="1" data-default="0.75">
+            <canvas class="knob-svg" width="52" height="52" data-size="52"></canvas>
+            <span class="knob-label">VOLUME</span>
+          </div>
+        </div>
+        <div class="section-label-band"><span class="section-label-text">&nbsp;</span></div>
+      </div>
+
+    </div><!-- /engine-strip -->
+
+    <!-- KEYBOARD ROW: wheels + content screen -->
+    <div class="keyboard-row">
+
+      <!-- PITCH & MOD WHEELS -->
+      <div class="wheels-block">
+
+        <div class="wheel-unit">
+          <div class="wheel-housing pitch" id="wheelPitch" title="Pitch Bend">
+            <div class="wheel-cylinder" id="cylinderPitch" style="top:24px"></div>
+          </div>
+          <span class="wheel-label">PITCH</span>
+        </div>
+
+        <div class="wheel-unit">
+          <div class="wheel-housing" id="wheelMod" title="Modulation">
+            <div class="wheel-cylinder" id="cylinderMod" style="top:40px"></div>
+          </div>
+          <span class="wheel-label">MOD</span>
+        </div>
+
+      </div>
+
+      <!-- Content placeholder -->
+      <div style="flex:1;height:160px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#0c0a08 0%,#080604 100%);">
+        <span style="font-size:9px;letter-spacing:0.22em;color:rgba(210,195,170,0.1);text-transform:uppercase">CONTENT SCREEN</span>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<div class="prompt-area">
+  <div class="prompt-text" id="promptText">Loading…</div>
+  <button class="copy-btn" id="copyBtn">Copy Prompt</button>
+</div>
+
+<script>
+'use strict';
+
+// ── PATCHES ──────────────────────────────────────
+const PATCHES = [
+  { label:'HERO',         tone:'BASS LEAD'  },
+  { label:'PROJECTS',     tone:'PROG LEAD'  },
+  { label:'EXPERIENCE',   tone:'SUB BASS'   },
+  { label:'TESTIMONIALS', tone:'WARM PAD'   },
+  { label:'ABOUT',        tone:'WARM PAD'   },
+  { label:'CONTACT',      tone:'SCI-FI ARP' },
+];
+let patchIndex = 0;
+
+// ── STATE ─────────────────────────────────────────
+const state = {
+  octave:0,
+  osc1wave:'saw', osc2wave:'saw', osc3wave:'sqr',
+  brightness:0.5, reverb:0.3,
+  osc1range:0.5, detune:0.08, osc3freq:0.5,
+  vol1:0.8, vol2:0.6, vol3:0.35,
+  cutoff:0.45, resonance:0.35, contour:0.5,
+  attack:0.04, decay:0.38, sustain:0.7,
+  masterVol:0.75,
+  osc3on:true, filtMod:true, kbdCtrl:true,
+};
+
+const PRESETS = {
+  hero:  { osc1wave:'saw', osc2wave:'saw', osc3wave:'sqr', osc1range:0.5, detune:0.08,  osc3freq:0.5,  vol1:0.8, vol2:0.6, vol3:0.35, cutoff:0.45, resonance:0.35, contour:0.5,  attack:0.04, decay:0.38, sustain:0.7,  masterVol:0.75 },
+  lead:  { osc1wave:'saw', osc2wave:'sqr', osc3wave:'saw', osc1range:0.6, detune:0.18,  osc3freq:0.6,  vol1:0.9, vol2:0.8, vol3:0.5,  cutoff:0.65, resonance:0.5,  contour:0.7,  attack:0.02, decay:0.3,  sustain:0.5,  masterVol:0.8  },
+  bass:  { osc1wave:'saw', osc2wave:'sqr', osc3wave:'sqr', osc1range:0.3, detune:0.04,  osc3freq:0.3,  vol1:1.0, vol2:0.9, vol3:0.7,  cutoff:0.35, resonance:0.6,  contour:0.8,  attack:0.01, decay:0.2,  sustain:0.85, masterVol:0.9  },
+  pad:   { osc1wave:'tri', osc2wave:'tri', osc3wave:'tri', osc1range:0.5, detune:0.14,  osc3freq:0.6,  vol1:0.6, vol2:0.7, vol3:0.6,  cutoff:0.5,  resonance:0.2,  contour:0.4,  attack:0.6,  decay:0.7,  sustain:0.8,  masterVol:0.7  },
+  arp:   { osc1wave:'sqr', osc2wave:'tri', osc3wave:'sqr', osc1range:0.65,detune:0.22,  osc3freq:0.75, vol1:0.8, vol2:0.7, vol3:0.6,  cutoff:0.7,  resonance:0.55, contour:0.6,  attack:0.01, decay:0.25, sustain:0.4,  masterVol:0.75 },
+};
+
+// ── CANVAS KNOB DRAWING ────────────────────────────
+function drawKnob(canvas, value, min, max) {
+  const size = parseInt(canvas.dataset.size, 10);
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = size * dpr;
+  canvas.height = size * dpr;
+  canvas.style.width = size + 'px';
+  canvas.style.height = size + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const cx = size / 2, cy = size / 2;
+  const r = size / 2 - 2;
+  const ratio = (value - min) / (max - min);
+  const startAngle = Math.PI * 0.75;   // -135° from top
+  const totalArc   = Math.PI * 1.5;    // 270°
+  const angle = startAngle + ratio * totalArc - Math.PI / 2;
+
+  // Outer ring track (arc indicator background)
+  ctx.beginPath();
+  ctx.arc(cx, cy, r - 3, startAngle - Math.PI/2, startAngle - Math.PI/2 + totalArc);
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx.lineWidth = 3;
+  ctx.lineCap = 'round';
+  ctx.stroke();
+
+  // Active arc fill
+  ctx.beginPath();
+  ctx.arc(cx, cy, r - 3, startAngle - Math.PI/2, angle);
+  ctx.strokeStyle = '#c8702a';
+  ctx.lineWidth = 3;
+  ctx.lineCap = 'round';
+  ctx.stroke();
+
+  // Knob body — ridged outer ring
+  const rimGrad = ctx.createRadialGradient(cx - r*0.25, cy - r*0.25, r*0.1, cx, cy, r - 4);
+  rimGrad.addColorStop(0, '#5a5040');
+  rimGrad.addColorStop(0.5, '#2e2820');
+  rimGrad.addColorStop(1, '#181410');
+  ctx.beginPath();
+  ctx.arc(cx, cy, r - 5, 0, Math.PI * 2);
+  ctx.fillStyle = rimGrad;
+  ctx.fill();
+
+  // Ridged ring texture (concentric lines)
+  for (let i = 0; i < 12; i++) {
+    const a = (i / 12) * Math.PI * 2;
+    const r1 = r - 7, r2 = r - 5;
+    ctx.beginPath();
+    ctx.moveTo(cx + Math.cos(a) * r1, cy + Math.sin(a) * r1);
+    ctx.lineTo(cx + Math.cos(a) * r2, cy + Math.sin(a) * r2);
+    ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  // Inner cap
+  const capGrad = ctx.createRadialGradient(cx - r*0.2, cy - r*0.2, r*0.05, cx, cy, r - 10);
+  capGrad.addColorStop(0, '#484038');
+  capGrad.addColorStop(0.6, '#242018');
+  capGrad.addColorStop(1, '#141008');
+  ctx.beginPath();
+  ctx.arc(cx, cy, r - 10, 0, Math.PI * 2);
+  ctx.fillStyle = capGrad;
+  ctx.fill();
+
+  // Center highlight
+  const hlGrad = ctx.createRadialGradient(cx - r*0.12, cy - r*0.12, 0, cx, cy, r*0.4);
+  hlGrad.addColorStop(0, 'rgba(255,255,255,0.08)');
+  hlGrad.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.beginPath();
+  ctx.arc(cx, cy, r - 10, 0, Math.PI * 2);
+  ctx.fillStyle = hlGrad;
+  ctx.fill();
+
+  // Indicator line
+  const lineR = r - 12;
+  ctx.beginPath();
+  ctx.moveTo(cx + Math.cos(angle) * (r - 16), cy + Math.sin(angle) * (r - 16));
+  ctx.lineTo(cx + Math.cos(angle) * lineR, cy + Math.sin(angle) * lineR);
+  ctx.strokeStyle = '#e8a045';
+  ctx.lineWidth = 2;
+  ctx.lineCap = 'round';
+  ctx.stroke();
+
+  // Indicator dot
+  ctx.beginPath();
+  ctx.arc(cx + Math.cos(angle) * (r - 13), cy + Math.sin(angle) * (r - 13), 2, 0, Math.PI * 2);
+  ctx.fillStyle = '#e8a045';
+  ctx.shadowColor = '#c8702a';
+  ctx.shadowBlur = 6;
+  ctx.fill();
+  ctx.shadowBlur = 0;
+}
+
+function setKnobValue(wrap, val) {
+  const canvas = wrap.querySelector('canvas');
+  const min = parseFloat(wrap.dataset.min);
+  const max = parseFloat(wrap.dataset.max);
+  drawKnob(canvas, val, min, max);
+}
+
+// Init all knobs
+document.querySelectorAll('.knob-wrap').forEach(wrap => {
+  const key = wrap.dataset.key;
+  const def = parseFloat(wrap.dataset.default);
+  const val = state[key] !== undefined ? state[key] : def;
+  setKnobValue(wrap, val);
+
+  let startY, startVal;
+  const min = parseFloat(wrap.dataset.min);
+  const max = parseFloat(wrap.dataset.max);
+
+  wrap.addEventListener('mousedown', e => {
+    startY = e.clientY;
+    startVal = state[key] !== undefined ? state[key] : def;
+    wrap.classList.add('dragging');
+    e.preventDefault();
+    function onMove(e) {
+      const newVal = Math.min(max, Math.max(min, startVal + ((startY - e.clientY) / 110) * (max - min)));
+      state[key] = newVal;
+      setKnobValue(wrap, newVal);
+      updatePrompt();
+    }
+    function onUp() {
+      wrap.classList.remove('dragging');
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    }
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+});
+
+// ── PATCH DOTS ────────────────────────────────────
+function buildDots() {
+  const container = document.getElementById('patchDots');
+  while (container.firstChild) container.removeChild(container.firstChild);
+  PATCHES.forEach((_, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'patch-dot' + (i === patchIndex ? ' active' : '');
+    btn.setAttribute('aria-label', 'Patch ' + (i + 1));
+    btn.addEventListener('click', () => { patchIndex = i; updatePatchDisplay(); updatePrompt(); });
+    container.appendChild(btn);
+  });
+}
+function updatePatchDisplay() {
+  const p = PATCHES[patchIndex];
+  document.getElementById('lcdPatch').textContent = 'PATCH ' + String(patchIndex + 1).padStart(2, '0') + ': ' + p.label;
+  document.getElementById('lcdTone').textContent = p.tone;
+  document.querySelectorAll('.patch-dot').forEach((d, i) => d.classList.toggle('active', i === patchIndex));
+}
+
+document.getElementById('btnPrev').addEventListener('click', () => { patchIndex = (patchIndex - 1 + PATCHES.length) % PATCHES.length; updatePatchDisplay(); updatePrompt(); });
+document.getElementById('btnNext').addEventListener('click', () => { patchIndex = (patchIndex + 1) % PATCHES.length; updatePatchDisplay(); updatePrompt(); });
+
+// ── OCTAVE ─────────────────────────────────────────
+document.getElementById('btnOctDown').addEventListener('click', () => {
+  state.octave = Math.max(-2, state.octave - 1);
+  document.getElementById('octVal').textContent = state.octave > 0 ? '+' + state.octave : String(state.octave);
+  updatePrompt();
+});
+document.getElementById('btnOctUp').addEventListener('click', () => {
+  state.octave = Math.min(2, state.octave + 1);
+  document.getElementById('octVal').textContent = state.octave > 0 ? '+' + state.octave : String(state.octave);
+  updatePrompt();
+});
+
+// ── ROCKERS ───────────────────────────────────────
+document.getElementById('rockerPlay').addEventListener('click', function() {
+  this.classList.toggle('top');
+  this.classList.toggle('bot');
+});
+document.getElementById('rockerLearn').addEventListener('click', function() {
+  this.classList.toggle('top');
+  this.classList.toggle('bot');
+});
+
+// ── LEVERS ────────────────────────────────────────
+function initLever(id, stateKey) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('click', () => {
+    el.classList.toggle('on');
+    el.classList.toggle('off');
+    state[stateKey] = el.classList.contains('on');
+    updatePrompt();
+  });
+}
+initLever('leverOsc3', 'osc3on');
+initLever('leverFiltMod', 'filtMod');
+initLever('leverKbd', 'kbdCtrl');
+
+// ── WAVEFORMS ─────────────────────────────────────
+document.querySelectorAll('[data-osc]').forEach(group => {
+  const osc = group.dataset.osc;
+  group.querySelectorAll('.wave-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      group.querySelectorAll('.wave-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      state['osc' + osc + 'wave'] = btn.dataset.wave;
+      updatePrompt();
+    });
+  });
+});
+
+// ── PRESETS ───────────────────────────────────────
+document.querySelectorAll('.preset-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const name = btn.dataset.preset;
+    const p = PRESETS[name];
+    if (!p) return;
+    Object.assign(state, p);
+
+    document.querySelectorAll('.knob-wrap').forEach(wrap => {
+      const key = wrap.dataset.key;
+      if (state[key] !== undefined) setKnobValue(wrap, state[key]);
+    });
+
+    [1, 2, 3].forEach(i => {
+      const g = document.querySelector('[data-osc="' + i + '"]');
+      if (!g) return;
+      g.querySelectorAll('.wave-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.wave === state['osc' + i + 'wave']);
+      });
+    });
+
+    document.querySelectorAll('.preset-btn').forEach(b => b.classList.toggle('active', b === btn));
+    updatePrompt();
+  });
+});
+
+// ── PROMPT ────────────────────────────────────────
+const WAVE_NAMES = { saw:'sawtooth', sqr:'square', tri:'triangle' };
+function updatePrompt() {
+  const patch = PATCHES[patchIndex];
+  const w1 = WAVE_NAMES[state.osc1wave] || state.osc1wave;
+  const w2 = WAVE_NAMES[state.osc2wave] || state.osc2wave;
+  const w3 = WAVE_NAMES[state.osc3wave] || state.osc3wave;
+  const parts = [
+    'Patch ' + patch.label + ' (' + patch.tone + ')',
+    'Osc1 ' + w1 + ' · Osc2 ' + w2 + ' detune ' + (state.detune*10).toFixed(1) + (state.osc3on ? ' · Osc3 ' + w3 + ' freq ' + (state.osc3freq*10).toFixed(1) : ' · Osc3 OFF'),
+    'Mixer: 1=' + (state.vol1*10).toFixed(0) + ' 2=' + (state.vol2*10).toFixed(0) + ' 3=' + (state.vol3*10).toFixed(0),
+    'Filter: cutoff ' + (state.cutoff*10).toFixed(1) + ' emphasis ' + (state.resonance*10).toFixed(1) + ' contour ' + (state.contour*10).toFixed(1),
+    'ADS: A=' + (state.attack*10).toFixed(1) + ' D=' + (state.decay*10).toFixed(1) + ' S=' + (state.sustain*10).toFixed(1),
+    'Vol ' + (state.masterVol*10).toFixed(0),
+  ];
+  if (state.octave !== 0) parts.push('Oct ' + (state.octave > 0 ? '+' : '') + state.octave);
+  document.getElementById('promptText').textContent =
+    'Extend SynthEngineStrip with Osc Bank (Osc3 + range), Mixer, and Modifiers (Filter + Contour·ADS) sections matching Minimoog hardware layout — ' + parts.join(' — ');
+}
+
+document.getElementById('copyBtn').addEventListener('click', () => {
+  const text = document.getElementById('promptText').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy Prompt'; btn.classList.remove('copied'); }, 1800);
+  });
+});
+
+// ── PITCH & MOD WHEELS ────────────────────────────
+function initWheel(housingId, cylinderId, snapsBack) {
+  const housing = document.getElementById(housingId);
+  const cylinder = document.getElementById(cylinderId);
+  if (!housing || !cylinder) return;
+
+  const housingH = 100;
+  const cylinderH = 52;
+  const minTop = 4;
+  const maxTop = housingH - cylinderH - 4;
+  const centerTop = Math.round((housingH - cylinderH) / 2);
+  let currentTop = parseInt(cylinder.style.top, 10) || centerTop;
+
+  let startY, startTop;
+
+  housing.addEventListener('mousedown', e => {
+    startY = e.clientY;
+    startTop = currentTop;
+    e.preventDefault();
+    function onMove(e) {
+      const delta = e.clientY - startY;
+      currentTop = Math.min(maxTop, Math.max(minTop, startTop + delta));
+      cylinder.style.top = currentTop + 'px';
+    }
+    function onUp() {
+      if (snapsBack) {
+        // Pitch wheel springs back to center
+        currentTop = centerTop;
+        cylinder.style.transition = 'top 0.2s ease';
+        cylinder.style.top = currentTop + 'px';
+        setTimeout(() => { cylinder.style.transition = 'top 0.05s ease'; }, 220);
+      }
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    }
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+}
+
+initWheel('wheelPitch', 'cylinderPitch', true);   // pitch springs back
+initWheel('wheelMod',   'cylinderMod',   false);  // mod stays put
+
+// Init
+buildDots();
+updatePatchDisplay();
+updatePrompt();
+</script>
+</body>
+</html>

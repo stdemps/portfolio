@@ -119,6 +119,13 @@
   .synth-led {
     animation: none !important;
   }
+  button:active {
+    transform: none;
+  }
+  .cta-arrow {
+    transform: none !important;
+    transition: none !important;
+  }
 }
 
 /* Modular Synth playground: vacuum tube & LED ambient hum */
