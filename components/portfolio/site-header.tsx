@@ -1,20 +1,20 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { Menu } from "lucide-react"
-import { site } from "@/lib/portfolio-data"
-import { ThemeToggle } from "@/components/theme-toggle"
-import { ViewModeToggle } from "@/components/portfolio/view-mode-toggle"
-import { Button } from "@/components/ui/button"
+import * as React from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { Menu } from "lucide-react";
+import { site } from "@/lib/portfolio-data";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { ViewModeToggle } from "@/components/portfolio/view-mode-toggle";
+import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet"
+} from "@/components/ui/sheet";
 
 const navLinks = [
   { href: "#work", label: "Work" },
@@ -22,10 +22,10 @@ const navLinks = [
   { href: "#testimonials", label: "Testimonials" },
   { href: "#about", label: "About" },
   { href: "#contact", label: "Contact" },
-] as const
+] as const;
 
 export function SiteHeader() {
-  const [open, setOpen] = React.useState(false)
+  const [open, setOpen] = React.useState(false);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
@@ -57,6 +57,7 @@ export function SiteHeader() {
                 <li key={link.href}>
                   <a
                     href={link.href}
+                    aria-label={link.label}
                     className="text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:rounded"
                   >
                     {link.label}
@@ -86,7 +87,10 @@ export function SiteHeader() {
               <SheetHeader>
                 <SheetTitle id="mobile-nav-desc">Menu</SheetTitle>
               </SheetHeader>
-              <nav aria-label="Main navigation" className="mt-6 flex flex-col gap-1">
+              <nav
+                aria-label="Main navigation"
+                className="mt-6 flex flex-col gap-1"
+              >
                 {navLinks.map((link) => (
                   <a
                     key={link.href}
@@ -104,5 +108,5 @@ export function SiteHeader() {
         </div>
       </div>
     </header>
-  )
+  );
 }

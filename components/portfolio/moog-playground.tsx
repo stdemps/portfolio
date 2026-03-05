@@ -256,10 +256,12 @@ function MoogLEDButton({
   label,
   onClick,
   "aria-label": ariaLabel,
+  title,
 }: {
   label: string;
   onClick: () => void;
   "aria-label"?: string;
+  title?: string;
 }) {
   const [lit, setLit] = React.useState(false);
 
@@ -274,7 +276,9 @@ function MoogLEDButton({
       type="button"
       onClick={handleClick}
       aria-label={ariaLabel}
+      title={title ?? ariaLabel}
       whileTap={{ y: 2 }}
+      whileHover={{ scale: 1.05 }}
       transition={{ duration: 0.06, ease: "easeOut" }}
       className="flex min-h-[44px] min-w-[44px] flex-row items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moog-amber focus-visible:ring-offset-1 focus-visible:ring-offset-[#1a1814]"
       style={{
@@ -294,7 +298,7 @@ function MoogLEDButton({
       {/* Silkscreen label */}
       <span
         className="font-synth flex-1 text-center text-[7px] uppercase tracking-widest leading-none select-none"
-        style={{ color: "hsl(var(--moog-silkscreen) / 0.7)", paddingLeft: 4 }}
+        style={{ color: "hsl(var(--moog-silkscreen) / 0.8)", paddingLeft: 4 }}
       >
         {label}
       </span>
@@ -352,6 +356,7 @@ function RockerSwitch({
         type="button"
         onClick={onClick}
         aria-label={ariaLabel}
+        title={ariaLabel}
         aria-pressed={isTop}
         className="relative flex min-h-[44px] min-w-[44px] cursor-pointer flex-col overflow-hidden rounded-[3px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moog-amber focus-visible:ring-offset-1 focus-visible:ring-offset-[#1a1814]"
         style={{
@@ -874,6 +879,7 @@ export function MoogPlayground() {
                       role="tab"
                       aria-selected={i === patchIndex}
                       aria-label={`Go to ${p.label}`}
+                      title={`Go to ${p.label}`}
                       onClick={() => handleDotClick(i)}
                       className="flex h-6 w-6 min-h-[44px] min-w-[44px] items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moog-amber focus-visible:ring-offset-1 focus-visible:ring-offset-[#1a1814] rounded-full"
                     >
@@ -1147,7 +1153,7 @@ function ControlKnob({
 
   return (
     <div className="flex flex-col items-center gap-0.5">
-      <span className="font-synth text-[10px] font-medium uppercase tracking-wider text-moog-silkscreen/60">
+      <span className="font-synth text-[10px] font-medium uppercase tracking-wider text-moog-silkscreen/80">
         {label}
       </span>
       <div
@@ -1157,6 +1163,7 @@ function ControlKnob({
         aria-valuemax={100}
         aria-valuenow={Math.round(value * 100)}
         aria-label={`${label} control`}
+        title={`Drag to adjust ${label}`}
         tabIndex={0}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
@@ -1219,6 +1226,7 @@ function WaveformCap({
       type="button"
       onClick={onClick}
       aria-label={ariaLabel}
+      title={ariaLabel}
       aria-pressed={active}
       className="waveform-cap group relative flex h-11 min-w-[44px] cursor-pointer items-center justify-center overflow-hidden rounded-[3px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moog-amber focus-visible:ring-offset-1 focus-visible:ring-offset-[#1a1814] transition-[background,box-shadow,border-color,transform] duration-150 ease-out active:scale-[0.98] motion-reduce:transition-none motion-reduce:active:scale-100"
       style={{
@@ -1237,7 +1245,7 @@ function WaveformCap({
         style={{
           color: active
             ? "hsl(var(--moog-silkscreen))"
-            : "hsl(var(--moog-silkscreen) / 0.25)",
+            : "hsl(var(--moog-silkscreen) / 0.4)",
           textShadow: active ? "0 0 6px hsl(var(--moog-amber) / 0.8)" : "none",
         }}
       >
@@ -1265,7 +1273,7 @@ function WaveformSelector({
     <div className="flex flex-col items-center gap-1">
       <span
         className="font-synth text-[7px] uppercase tracking-widest"
-        style={{ color: "hsl(var(--moog-silkscreen) / 0.5)" }}
+        style={{ color: "hsl(var(--moog-silkscreen) / 0.7)" }}
       >
         {label}
       </span>
@@ -1397,7 +1405,7 @@ function SynthSection({
     <div className="flex flex-col items-center gap-1.5 px-4 py-2">
       <span
         className="font-synth text-[7px] uppercase tracking-[0.2em]"
-        style={{ color: "hsl(var(--moog-silkscreen) / 0.3)" }}
+        style={{ color: "hsl(var(--moog-silkscreen) / 0.5)" }}
       >
         {label}
       </span>
@@ -2149,7 +2157,7 @@ function LearnScreen({
         </div>
       </div>
 
-      <div className="flex flex-col items-start gap-1 justify-center min-w-[140px]">
+      <div className="flex flex-col items-center gap-1 justify-center min-w-[140px]">
         {/* Instruction */}
         <span
           className="text-[9px] tracking-[0.15em] whitespace-nowrap"
@@ -2158,26 +2166,24 @@ function LearnScreen({
           {demoPlaying ? "LISTENING…" : "PRESS THE GLOWING KEY"}
         </span>
 
-        {/* Loops badge */}
-        <div className="h-3 overflow-hidden">
-          <AnimatePresence mode="popLayout">
-            {loopsDone > 0 && (
-              <motion.span
-                key={`loop-${loopsDone}`}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="block text-[8px] tracking-widest whitespace-nowrap font-bold"
-                style={{
-                  color: "hsl(var(--moog-amber))",
-                  textShadow: "0 0 8px hsl(var(--moog-amber)/0.5)",
-                }}
-              >
-                ×{loopsDone} LOOPS COMPLETE!
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </div>
+        {/* Loops badge — only rendered when loops have been completed */}
+        <AnimatePresence mode="popLayout">
+          {loopsDone > 0 && (
+            <motion.span
+              key={`loop-${loopsDone}`}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="block text-[8px] tracking-widest whitespace-nowrap font-bold"
+              style={{
+                color: "hsl(var(--moog-amber))",
+                textShadow: "0 0 8px hsl(var(--moog-amber)/0.5)",
+              }}
+            >
+              ×{loopsDone} LOOPS COMPLETE!
+            </motion.span>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Buttons */}
@@ -2208,16 +2214,18 @@ function LearnScreen({
         <motion.button
           type="button"
           whileTap={{ scale: 0.95 }}
+          whileHover={{ scale: 1.05 }}
           onClick={onExit}
-          className="font-synth text-[8px] uppercase tracking-widest rounded px-3 py-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moog-amber focus-visible:ring-offset-1 focus-visible:ring-offset-black transition-colors"
+          className="group font-synth text-[8px] uppercase tracking-widest rounded px-3 py-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-moog-amber focus-visible:ring-offset-1 focus-visible:ring-offset-black transition-colors hover:border-[rgba(255,140,32,0.3)] hover:text-[hsl(var(--moog-silkscreen)/0.9)]"
           style={{
-            background: "rgba(0,0,0,0.4)",
-            border: "1px solid rgba(255,255,255,0.08)",
-            color: "hsl(var(--moog-silkscreen) / 0.5)",
+            background: "rgba(0,0,0,0.6)",
+            border: "1px solid rgba(255,255,255,0.15)",
+            color: "hsl(var(--moog-silkscreen) / 0.7)",
           }}
           aria-label="Exit learn mode"
+          title="Exit learn mode"
         >
-          ✕
+          ✕ EXIT
         </motion.button>
       </div>
     </div>
