@@ -1,14 +1,14 @@
-import Image from "next/image"
-import Link from "next/link"
-import { site } from "@/lib/portfolio-data"
-import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+import Image from "next/image";
+import Link from "next/link";
+import { site } from "@/lib/portfolio-data";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface HeroProps {
   /** When true, render as single slide in horizontal carousel (playground mode) */
-  carousel?: boolean
+  carousel?: boolean;
   /** When provided (Playground mode), clicking "Let's chat" switches to Contact patch */
-  onContactClick?: () => void
+  onContactClick?: () => void;
 }
 
 export function Hero({ carousel = false, onContactClick }: HeroProps) {
@@ -29,10 +29,9 @@ export function Hero({ carousel = false, onContactClick }: HeroProps) {
           I&apos;m Steven.
         </p>
         <h1 className="mt-4 font-display text-3xl font-medium leading-[1.25] tracking-tight text-foreground sm:text-4xl md:text-5xl lg:text-6xl">
-          {"A "}
-          <span className="text-heroBlue">product design lead</span>
-          {" at KPMG UK, growing a design team and exploring "}
-          <span className="text-heroPink">AI-assisted engineering</span>
+          <span className="text-heroBlue">Product design lead</span>
+          {" at KPMG UK, growing the design function and exploring "}
+          <span className="text-heroPink">AI-assisted product development</span>
           {"."}
         </h1>
         <div className="mt-6 md:mt-8">
@@ -44,7 +43,10 @@ export function Hero({ carousel = false, onContactClick }: HeroProps) {
           >
             <Link href="#contact">
               Let&apos;s chat{" "}
-              <span className="cta-arrow inline-block transition-transform duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:translate-x-0.5" aria-hidden>
+              <span
+                className="cta-arrow inline-block transition-transform duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:translate-x-0.5"
+                aria-hidden
+              >
                 →
               </span>
             </Link>
@@ -52,14 +54,17 @@ export function Hero({ carousel = false, onContactClick }: HeroProps) {
         </div>
       </div>
     </div>
-  )
+  );
 
   if (carousel) {
     return (
       <section className={cn("flex h-full flex-col", "border-b-0")}>
         <div className="moog-screen-bank h-full w-full">
           <div className="moog-screen-bank-content flex flex-1 flex-col justify-center px-4 py-6 md:px-6 md:py-8">
-            <div data-moog-bank-item className="text-sm md:text-base [&_h1]:font-synth [&_h1]:text-2xl [&_h1]:md:text-4xl [&_h1]:lg:text-5xl">
+            <div
+              data-moog-bank-item
+              className="text-sm md:text-base [&_h1]:font-synth [&_h1]:text-2xl [&_h1]:md:text-4xl [&_h1]:lg:text-5xl"
+            >
               <p className="flex flex-wrap items-center gap-2 text-slate-400">
                 Hey!{" "}
                 <Image
@@ -74,10 +79,11 @@ export function Hero({ carousel = false, onContactClick }: HeroProps) {
                 I&apos;m Steven.
               </p>
               <h1 className="mt-4 font-synth text-2xl font-semibold leading-[1.25] tracking-tight text-foreground md:text-4xl lg:text-5xl">
-                {"A "}
-                <span className="text-heroBlue">product design lead</span>
-                {" at KPMG UK, growing a design team and exploring "}
-                <span className="text-heroPink">AI-assisted engineering</span>
+                <span className="text-heroBlue">Product design lead</span>
+                {" at KPMG UK, growing the design function and exploring "}
+                <span className="text-heroPink">
+                  AI-assisted product development
+                </span>
                 {"."}
               </h1>
               <div className="mt-6 md:mt-8">
@@ -89,13 +95,28 @@ export function Hero({ carousel = false, onContactClick }: HeroProps) {
                     onClick={onContactClick}
                   >
                     Let&apos;s chat{" "}
-                    <span className="cta-arrow inline-block transition-transform duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:translate-x-0.5" aria-hidden>→</span>
+                    <span
+                      className="cta-arrow inline-block transition-transform duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:translate-x-0.5"
+                      aria-hidden
+                    >
+                      →
+                    </span>
                   </Button>
                 ) : (
-                  <Button variant="outline" size="lg" className="moog-cta group h-11 gap-2 px-6 text-base font-semibold md:h-12 md:px-8" asChild>
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="moog-cta group h-11 gap-2 px-6 text-base font-semibold md:h-12 md:px-8"
+                    asChild
+                  >
                     <Link href="#contact">
                       Let&apos;s chat{" "}
-                      <span className="cta-arrow inline-block transition-transform duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:translate-x-0.5" aria-hidden>→</span>
+                      <span
+                        className="cta-arrow inline-block transition-transform duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:translate-x-0.5"
+                        aria-hidden
+                      >
+                        →
+                      </span>
                     </Link>
                   </Button>
                 )}
@@ -104,12 +125,8 @@ export function Hero({ carousel = false, onContactClick }: HeroProps) {
           </div>
         </div>
       </section>
-    )
+    );
   }
 
-  return (
-    <section className="border-b border-border/60">
-      {content}
-    </section>
-  )
+  return <section className="border-b border-border/60">{content}</section>;
 }
