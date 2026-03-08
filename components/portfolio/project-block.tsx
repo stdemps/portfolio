@@ -20,7 +20,7 @@ export function ProjectBlock({ project, className, compact = false }: ProjectBlo
   const isBrowser = project.mockupType === "browser"
 
   const mockupHover = project.href
-    ? "transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+    ? "transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-lg"
     : ""
 
   const card = (
@@ -129,6 +129,21 @@ export function ProjectBlock({ project, className, compact = false }: ProjectBlo
             compact ? "mt-0.5 text-[10px] line-clamp-2" : "mt-1 text-sm line-clamp-2 md:text-base"
           )}>
             {project.subtitle ?? project.tagline}
+          </p>
+        )}
+        {project.workInProgress && !project.comingSoon && (
+          <p
+            className={cn(
+              "text-muted-foreground/80 overflow-hidden",
+              compact ? "mt-0.5 text-[10px]" : "mt-1.5 text-sm md:text-xs"
+            )}
+            role="status"
+            aria-label="Work in progress"
+          >
+            <span className="inline-flex items-center gap-1.5">
+              <span className="size-1.5 shrink-0 rounded-full bg-muted-foreground/50" aria-hidden />
+              In progress
+            </span>
           </p>
         )}
       </div>

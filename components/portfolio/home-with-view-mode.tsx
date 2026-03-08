@@ -1,5 +1,6 @@
 "use client"
 
+import dynamic from "next/dynamic"
 import { useViewMode } from "@/hooks/use-view-mode"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { SiteHeader } from "@/components/portfolio/site-header"
@@ -11,8 +12,12 @@ import { TestimonialsSection } from "@/components/portfolio/testimonials-section
 import { AboutSection } from "@/components/portfolio/about-section"
 import { ContactSection } from "@/components/portfolio/contact-section"
 import { Footer } from "@/components/portfolio/footer"
-import { MoogPlayground } from "@/components/portfolio/moog-playground"
 import { tools } from "@/lib/portfolio-data"
+
+const MoogPlayground = dynamic(
+  () => import("@/components/portfolio/moog-playground").then((m) => ({ default: m.MoogPlayground })),
+  { ssr: false, loading: () => null }
+)
 
 export function HomeWithViewMode() {
   const [viewMode] = useViewMode()

@@ -22,6 +22,8 @@ export interface Project {
   year?: string
   /** Show "Coming Soon" pill */
   comingSoon?: boolean
+  /** Show subtle "Work in progress" / "In progress" status */
+  workInProgress?: boolean
   /** Show horizontal gradient bar above title (purple → blue) */
   gradientBar?: boolean
   /** Visual style for project block */
@@ -109,7 +111,7 @@ export const workSectionLabels = {
   workProjects: "Work projects",
   workProjectsDescription:
     "I'm not able to make these projects publicly available. If you'd like to see them, get in touch and I can share them securely.",
-  prototypes: "Vibe coded prototypes",
+  prototypes: "Vibe coded projects",
 } as const
 
 export const tools: Tool[] = [
@@ -136,16 +138,16 @@ export const templateRepos: TemplateRepo[] = [
 
 export const projects: Project[] = [
   {
-    id: "kraken-weddings",
-    title: "From idea to live site in a weekend — a musician needed a stage online",
-    tagline: "Kraken Weddings — Live Acoustic Wedding Music",
-    subtitle: "Kraken Weddings",
+    id: "gighub",
+    title: "Connecting musicians with gigs — find opportunities and get booked",
+    tagline: "GigHub — Musicians Gig Hub",
+    subtitle: "GigHub",
     kind: "personal",
     mockupType: "browser",
-    href: "https://kraken-weddings.vercel.app",
-    image: "/projects/kraken-weddings.png",
-    imageAlt: "Kraken Weddings homepage: hero section with acoustic guitarist performing at a sunlit window, navigation and call-to-action buttons.",
-    featured: true,
+    href: "https://gigmusician-hub.vercel.app/",
+    image: "/projects/gighub.png",
+    imageAlt: "GigHub homepage: Find gigs, Book musicians — hero with sign up and browse gigs, browse by instrument (Guitar, Drums, Piano, Vocals, Bass, Other), recent opportunities.",
+    workInProgress: true,
   },
   {
     id: "flower-delivery-proto",
@@ -157,17 +159,20 @@ export const projects: Project[] = [
     href: "https://flower-delivery-proto.vercel.app/",
     image: "/projects/flower-delivery-proto.png",
     imageAlt: "Peony Blooms landing page: hero with ‘Sending Joy, Simply.’ headline, Shop Daily Blooms CTA, and bouquet in vase.",
+    workInProgress: true,
   },
   {
-    id: "gighub",
-    title: "Connecting musicians with gigs — find opportunities and get booked",
-    tagline: "GigHub — Musicians Gig Hub",
-    subtitle: "GigHub",
+    id: "kraken-weddings",
+    title: "From idea to live site in a weekend — a musician needed a stage online",
+    tagline: "Kraken Weddings — Live Acoustic Wedding Music",
+    subtitle: "Kraken Weddings",
     kind: "personal",
     mockupType: "browser",
-    href: "https://gigmusician-hub.vercel.app/",
-    image: "/projects/gighub.png",
-    imageAlt: "GigHub homepage: Find gigs, Book musicians — hero with sign up and browse gigs, browse by instrument (Guitar, Drums, Piano, Vocals, Bass, Other), recent opportunities.",
+    href: "https://kraken-weddings.vercel.app",
+    image: "/projects/kraken-weddings.png",
+    imageAlt: "Kraken Weddings homepage: hero section with acoustic guitarist performing at a sunlit window, navigation and call-to-action buttons.",
+    featured: true,
+    workInProgress: true,
   },
   {
     id: "sddesigns",
