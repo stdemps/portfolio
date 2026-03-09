@@ -12,6 +12,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { FathomAnalytics } from "@/components/analytics/fathom";
 import { Agentation } from "agentation";
 import { site } from "@/lib/portfolio-data";
+import { ChatLayout } from "@/components/portfolio/chat-layout";
 
 const interTight = Inter_Tight({
   subsets: ["latin"],
@@ -65,7 +66,9 @@ export default function RootLayout({
           Skip to main content
         </a>
         <ThemeProvider>
-          {children}
+          <ChatLayout>
+            {children}
+          </ChatLayout>
           <Toaster />
         </ThemeProvider>
         <FathomAnalytics />

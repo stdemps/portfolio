@@ -193,7 +193,7 @@ export function WorkSection({ carousel = false, onContactClick }: WorkSectionPro
         </ScrollReveal>
 
         {/* Template repo links */}
-        <ul className="mt-6 flex list-none flex-col gap-3 sm:flex-row sm:gap-4">
+        <ul className="mt-6 flex list-none flex-col gap-3 sm:flex-row sm:gap-4 2xl:gap-6">
           {templateRepos.map((repo, i) => (
             <ScrollReveal asListItem key={repo.name} delay={i * 80}>
               <a
@@ -237,11 +237,14 @@ export function WorkSection({ carousel = false, onContactClick }: WorkSectionPro
           </div>
         </ScrollReveal>
 
-        {/* Vibe coded prototypes */}
+        {/* Side projects */}
         <ScrollReveal>
           <h3 className="mt-10 font-display text-lg font-medium tracking-tight text-muted-foreground md:mt-12 md:text-xl lg:mt-14">
             {workSectionLabels.prototypes}
           </h3>
+          <p className="mt-1.5 text-sm text-muted-foreground/70 md:text-base">
+            {workSectionLabels.prototypesSubtext}
+          </p>
         </ScrollReveal>
         {prototypeProjects.length > 0 ? (
           <ul

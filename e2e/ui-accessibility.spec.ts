@@ -12,14 +12,22 @@ test.describe("UI Accessibility", () => {
     }
   });
 
-  test("menu button has correct aria attributes", async ({ page }) => {
+  test("menu button has correct aria attributes", async ({ page }, testInfo) => {
+    test.skip(
+      testInfo.project.name !== "Mobile Chrome",
+      "Menu button is only visible on mobile (md:hidden)",
+    );
     await page.goto("/");
     const menuButton = page.getByRole("button", { name: /open menu/i });
     await expect(menuButton).toBeVisible();
     await expect(menuButton).toHaveAttribute("aria-expanded");
   });
 
-  test("hover animation does not cause layout shift", async ({ page }) => {
+  test("hover animation does not cause layout shift", async ({ page }, testInfo) => {
+    test.skip(
+      testInfo.project.name === "Mobile Chrome",
+      "Desktop nav links are hidden on mobile; hover test needs visible links",
+    );
     await page.goto("/");
     const firstLink = page
       .locator("nav[aria-label='Main navigation'] a")

@@ -11,22 +11,23 @@ interface ContactSectionProps {
 
 export function ContactSection({ carousel = false }: ContactSectionProps) {
   const content = (
-    <div className="container px-4 py-12 md:px-6 md:py-16 lg:px-8 lg:py-20">
-      <ScrollReveal>
-          <h2 className="font-display text-2xl font-medium tracking-tight text-foreground md:text-3xl">
+    <div className="container px-4 py-16 md:px-6 md:py-20 lg:px-8 lg:py-28">
+      <div className="2xl:grid 2xl:grid-cols-[1fr_auto] 2xl:items-center 2xl:gap-16">
+        <ScrollReveal>
+          <h2 className="font-display text-3xl font-medium tracking-tight text-foreground md:text-4xl lg:text-5xl">
             Want to collaborate or chat about design?
           </h2>
-          <p className="mt-2 text-sm text-muted-foreground md:text-base">
+          <p className="mt-3 text-base text-muted-foreground md:mt-4 md:text-lg">
             I&apos;m always happy to connect — whether it&apos;s about a project, a role, or just swapping ideas.
           </p>
         </ScrollReveal>
 
         <ScrollReveal delay={80}>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4 md:mt-10">
+          <div className="mt-10 flex flex-col gap-4 sm:flex-row md:mt-12 2xl:mt-0 2xl:flex-row 2xl:shrink-0">
             <Button
               variant="default"
               size="lg"
-              className="gap-2 px-5 text-base font-medium shadow-md focus-visible:ring-2 focus-visible:ring-offset-2 md:px-6"
+              className="h-14 gap-2.5 px-8 text-base font-semibold shadow-md focus-visible:ring-2 focus-visible:ring-offset-2"
               asChild
             >
               <a
@@ -34,13 +35,13 @@ export function ContactSection({ carousel = false }: ContactSectionProps) {
                 aria-label="Send an email"
               >
                 <Mail className="h-5 w-5 shrink-0" aria-hidden />
-                Email
+                Email Steven
               </a>
             </Button>
             <Button
               variant="outline"
               size="lg"
-              className="gap-2 px-5 text-base font-medium focus-visible:ring-2 focus-visible:ring-offset-2 md:px-6"
+              className="h-14 gap-2.5 px-8 text-base font-semibold focus-visible:ring-2 focus-visible:ring-offset-2"
               asChild
             >
               <a
@@ -50,11 +51,12 @@ export function ContactSection({ carousel = false }: ContactSectionProps) {
                 aria-label="Connect on LinkedIn (opens in new tab)"
               >
                 <LinkedinIcon className="h-5 w-5 shrink-0" aria-hidden />
-                LinkedIn
+                Connect on LinkedIn
               </a>
             </Button>
           </div>
-      </ScrollReveal>
+        </ScrollReveal>
+      </div>
     </div>
   )
 

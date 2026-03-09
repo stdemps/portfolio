@@ -345,6 +345,72 @@
   }
 }
 
+/* AI Chat FAB transitions */
+@keyframes fab-sparkle-in {
+  from { transform: rotate(20deg) scale(0.7); opacity: 0; }
+  to   { transform: rotate(0deg)  scale(1);   opacity: 1; }
+}
+.fab-sparkle-in {
+  animation: fab-sparkle-in 0.35s cubic-bezier(0.25, 1, 0.5, 1) both;
+}
+
+@keyframes fab-avatar-in {
+  from { transform: scale(0.5); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+.fab-avatar-in {
+  animation: fab-avatar-in 0.25s cubic-bezier(0.25, 1, 0.5, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fab-sparkle-in,
+  .fab-avatar-in { animation: none; }
+}
+
+/* AI Chat: empty state gentle reveal when panel opens */
+@keyframes empty-state-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.empty-state-reveal {
+  animation: empty-state-reveal 0.4s cubic-bezier(0.25, 1, 0.5, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .empty-state-reveal {
+    animation: none;
+  }
+}
+
+/* AI Chat: user message bubble gentle entrance (send satisfaction) */
+@keyframes message-bubble-in {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.message-bubble-in {
+  animation: message-bubble-in 0.15s cubic-bezier(0.25, 1, 0.5, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .message-bubble-in {
+    animation: none;
+  }
+}
+
 /* Moog Playground — Memory Bank view (no horizontal scroll) */
 .moog-screen-bank {
   display: flex;

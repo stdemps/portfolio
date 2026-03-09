@@ -35,9 +35,15 @@ firebase-debug.log
 .env*.local
 .env
 
+# cursor (MCP config may contain API keys)
+.cursor/mcp.json
+
 # vercel
 .vercel
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local env
+.env.local

@@ -14,43 +14,56 @@ interface HeroProps {
 export function Hero({ carousel = false, onContactClick }: HeroProps) {
   const content = (
     <div className="container px-4 py-12 md:px-6 md:py-16 lg:px-8 lg:pt-24 lg:pb-[6.5rem]">
-      <div className="max-w-3xl md:max-w-4xl lg:max-w-5xl xl:max-w-6xl">
-        <p className="flex flex-wrap items-center gap-2 text-base text-muted-foreground md:text-lg">
-          Hey!{" "}
-          <Image
-            src={site.avatar}
-            alt=""
-            width={28}
-            height={28}
-            className="inline-block h-7 w-7 md:h-8 md:w-8"
-            aria-hidden
-            priority
-          />{" "}
-          I&apos;m Steven.
-        </p>
-        <h1 className="mt-4 font-display text-3xl font-medium leading-[1.25] tracking-tight text-foreground sm:text-4xl md:text-5xl lg:text-6xl">
-          <span className="text-heroBlue">Product design lead</span>
-          {" at KPMG UK, growing the design function and exploring "}
-          <span className="text-heroPink">AI-assisted product development</span>
-          {"."}
-        </h1>
-        <div className="mt-6 md:mt-8">
-          <Button
-            variant="default"
-            size="lg"
-            className="group gap-2 px-6 text-base font-semibold shadow-md transition-transform duration-200 hover:scale-[1.02] focus-visible:ring-2 focus-visible:ring-offset-2 md:px-8"
-            asChild
-          >
-            <Link href="#contact">
-              Let&apos;s chat{" "}
-              <span
-                className="cta-arrow inline-block transition-transform duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:translate-x-0.5"
-                aria-hidden
-              >
-                →
-              </span>
-            </Link>
-          </Button>
+      <div className="2xl:grid 2xl:grid-cols-[1fr_auto] 2xl:items-end 2xl:gap-16">
+        {/* Left: headline + CTA */}
+        <div className="max-w-3xl md:max-w-4xl lg:max-w-5xl 2xl:max-w-none">
+          <p className="flex flex-wrap items-center gap-2 text-base text-muted-foreground md:text-lg">
+            Hey!{" "}
+            <Image
+              src={site.avatar}
+              alt=""
+              width={28}
+              height={28}
+              className="inline-block h-7 w-7 md:h-8 md:w-8"
+              aria-hidden
+              priority
+            />{" "}
+            I&apos;m Steven.
+          </p>
+          <h1 className="mt-4 font-display text-3xl font-medium leading-[1.25] tracking-tight text-foreground sm:text-4xl md:text-5xl lg:text-6xl">
+            <span className="text-heroBlue">Product design lead</span>
+            {" at KPMG UK, growing the design function and exploring "}
+            <span className="text-heroPink">AI-assisted product development</span>
+            {"."}
+          </h1>
+          <div className="mt-6 md:mt-8">
+            <Button
+              variant="default"
+              size="lg"
+              className="group gap-2 px-6 text-base font-semibold shadow-md transition-transform duration-200 hover:scale-[1.02] focus-visible:ring-2 focus-visible:ring-offset-2 md:px-8"
+              asChild
+            >
+              <Link href="#contact">
+                Let&apos;s chat{" "}
+                <span
+                  className="cta-arrow inline-block transition-transform duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:translate-x-0.5"
+                  aria-hidden
+                >
+                  →
+                </span>
+              </Link>
+            </Button>
+          </div>
+        </div>
+
+        {/* Right: sidebar descriptor — visible only at xl+ */}
+        <div className="hidden 2xl:flex 2xl:flex-col 2xl:items-end 2xl:gap-4 2xl:pb-1 2xl:text-right">
+          <p className="text-sm text-muted-foreground leading-relaxed max-w-[220px]">
+            Based in the UK. Designing products at KPMG since 2022.
+          </p>
+          <p className="text-sm text-muted-foreground leading-relaxed max-w-[220px]">
+            Musician. Dog owner. Tinkerer.
+          </p>
         </div>
       </div>
     </div>

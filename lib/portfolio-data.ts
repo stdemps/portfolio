@@ -111,7 +111,8 @@ export const workSectionLabels = {
   workProjects: "Work projects",
   workProjectsDescription:
     "I'm not able to make these projects publicly available. If you'd like to see them, get in touch and I can share them securely.",
-  prototypes: "Vibe coded projects",
+  prototypes: "Side projects",
+  prototypesSubtext: "All vibe coded with Cursor and Claude.",
 } as const
 
 export const tools: Tool[] = [

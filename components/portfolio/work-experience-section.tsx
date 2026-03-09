@@ -124,19 +124,22 @@ export function WorkExperienceSection({ carousel = false }: WorkExperienceSectio
                 )}
                 aria-hidden
               />
-              <div className="min-w-0 flex-1 flex flex-col gap-2">
-                {item.period && (
-                  <p className="text-xs font-normal uppercase tracking-wide text-muted-foreground md:text-sm">
-                    {item.period}
+              {/* At xl: two-column — title/date left, description right */}
+              <div className="min-w-0 flex-1 2xl:grid 2xl:grid-cols-[280px_1fr] 2xl:gap-12">
+                <div className="flex flex-col gap-2">
+                  {item.period && (
+                    <p className="text-xs font-normal uppercase tracking-wide text-muted-foreground md:text-sm">
+                      {item.period}
+                    </p>
+                  )}
+                  <p className="font-display text-lg font-medium text-foreground md:text-xl">
+                    {item.title}
+                    {", "}
+                    {item.employer}
                   </p>
-                )}
-                <p className="font-display text-lg font-medium text-foreground md:text-xl">
-                  {item.title}
-                  {", "}
-                  {item.employer}
-                </p>
+                </div>
                 {item.description && (
-                  <p className="max-w-prose text-sm leading-relaxed text-muted-foreground md:text-base md:leading-relaxed">
+                  <p className="mt-2 2xl:mt-0 2xl:pt-[calc(1.25rem+2px)] max-w-prose text-sm leading-relaxed text-muted-foreground md:text-base md:leading-relaxed">
                     {item.description}
                   </p>
                 )}

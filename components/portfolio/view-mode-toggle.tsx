@@ -38,6 +38,7 @@ export function ViewModeToggle() {
           "text-xs font-medium md:text-sm",
           isPlayground ? "text-foreground" : "text-muted-foreground"
         )}
+        title="Try the Moog synthesiser — an interactive playground mode"
       >
         Playground
       </span>
