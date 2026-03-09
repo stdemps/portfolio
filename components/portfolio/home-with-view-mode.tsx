@@ -21,8 +21,8 @@ const MoogPlayground = dynamic(
 
 export function HomeWithViewMode() {
   const [viewMode] = useViewMode()
-  const isDesktop = useMediaQuery("(min-width: 768px)")
-  /** Playground only on desktop; mobile always gets Simple view */
+  const isDesktop = useMediaQuery("(min-width: 1024px)")
+  /** Playground only on large desktop; fold/tablet keeps Simple view */
   const isSimple = !isDesktop || viewMode === "Simple"
 
   return (
