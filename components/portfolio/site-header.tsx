@@ -47,11 +47,11 @@ export function SiteHeader() {
           />
         </Link>
         <div className="flex items-center gap-3 md:gap-6">
-          <div className="hidden md:block">
+          <div className="hidden lg:block">
             <ViewModeToggle />
           </div>
           {/* Desktop nav */}
-          <nav className="hidden md:block" aria-label="Main navigation">
+          <nav className="hidden lg:block" aria-label="Main navigation">
             <ul className="flex items-center gap-6">
               {navLinks.map((link) => (
                 <li key={link.href}>
@@ -72,7 +72,7 @@ export function SiteHeader() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-11 w-11 md:hidden"
+                className="h-11 w-11 lg:hidden"
                 aria-label="Open menu"
                 aria-expanded={open}
               >
