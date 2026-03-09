@@ -9,6 +9,7 @@ import {
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { Analytics } from "@vercel/analytics/next";
 import { FathomAnalytics } from "@/components/analytics/fathom";
 import { Agentation } from "agentation";
 import { site } from "@/lib/portfolio-data";
@@ -72,6 +73,7 @@ export default function RootLayout({
           <Toaster />
         </ThemeProvider>
         <FathomAnalytics />
+        <Analytics />
         {process.env.NODE_ENV === "development" && <Agentation />}
       </body>
     </html>

@@ -367,6 +367,15 @@
   .fab-avatar-in { animation: none; }
 }
 
+/* AI Chat mobile: full-screen sheet — respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .chat-sheet-mobile,
+  .chat-sheet-mobile[data-state] {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 /* AI Chat: empty state gentle reveal when panel opens */
 @keyframes empty-state-reveal {
   from {

@@ -767,13 +767,17 @@ export function AiChat({ chatState }: { chatState: ChatStateReturn }) {
         </aside>
       )}
 
-      {/* Mobile panel: bottom Sheet — only mounted on mobile to avoid scroll lock on desktop */}
+      {/* Mobile panel: full-screen Sheet — only mounted on mobile to avoid scroll lock on desktop */}
       {!isDesktop && (
         <Sheet open={isOpen} onOpenChange={(o) => !o && close()}>
           <SheetContent
             side="bottom"
             aria-label="Chat with Steven's AI assistant"
-            className="flex flex-col p-0 h-[85svh] rounded-t-2xl"
+            className={cn(
+              "chat-sheet-mobile flex flex-col p-0 h-[100dvh] min-h-svh rounded-none",
+              "data-[state=open]:duration-[380ms] data-[state=closed]:duration-[280ms]",
+              "data-[state=open]:ease-[cubic-bezier(0.25,1,0.5,1)] data-[state=closed]:ease-[cubic-bezier(0.7,0,0.84,0)]"
+            )}
             onOpenAutoFocus={(e) => { e.preventDefault(); inputRef.current?.focus() }}
           >
             <SheetTitle className="sr-only">Ask about Steven</SheetTitle>
