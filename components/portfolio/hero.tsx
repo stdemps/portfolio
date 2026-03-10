@@ -14,9 +14,9 @@ interface HeroProps {
 export function Hero({ carousel = false, onContactClick }: HeroProps) {
   const content = (
     <div className="container px-4 py-12 md:px-6 md:py-16 lg:px-8 lg:pt-24 lg:pb-[6.5rem]">
-      <div className="2xl:grid 2xl:grid-cols-[1fr_auto] 2xl:items-end 2xl:gap-16">
+      <div className="xl:grid xl:grid-cols-[1fr_auto] xl:items-end xl:gap-16">
         {/* Left: headline + CTA */}
-        <div className="max-w-3xl md:max-w-4xl lg:max-w-5xl 2xl:max-w-none">
+        <div className="max-w-3xl md:max-w-4xl lg:max-w-5xl xl:max-w-none">
           <p className="flex flex-wrap items-center gap-2 text-base text-muted-foreground md:text-lg">
             Hey!{" "}
             <Image
@@ -57,7 +57,7 @@ export function Hero({ carousel = false, onContactClick }: HeroProps) {
         </div>
 
         {/* Right: sidebar descriptor — visible only at xl+ */}
-        <div className="hidden 2xl:flex 2xl:flex-col 2xl:items-end 2xl:gap-4 2xl:pb-1 2xl:text-right">
+        <div className="hidden xl:flex xl:flex-col xl:items-end xl:gap-4 xl:pb-1 xl:text-right">
           <p className="text-sm text-muted-foreground leading-relaxed max-w-[220px]">
             Based in the UK. Designing products at KPMG since 2022.
           </p>

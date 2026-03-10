@@ -26,10 +26,10 @@ export type ChatStateReturn = ReturnType<typeof useChatState>
 // ---------------------------------------------------------------------------
 
 const SUGGESTIONS = [
-  "What's your design process?",
-  "Recent projects",
-  "How to contact?",
-  "How does he use AI?",
+  "What makes Steven a strong design lead?",
+  "Tell me about his KPMG experience",
+  "What's his approach to working with engineers?",
+  "How does he use AI in his work?",
 ]
 
 const WELCOME_BODY =

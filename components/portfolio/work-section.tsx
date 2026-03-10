@@ -250,7 +250,7 @@ export function WorkSection({ carousel = false, onContactClick }: WorkSectionPro
           <ul
             className={cn(
               "mt-4 grid list-none gap-8 md:mt-5 lg:mt-6",
-              "grid-cols-1 sm:grid-cols-2"
+              "grid-cols-1 lg:grid-cols-2"
             )}
           >
             {prototypeProjects.map((project, i) => (
