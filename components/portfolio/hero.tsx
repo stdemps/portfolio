@@ -62,7 +62,7 @@ export function Hero({ carousel = false, onContactClick }: HeroProps) {
             Based in the UK. Designing products at KPMG since 2022.
           </p>
           <p className="text-sm text-muted-foreground leading-relaxed max-w-[220px]">
-            Musician. Reggie's dad. Builder.
+            Musician. Reggie's dad. Product Builder.
           </p>
         </div>
       </div>
