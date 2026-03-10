@@ -61,7 +61,7 @@ export function Hero({ carousel = false, onContactClick }: HeroProps) {
           <p className="text-sm text-muted-foreground leading-relaxed max-w-[220px]">
             Based in the UK. Designing products at KPMG since 2022.
           </p>
-          <p className="text-sm text-muted-foreground leading-relaxed max-w-[220px]">
+          <p className="text-sm text-muted-foreground leading-relaxed max-w-[220px] whitespace-nowrap">
             Musician. Reggie's dad. Product Builder.
           </p>
         </div>
