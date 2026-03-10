@@ -739,7 +739,7 @@ export function AiChat({ chatState }: { chatState: ChatStateReturn }) {
   }
 
   const isOpen = state === "open"
-  const isDesktop = useMediaQuery("(min-width: 768px)")
+  const isSplitPanelViewport = useMediaQuery("(min-width: 768px)")
 
   return (
     <>
@@ -753,7 +753,7 @@ export function AiChat({ chatState }: { chatState: ChatStateReturn }) {
       )}
 
       {/* Desktop panel: sticky aside inside the grid column */}
-      {isDesktop && (
+      {isSplitPanelViewport && (
         <aside
           aria-label="Chat with Steven's AI assistant"
           aria-hidden={!isOpen}
@@ -768,7 +768,7 @@ export function AiChat({ chatState }: { chatState: ChatStateReturn }) {
       )}
 
       {/* Mobile panel: full-screen Sheet — only mounted on mobile to avoid scroll lock on desktop */}
-      {!isDesktop && (
+      {!isSplitPanelViewport && (
         <Sheet open={isOpen} onOpenChange={(o) => !o && close()}>
           <SheetContent
             side="bottom"
