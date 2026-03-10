@@ -34,7 +34,7 @@ const SUGGESTIONS = [
 
 const WELCOME_BODY =
   "I can answer questions about Steven's experience, projects, and design process."
-const WELCOME_HINT = "It knows me better than my CV does."
+const WELCOME_HINT = "I knows him better than his CV does."
 
 const THINKING_PHRASES = [
   "Thinking…",
