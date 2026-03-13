@@ -21,6 +21,10 @@ vi.mock("@anthropic-ai/sdk", () => ({
   },
 }))
 
+vi.mock("@/lib/rate-limit", () => ({
+  isRateLimited: vi.fn().mockReturnValue(false),
+}))
+
 describe("POST /api/chat", () => {
   beforeEach(() => {
     vi.resetModules()
@@ -60,6 +64,48 @@ describe("POST /api/chat", () => {
     const res = await POST(req)
     expect(res.status).toBe(400)
     expect(await res.text()).toBe("Invalid messages")
+  })
+
+  it("returns 400 when message has invalid role", async () => {
+    const { POST } = await import("./route")
+    const req = new Request("http://localhost/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        messages: [{ role: "system", content: "Hi" }],
+      }),
+    })
+    const res = await POST(req)
+    expect(res.status).toBe(400)
+  })
+
+  it("returns 400 when message content exceeds max length", async () => {
+    const { POST } = await import("./route")
+    const req = new Request("http://localhost/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        messages: [{ role: "user", content: "a".repeat(2001) }],
+      }),
+    })
+    const res = await POST(req)
+    expect(res.status).toBe(400)
+  })
+
+  it("returns 429 when rate limited", async () => {
+    const rateLimitMod = await import("@/lib/rate-limit")
+    vi.mocked(rateLimitMod.isRateLimited).mockReturnValueOnce(true)
+
+    const { POST } = await import("./route")
+    const req = new Request("http://localhost/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        messages: [{ role: "user", content: "Hi" }],
+      }),
+    })
+    const res = await POST(req)
+    expect(res.status).toBe(429)
   })
 
   it("returns 200 with streaming text when messages are valid", async () => {
