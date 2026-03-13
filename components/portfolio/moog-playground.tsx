@@ -661,6 +661,16 @@ export function MoogPlayground() {
     setViewMode("Simple");
   };
 
+  // Escape key exits playground — matches user expectation for fullscreen modes
+  React.useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") handleExitPlayground();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handleKeyDown = React.useCallback(
     async (idx: number) => {
       if (activeKeysRef.current.has(idx)) return;
@@ -740,14 +750,14 @@ export function MoogPlayground() {
           <div className="moog-faceplate flex flex-1 flex-col overflow-hidden rounded-md">
             {/* Central control row: LCD + Nav + Knobs + Exit */}
             <div className="relative flex shrink-0 flex-nowrap items-end justify-center gap-4 md:gap-6 border-b border-stone-700/60 px-4 py-3 md:px-6 md:py-4 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {/* Exit toggle — bottom-left of panel, Moog-style rocker */}
-              <div className="absolute left-3 bottom-3 md:bottom-4 flex gap-3">
+              {/* Exit toggle — top-left for immediate discoverability */}
+              <div className="absolute left-3 top-3 md:top-4 flex gap-3">
                 <RockerSwitch
-                  topLabel="PLAY"
-                  bottomLabel="SIMPLE"
-                  isTop={true}
+                  topLabel="EXIT"
+                  bottomLabel="PLAY"
+                  isTop={false}
                   onClick={handleExitPlayground}
-                  aria-label="Exit to Simple view"
+                  aria-label="Exit to Simple view (or press Escape)"
                 />
                 <RockerSwitch
                   topLabel="LEARN"

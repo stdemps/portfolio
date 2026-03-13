@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Playground Discoverability Explorer</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d0d0d;
+    --surface: #161616;
+    --surface2: #1e1e1e;
+    --border: #2a2a2a;
+    --border2: #333;
+    --text: #e8e8e8;
+    --text-muted: #888;
+    --text-faint: #555;
+    --label: #aaa;
+    --control-bg: #1a1a1a;
+    --control-border: #2e2e2e;
+    --control-hover: #252525;
+    --radius: 8px;
+    --radius-sm: 5px;
+    --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --font-mono: "SF Mono", "Fira Code", "Cascadia Code", monospace;
+  }
+
+  html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: var(--font-ui); font-size: 14px; }
+
+  .app { display: flex; height: 100vh; }
+
+  .sidebar {
+    width: 280px; min-width: 280px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    overflow-y: auto; flex-shrink: 0;
+  }
+
+  .main { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+
+  .preview-area { flex: 1; overflow-y: auto; padding: 24px; background: var(--bg); }
+
+  .output-bar {
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+    padding: 14px 18px;
+    display: flex; gap: 12px; align-items: flex-start;
+    min-height: 72px;
+  }
+
+  .output-text {
+    flex: 1; font-family: var(--font-mono); font-size: 12px; line-height: 1.6;
+    color: var(--text-muted); white-space: pre-wrap; word-break: break-word;
+  }
+
+  .sidebar-header { padding: 18px 16px 14px; border-bottom: 1px solid var(--border); }
+  .sidebar-title { font-size: 13px; font-weight: 600; color: var(--text); letter-spacing: 0.02em; }
+  .sidebar-sub { font-size: 11px; color: var(--text-faint); margin-top: 3px; }
+
+  .section { padding: 14px 16px; border-bottom: 1px solid var(--border); }
+  .section-title {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--text-faint); margin-bottom: 12px;
+  }
+
+  .control-row { margin-bottom: 12px; }
+  .control-row:last-child { margin-bottom: 0; }
+  label { display: block; font-size: 11.5px; color: var(--label); margin-bottom: 5px; }
+
+  .seg { display: flex; gap: 2px; background: var(--control-bg); border: 1px solid var(--control-border); border-radius: var(--radius-sm); padding: 2px; }
+  .seg button {
+    flex: 1; padding: 5px 8px; border: none; border-radius: 4px;
+    background: transparent; color: var(--text-muted); font-size: 12px; cursor: pointer;
+    transition: background 0.15s, color 0.15s; font-family: var(--font-ui);
+  }
+  .seg button.active { background: var(--surface2); color: var(--text); }
+  .seg button:hover:not(.active) { background: var(--control-hover); color: var(--text); }
+
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; }
+  .toggle-label { font-size: 11.5px; color: var(--label); }
+  .toggle {
+    width: 34px; height: 18px; background: var(--control-border); border-radius: 9px;
+    position: relative; cursor: pointer; border: none; flex-shrink: 0; transition: background 0.2s;
+  }
+  .toggle.on { background: #34d399; }
+  .toggle::after {
+    content: ''; position: absolute; top: 2px; left: 2px;
+    width: 14px; height: 14px; border-radius: 50%; background: #fff;
+    transition: transform 0.2s;
+  }
+  .toggle.on::after { transform: translateX(16px); }
+
+  .swatch-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .swatch {
+    width: 22px; height: 22px; border-radius: 4px; cursor: pointer;
+    border: 2px solid transparent; transition: border-color 0.15s, transform 0.1s;
+  }
+  .swatch.active { border-color: #fff; transform: scale(1.12); }
+
+  .copy-btn {
+    padding: 6px 12px; background: var(--surface2); border: 1px solid var(--border2);
+    color: var(--text-muted); border-radius: var(--radius-sm); cursor: pointer;
+    font-size: 11.5px; font-family: var(--font-ui); white-space: nowrap;
+    transition: background 0.15s, color 0.15s; flex-shrink: 0;
+  }
+  .copy-btn:hover { background: var(--border2); color: var(--text); }
+  .copy-btn.copied { color: #34d399; border-color: #34d399; }
+
+  .presets { display: flex; gap: 5px; flex-wrap: wrap; }
+  .preset-btn {
+    padding: 4px 10px; border-radius: 20px;
+    border: 1px solid var(--control-border); background: transparent;
+    color: var(--text-muted); font-size: 11px; cursor: pointer; font-family: var(--font-ui);
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .preset-btn:hover { background: var(--control-hover); color: var(--text); border-color: var(--border2); }
+  .preset-btn.active { background: var(--surface2); color: var(--text); border-color: #fbbf24; }
+
+  /* Page mock */
+  .viewport-mask { overflow: hidden; transition: max-width 0.3s ease; }
+  .page-mock {
+    max-width: 860px; margin: 0 auto;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; overflow: hidden;
+  }
+
+  .mock-chrome {
+    background: var(--surface2); border-bottom: 1px solid var(--border);
+    padding: 10px 14px; display: flex; align-items: center; gap: 8px;
+  }
+  .chrome-dots { display: flex; gap: 5px; }
+  .chrome-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border2); }
+  .chrome-url {
+    flex: 1; background: var(--control-bg); border: 1px solid var(--control-border);
+    border-radius: 4px; padding: 3px 10px; font-size: 11px; color: var(--text-faint); font-family: var(--font-mono);
+  }
+  .viewport-badge {
+    font-size: 10px; color: var(--text-faint); font-family: var(--font-mono);
+    background: var(--control-bg); border: 1px solid var(--control-border); padding: 2px 8px; border-radius: 4px;
+  }
+
+  .mock-header {
+    background: var(--surface2); border-bottom: 1px solid var(--border);
+    padding: 12px 32px; display: flex; align-items: center; justify-content: space-between;
+  }
+  .mock-logo { font-size: 12px; font-weight: 600; color: var(--text-muted); font-family: var(--font-mono); }
+  .mock-nav { display: flex; gap: 16px; align-items: center; }
+  .mock-nav-item { font-size: 11px; color: var(--text-faint); }
+  .mock-header-toggle {
+    font-size: 10px; padding: 4px 10px; border-radius: 20px;
+    border: 1px solid var(--control-border); color: var(--text-muted); background: transparent;
+    cursor: default; display: flex; align-items: center; gap: 4px; transition: opacity 0.2s;
+  }
+  .mock-header-toggle.removed { text-decoration: line-through; opacity: 0.3; }
+
+  .mock-body { padding: 28px 32px 40px; }
+
+  .mock-section-label { display: flex; align-items: baseline; gap: 10px; margin-bottom: 6px; }
+  .mock-section-num { font-size: 10px; color: var(--text-faint); font-family: var(--font-mono); }
+  .mock-section-title { font-size: 13px; font-weight: 600; color: var(--text-muted); }
+
+  .mock-para { font-size: 12px; color: var(--text-faint); max-width: 480px; line-height: 1.6; margin-bottom: 12px; }
+
+  .repo-row { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+  .repo-card {
+    background: var(--control-bg); border: 1px solid var(--control-border);
+    border-radius: 8px; padding: 10px 14px; flex: 1; min-width: 160px;
+    display: flex; justify-content: space-between; align-items: flex-start;
+  }
+  .repo-card-name { font-size: 12px; font-weight: 500; color: var(--text); }
+  .repo-card-desc { font-size: 11px; color: var(--text-faint); margin-top: 2px; }
+
+  .work-cta-area { margin-bottom: 24px; }
+  .mock-h3 { font-size: 13px; font-weight: 500; color: var(--text-muted); margin-bottom: 8px; }
+  .mock-btn {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 7px 14px; border: 1px solid var(--control-border);
+    border-radius: 6px; font-size: 12px; color: var(--text-muted); background: transparent;
+  }
+
+  .project-grid { display: grid; gap: 16px; margin-top: 12px; }
+  .project-card { background: var(--control-bg); border: 1px solid var(--control-border); border-radius: 10px; overflow: hidden; }
+  .project-img { height: 100px; }
+  .project-img.gighub { background: linear-gradient(135deg, #0a0a1a, #1a1a3e, #2d2d6b); }
+  .project-img.peony  { background: linear-gradient(135deg, #2d0a1e, #5a1a3e, #8b2d6b); }
+  .project-img.kraken { background: linear-gradient(135deg, #0a1a2d, #1a3a5e, #2d5a8b); }
+  .project-body { padding: 12px 14px; }
+  .project-title { font-size: 12px; font-weight: 500; color: var(--text); }
+  .project-tagline { font-size: 11px; color: var(--text-faint); margin-top: 2px; }
+  .project-link { font-size: 11px; color: #fbbf24; margin-top: 6px; display: inline-block; }
+
+  /* Playground block A */
+  .pg-block-a { margin-top: 28px; border-radius: 10px; padding: 18px 20px; position: relative; }
+  .pg-block-a-header { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .pg-block-a-icon { font-size: 18px; }
+  .pg-block-a-title { font-size: 13px; font-weight: 600; }
+  .pg-block-a-copy { font-size: 11.5px; color: var(--text-faint); line-height: 1.5; margin-bottom: 14px; max-width: 380px; }
+  .pg-cta-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 16px; border-radius: 6px; font-size: 12px; font-weight: 500;
+    cursor: pointer; border: 1px solid transparent; font-family: var(--font-ui);
+    transition: opacity 0.15s;
+  }
+  .pg-cta-btn:hover { opacity: 0.8; }
+
+  /* Playground card B */
+  .pg-card-b { background: var(--control-bg); border-radius: 10px; overflow: hidden; position: relative; }
+  .pg-card-b-img {
+    height: 100px; display: flex; align-items: center; justify-content: center;
+    font-size: 28px; position: relative; overflow: hidden;
+  }
+  .pg-card-b-badge {
+    position: absolute; top: 8px; right: 8px; z-index: 1;
+    font-size: 9px; padding: 2px 7px; border-radius: 20px;
+    font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  .pg-card-b-body { padding: 12px 14px; }
+  .pg-card-b-title { font-size: 12px; font-weight: 500; color: var(--text); }
+  .pg-card-b-tagline { font-size: 11px; color: var(--text-faint); margin-top: 2px; }
+  .pg-card-b-action { font-size: 11px; margin-top: 6px; display: inline-block; font-weight: 500; cursor: pointer; }
+
+  .hidden-block { opacity: 0.2; pointer-events: none; filter: blur(1px); }
+
+  .viewport-note {
+    display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text-faint);
+    background: var(--control-bg); border: 1px solid var(--control-border);
+    border-radius: 6px; padding: 8px 12px; margin-top: 16px;
+  }
+  .viewport-note-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+  .annotation {
+    font-size: 10px; font-family: var(--font-mono); padding: 3px 8px;
+    border-radius: 4px; display: inline-block; margin-top: 6px;
+  }
+
+  .tradeoff-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; }
+  .tradeoff-tag {
+    display: inline-block; font-size: 9.5px; padding: 2px 7px; border-radius: 20px;
+    font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 6px;
+  }
+  .tradeoff-item { font-size: 11px; color: var(--text-faint); line-height: 1.5; padding-left: 12px; position: relative; margin-bottom: 4px; }
+  .tradeoff-item::before { content: '·'; position: absolute; left: 0; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-title">Discoverability Explorer</div>
+      <div class="sidebar-sub">Moog Playground · Work Section</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Presets</div>
+      <div class="presets" id="presets">
+        <button class="preset-btn active" data-preset="a-recommended">A · Recommended</button>
+        <button class="preset-btn" data-preset="a-subtle">A · Subtle</button>
+        <button class="preset-btn" data-preset="b-card">B · In Grid</button>
+        <button class="preset-btn" data-preset="b-badged">B · Badged</button>
+        <button class="preset-btn" data-preset="no-entry">No entry</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Approach</div>
+      <div class="control-row">
+        <label>Implementation option</label>
+        <div class="seg" id="seg-approach">
+          <button class="active" data-val="A">A · Dedicated</button>
+          <button data-val="B">B · In grid</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" id="section-a">
+      <div class="section-title">Option A — Block style</div>
+      <div class="control-row">
+        <label>Accent colour</label>
+        <div class="swatch-row" id="swatches-accent">
+          <div class="swatch active" data-val="amber"   style="background:#fbbf24" title="Amber (Moog)"></div>
+          <div class="swatch"        data-val="emerald" style="background:#34d399" title="Emerald"></div>
+          <div class="swatch"        data-val="blue"    style="background:#60a5fa" title="Blue"></div>
+          <div class="swatch"        data-val="purple"  style="background:#a78bfa" title="Purple"></div>
+          <div class="swatch"        data-val="neutral" style="background:#555"    title="Neutral"></div>
+        </div>
+      </div>
+      <div class="control-row">
+        <label>Block style</label>
+        <div class="seg" id="seg-block-style">
+          <button class="active" data-val="bordered">Bordered</button>
+          <button data-val="filled">Filled</button>
+          <button data-val="minimal">Minimal</button>
+        </div>
+      </div>
+      <div class="control-row">
+        <label>Button style</label>
+        <div class="seg" id="seg-btn-style">
+          <button class="active" data-val="outline">Outline</button>
+          <button data-val="solid">Solid</button>
+          <button data-val="ghost">Ghost</button>
+        </div>
+      </div>
+      <div class="control-row">
+        <label>CTA label</label>
+        <div class="seg" id="seg-cta-copy">
+          <button class="active" data-val="open">Open</button>
+          <button data-val="enter">Enter</button>
+          <button data-val="try">Try it</button>
+        </div>
+      </div>
+      <div class="control-row">
+        <div class="toggle-row">
+          <span class="toggle-label">Show icon</span>
+          <button class="toggle on" id="tog-icon" aria-label="Toggle icon"></button>
+        </div>
+      </div>
+      <div class="control-row">
+        <div class="toggle-row">
+          <span class="toggle-label">Show copy</span>
+          <button class="toggle on" id="tog-copy" aria-label="Toggle copy"></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" id="section-b" style="display:none">
+      <div class="section-title">Option B — Card style</div>
+      <div class="control-row">
+        <label>Card image</label>
+        <div class="seg" id="seg-card-img">
+          <button class="active" data-val="wave">Waveform</button>
+          <button data-val="keys">Keys</button>
+          <button data-val="gradient">Gradient</button>
+        </div>
+      </div>
+      <div class="control-row">
+        <div class="toggle-row">
+          <span class="toggle-label">In-page badge</span>
+          <button class="toggle" id="tog-badge" aria-label="Toggle badge"></button>
+        </div>
+      </div>
+      <div class="control-row">
+        <label>Action label</label>
+        <div class="seg" id="seg-card-action">
+          <button class="active" data-val="open">Open</button>
+          <button data-val="launch">Launch</button>
+          <button data-val="explore">Explore</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Viewport & Visibility</div>
+      <div class="control-row">
+        <label>Simulated viewport</label>
+        <div class="seg" id="seg-viewport">
+          <button data-val="mobile">Mobile</button>
+          <button data-val="tablet">Tablet</button>
+          <button class="active" data-val="desktop">Desktop</button>
+        </div>
+      </div>
+      <div class="control-row">
+        <div class="toggle-row">
+          <span class="toggle-label">Remove header toggle</span>
+          <button class="toggle on" id="tog-header" aria-label="Remove header toggle"></button>
+        </div>
+      </div>
+      <div class="control-row">
+        <div class="toggle-row">
+          <span class="toggle-label">Show annotations</span>
+          <button class="toggle on" id="tog-annotations" aria-label="Toggle annotations"></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Trade-offs</div>
+      <div id="tradeoffs-display"></div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="preview-area">
+      <div class="viewport-mask" id="viewport-mask">
+        <div class="page-mock">
+
+          <div class="mock-chrome">
+            <div class="chrome-dots">
+              <div class="chrome-dot" style="background:#ff5f57"></div>
+              <div class="chrome-dot" style="background:#ffbd2e"></div>
+              <div class="chrome-dot" style="background:#28c840"></div>
+            </div>
+            <div class="chrome-url">stevendempster.com</div>
+            <div class="viewport-badge" id="viewport-badge">lg · 1024px+</div>
+          </div>
+
+          <div class="mock-header">
+            <div class="mock-logo">SD</div>
+            <div class="mock-nav">
+              <span class="mock-nav-item">Work</span>
+              <span class="mock-nav-item">About</span>
+              <span class="mock-nav-item">Contact</span>
+              <div class="mock-header-toggle" id="header-toggle-btn">⊞ Playground</div>
+            </div>
+          </div>
+
+          <div class="mock-body">
+
+            <div class="mock-section-label">
+              <span class="mock-section-num">01</span>
+              <span class="mock-section-title">Recent work</span>
+            </div>
+            <div class="mock-para">AI-accelerated product engineering — shipping real features with real teams.</div>
+            <div class="repo-row">
+              <div class="repo-card">
+                <div><div class="repo-card-name">next-template</div><div class="repo-card-desc">Next.js starter kit</div></div>
+                <span style="font-size:10px;color:var(--text-faint)">↗</span>
+              </div>
+              <div class="repo-card">
+                <div><div class="repo-card-name">ai-chat</div><div class="repo-card-desc">LLM chat scaffold</div></div>
+                <span style="font-size:10px;color:var(--text-faint)">↗</span>
+              </div>
+            </div>
+
+            <div class="work-cta-area">
+              <div class="mock-h3">Work projects</div>
+              <div class="mock-para" style="margin-bottom:10px">Client work — available on request.</div>
+              <div class="mock-btn">Get in touch →</div>
+            </div>
+
+            <div>
+              <div class="mock-h3">Side projects</div>
+              <div class="mock-para" style="margin-bottom:0">A few things built for fun or learning.</div>
+              <div class="project-grid" id="project-grid">
+                <div class="project-card">
+                  <div class="project-img gighub"></div>
+                  <div class="project-body">
+                    <div class="project-title">GigHub</div>
+                    <div class="project-tagline">Music event discovery</div>
+                    <span class="project-link">View project ↗</span>
+                  </div>
+                </div>
+                <div class="project-card">
+                  <div class="project-img peony"></div>
+                  <div class="project-body">
+                    <div class="project-title">Peony Blooms</div>
+                    <div class="project-tagline">E-commerce storefront</div>
+                    <span class="project-link">View project ↗</span>
+                  </div>
+                </div>
+                <div class="project-card">
+                  <div class="project-img kraken"></div>
+                  <div class="project-body">
+                    <div class="project-title">Kraken Weddings</div>
+                    <div class="project-tagline">Wedding planning platform</div>
+                    <span class="project-link">View project ↗</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Playground block A slot -->
+              <div id="pg-block-a-slot"></div>
+            </div>
+
+            <div class="viewport-note" id="viewport-note">
+              <div class="viewport-note-dot" id="viewport-note-dot"></div>
+              <span id="viewport-note-text"></span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="output-bar">
+      <div class="output-text" id="output-text">Loading…</div>
+      <button class="copy-btn" id="copy-btn">Copy prompt</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────────
+const DEFAULTS = {
+  approach: 'A',
+  accentColor: 'amber',
+  blockStyle: 'bordered',
+  btnStyle: 'outline',
+  ctaCopy: 'open',
+  showIcon: true,
+  showCopy: true,
+  cardImg: 'wave',
+  showBadge: false,
+  cardAction: 'open',
+  viewport: 'desktop',
+  removeHeaderToggle: true,
+  showAnnotations: true,
+};
+const state = { ...DEFAULTS };
+
+// ── Accent config ──────────────────────────────────────────────────────────────
+const ACCENT = {
+  amber:   { hex: '#fbbf24', muted: 'rgba(251,191,36,0.12)',  border: 'rgba(251,191,36,0.3)'  },
+  emerald: { hex: '#34d399', muted: 'rgba(52,211,153,0.1)',   border: 'rgba(52,211,153,0.3)'  },
+  blue:    { hex: '#60a5fa', muted: 'rgba(96,165,250,0.1)',   border: 'rgba(96,165,250,0.3)'  },
+  purple:  { hex: '#a78bfa', muted: 'rgba(167,139,250,0.1)',  border: 'rgba(167,139,250,0.3)' },
+  neutral: { hex: '#aaa',    muted: 'rgba(80,80,80,0.12)',    border: 'rgba(80,80,80,0.35)'   },
+};
+
+const CTA_TEXT  = { open: 'Open Playground', enter: 'Enter Playground', try: 'Try it →' };
+const CARD_ACT  = { open: 'Open Playground →', launch: 'Launch →', explore: 'Explore →' };
+const CARD_BG   = {
+  wave:     'linear-gradient(135deg, #0d1117 0%, #1a2744 40%, #0d2b2b 100%)',
+  keys:     'linear-gradient(135deg, #1a0d2e 0%, #2d1a4e 50%, #1a0d2e 100%)',
+  gradient: 'linear-gradient(135deg, #1a1a2e, rgba(251,191,36,0.08), #1a2e1a)',
+};
+const CARD_EMOJI = { wave: '〰〰〰', keys: '🎹', gradient: '✦' };
+
+// ── Tradeoffs data ─────────────────────────────────────────────────────────────
+const TRADEOFFS = {
+  A: {
+    pros: ['Clear intent: in-site mode, not an external project', 'No changes to portfolio-data.ts', 'Easy lg+ gating with useMediaQuery', 'Custom block can be styled distinctively'],
+    cons: ['Slightly more UI surface than a single card', 'Adds section rhythm to work-section.tsx', 'Needs useViewMode() in WorkSection'],
+  },
+  B: {
+    pros: ['One consistent grid — everything in one list', 'Shares ProjectBlock rhythm with other projects', 'Minimal new markup'],
+    cons: ['Blurs line: external project vs in-page mode', 'Needs special-case in project-block.tsx', 'No external URL — card misleads on behaviour', 'Harder to visually distinguish'],
+  },
+};
+
+// ── DOM helpers ────────────────────────────────────────────────────────────────
+function el(tag, opts = {}) {
+  const node = document.createElement(tag);
+  if (opts.cls)  node.className = opts.cls;
+  if (opts.text) node.textContent = opts.text;
+  if (opts.style) node.setAttribute('style', opts.style);
+  if (opts.attrs) Object.entries(opts.attrs).forEach(([k, v]) => node.setAttribute(k, v));
+  return node;
+}
+
+function setStyle(node, props) {
+  Object.assign(node.style, props);
+}
+
+// ── Render: main ──────────────────────────────────────────────────────────────
+function renderAll() {
+  renderViewport();
+  renderHeader();
+  renderApproach();
+  renderAnnotation();
+  renderTradeoffs();
+  renderPrompt();
+}
+
+// ── Viewport sim ──────────────────────────────────────────────────────────────
+function renderViewport() {
+  const mask    = document.getElementById('viewport-mask');
+  const badge   = document.getElementById('viewport-badge');
+  const dot     = document.getElementById('viewport-note-dot');
+  const noteEl  = document.getElementById('viewport-note-text');
+  const vp      = state.viewport;
+  const isLg    = vp === 'desktop';
+
+  if (vp === 'mobile') {
+    mask.style.maxWidth = '375px';
+    badge.textContent = 'sm · 375px';
+    dot.style.background  = '#ef4444';
+    noteEl.textContent = 'Mobile: block hidden — useMediaQuery("(min-width: 1024px)") → false';
+  } else if (vp === 'tablet') {
+    mask.style.maxWidth = '768px';
+    badge.textContent = 'md · 768px';
+    dot.style.background  = '#f59e0b';
+    noteEl.textContent = 'Tablet: block hidden — viewport is below the 1024px threshold';
+  } else {
+    mask.style.maxWidth = '100%';
+    badge.textContent = 'lg · 1024px+';
+    dot.style.background  = '#34d399';
+    noteEl.textContent = 'Desktop: useMediaQuery("(min-width: 1024px)") → true — block renders';
+  }
+
+  // Apply hidden-block to whichever playground element is present
+  [
+    document.getElementById('pg-block-a-slot'),
+    document.querySelector('.pg-card-b'),
+  ].forEach(n => { if (n) n.classList.toggle('hidden-block', !isLg); });
+}
+
+// ── Header ────────────────────────────────────────────────────────────────────
+function renderHeader() {
+  const btn = document.getElementById('header-toggle-btn');
+  btn.classList.toggle('removed', state.removeHeaderToggle);
+  btn.title = state.removeHeaderToggle ? 'Proposed: removed from header' : '';
+}
+
+// ── Approach dispatch ─────────────────────────────────────────────────────────
+function renderApproach() {
+  if (state.approach === 'A') {
+    cleanupOptionB();
+    renderBlockA();
+  } else {
+    cleanupOptionA();
+    renderCardB();
+  }
+}
+
+// ── Option A ──────────────────────────────────────────────────────────────────
+function renderBlockA() {
+  const slot   = document.getElementById('pg-block-a-slot');
+  const accent = ACCENT[state.accentColor];
+  const cta    = CTA_TEXT[state.ctaCopy];
+
+  // Clear slot
+  while (slot.firstChild) slot.removeChild(slot.firstChild);
+
+  const block = el('div', { cls: 'pg-block-a' });
+
+  // Block background + border based on style
+  if (state.blockStyle === 'bordered') {
+    setStyle(block, { background: 'transparent', border: '1px solid ' + accent.border });
+  } else if (state.blockStyle === 'filled') {
+    setStyle(block, { background: accent.muted, border: '1px solid ' + accent.border });
+  } else {
+    setStyle(block, { background: 'transparent', borderTop: '1px solid ' + accent.border, borderRadius: '0', padding: '18px 0' });
+  }
+
+  // Header row
+  const header = el('div', { cls: 'pg-block-a-header' });
+  if (state.showIcon) header.appendChild(el('span', { cls: 'pg-block-a-icon', text: '🎛' }));
+  const titleEl = el('span', { cls: 'pg-block-a-title', text: 'Moog Playground' });
+  setStyle(titleEl, { color: accent.hex });
+  header.appendChild(titleEl);
+  block.appendChild(header);
+
+  // Supporting copy
+  if (state.showCopy) {
+    block.appendChild(el('div', {
+      cls: 'pg-block-a-copy',
+      text: 'Try the Moog synthesiser — an interactive in-page experience.',
+    }));
+  }
+
+  // CTA button
+  const btn = el('button', { cls: 'pg-cta-btn', text: cta });
+  btn.setAttribute('aria-label', cta + ' — opens interactive synthesiser mode');
+  if (state.btnStyle === 'outline') {
+    setStyle(btn, { border: '1px solid ' + accent.border, color: accent.hex, background: 'transparent' });
+  } else if (state.btnStyle === 'solid') {
+    setStyle(btn, { border: '1px solid transparent', color: '#000', background: accent.hex });
+  } else {
+    setStyle(btn, { border: 'none', color: accent.hex, background: 'transparent', paddingLeft: '0' });
+  }
+  btn.addEventListener('click', function() { this.textContent = 'Switching…'; });
+  block.appendChild(btn);
+
+  slot.appendChild(block);
+
+  // Apply hidden state
+  if (state.viewport !== 'desktop') slot.classList.add('hidden-block');
+  else slot.classList.remove('hidden-block');
+}
+
+function cleanupOptionA() {
+  const slot = document.getElementById('pg-block-a-slot');
+  while (slot.firstChild) slot.removeChild(slot.firstChild);
+}
+
+// ── Option B ──────────────────────────────────────────────────────────────────
+function renderCardB() {
+  const grid   = document.getElementById('project-grid');
+  const accent = ACCENT[state.accentColor];
+
+  // Card wrapper
+  const card = el('div', { cls: 'pg-card-b' });
+
+  // Image area
+  const imgDiv = el('div', { cls: 'pg-card-b-img' });
+  setStyle(imgDiv, { background: CARD_BG[state.cardImg] });
+  imgDiv.textContent = CARD_EMOJI[state.cardImg];
+
+  if (state.showBadge) {
+    const badge = el('div', { cls: 'pg-card-b-badge', text: 'In-page' });
+    setStyle(badge, { background: accent.muted, color: accent.hex, border: '1px solid ' + accent.border });
+    imgDiv.appendChild(badge);
+  }
+  card.appendChild(imgDiv);
+
+  // Body
+  const body = el('div', { cls: 'pg-card-b-body' });
+  body.appendChild(el('div', { cls: 'pg-card-b-title', text: 'Moog Playground' }));
+  body.appendChild(el('div', { cls: 'pg-card-b-tagline', text: 'Interactive synthesiser — in-page' }));
+  const actionEl = el('span', { cls: 'pg-card-b-action', text: CARD_ACT[state.cardAction] });
+  setStyle(actionEl, { color: accent.hex });
+  actionEl.addEventListener('click', function() { this.textContent = 'Launching…'; });
+  body.appendChild(actionEl);
+  card.appendChild(body);
+
+  grid.appendChild(card);
+  grid.style.gridTemplateColumns = 'repeat(2, 1fr)';
+
+  if (state.viewport !== 'desktop') card.classList.add('hidden-block');
+}
+
+function cleanupOptionB() {
+  const existing = document.querySelector('.pg-card-b');
+  if (existing) existing.remove();
+  document.getElementById('project-grid').style.gridTemplateColumns = '';
+}
+
+// ── Annotation ────────────────────────────────────────────────────────────────
+function renderAnnotation() {
+  // Remove old annotations
+  document.querySelectorAll('.annotation').forEach(n => n.remove());
+  if (!state.showAnnotations || state.viewport !== 'desktop') return;
+
+  const accent = ACCENT[state.accentColor];
+  const target = state.approach === 'A'
+    ? document.querySelector('#pg-block-a-slot .pg-block-a')
+    : document.querySelector('.pg-card-b');
+
+  if (!target) return;
+
+  const ann = el('div', {
+    cls: 'annotation',
+    text: state.approach === 'A' ? '← New block (Option A)' : '← New card in grid (Option B)',
+  });
+  setStyle(ann, {
+    background: accent.muted,
+    color: accent.hex,
+    border: '1px solid ' + accent.border,
+    marginBottom: '6px',
+  });
+
+  // Insert before the target
+  target.parentNode.insertBefore(ann, target);
+}
+
+// ── Tradeoffs ─────────────────────────────────────────────────────────────────
+function renderTradeoffs() {
+  const container = document.getElementById('tradeoffs-display');
+  while (container.firstChild) container.removeChild(container.firstChild);
+
+  const data = TRADEOFFS[state.approach];
+  const row  = el('div', { cls: 'tradeoff-row' });
+
+  ['pros', 'cons'].forEach(side => {
+    const col = el('div');
+    const tag = el('div', { cls: 'tradeoff-tag' });
+    if (side === 'pros') {
+      tag.textContent = 'Pros';
+      setStyle(tag, { background: 'rgba(52,211,153,0.12)', color: '#34d399' });
+    } else {
+      tag.textContent = 'Cons';
+      setStyle(tag, { background: 'rgba(239,68,68,0.1)', color: '#f87171' });
+    }
+    col.appendChild(tag);
+    data[side].forEach(txt => col.appendChild(el('div', { cls: 'tradeoff-item', text: txt })));
+    row.appendChild(col);
+  });
+
+  container.appendChild(row);
+}
+
+// ── Prompt ────────────────────────────────────────────────────────────────────
+function renderPrompt() {
+  const accent = ACCENT[state.accentColor];
+  const lines  = [];
+
+  if (state.approach === 'A') {
+    const cta     = CTA_TEXT[state.ctaCopy];
+    const btnDesc = { outline: 'outline button', solid: 'solid filled button', ghost: 'ghost text link' }[state.btnStyle];
+    const blkDesc = { bordered: 'bordered container', filled: 'subtly filled container', minimal: 'minimal top-border separator' }[state.blockStyle];
+
+    lines.push('In work-section.tsx (Simple view), after the Side projects grid, add a dedicated Playground block (Option A).');
+    lines.push('');
+    lines.push('Block: a ' + blkDesc + ' with a ' + state.accentColor + ' accent (' + accent.hex + ').');
+    if (state.showIcon)  lines.push('Include a 🎛 icon next to the "Moog Playground" heading.');
+    if (state.showCopy)  lines.push('Include supporting copy: "Try the Moog synthesiser — an interactive in-page experience."');
+    lines.push('CTA: a ' + btnDesc + ' labelled "' + cta + '" that calls setViewMode("Playground").');
+    lines.push('');
+    lines.push('Visibility: only render when useMediaQuery("(min-width: 1024px)") returns true.');
+    if (state.removeHeaderToggle) lines.push('Header: remove the Playground toggle — this block becomes the sole desktop entry point.');
+    lines.push('');
+    lines.push('Accessibility: aria-label="' + cta + ' — opens interactive synthesiser mode".');
+    lines.push('Files to change: components/portfolio/work-section.tsx only. No changes to portfolio-data.ts required.');
+  } else {
+    const action = CARD_ACT[state.cardAction];
+    const imgDesc = { wave: 'waveform illustration', keys: 'piano keys emoji', gradient: 'dark amber gradient' }[state.cardImg];
+
+    lines.push('In work-section.tsx (Simple view), add a Moog Playground card to the Side projects grid (Option B).');
+    lines.push('');
+    lines.push('Card: same grid layout as ProjectBlock cards. Image: ' + imgDesc + '. Click action: setViewMode("Playground") — no external link.');
+    if (state.showBadge) lines.push('Add an "In-page" badge (' + state.accentColor + ' tint) to visually distinguish it from external-link cards.');
+    lines.push('Action label: "' + action + '"');
+    lines.push('');
+    lines.push('Visibility: only render when useMediaQuery("(min-width: 1024px)") returns true.');
+    if (state.removeHeaderToggle) lines.push('Header: remove the Playground toggle — this card becomes the sole desktop entry point.');
+    lines.push('');
+    lines.push('Note: add special-case handling (id === "moog-playground") in project-block.tsx or inline in the map to suppress "View project" link and route click to setViewMode.');
+    lines.push('Files to change: work-section.tsx + project-block.tsx (+ optionally portfolio-data.ts for the synthetic project entry).');
+  }
+
+  document.getElementById('output-text').textContent = lines.join('\n');
+}
+
+// ── Control wiring ─────────────────────────────────────────────────────────────
+function wireSegmented(id, key) {
+  const seg = document.getElementById(id);
+  if (!seg) return;
+  seg.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      seg.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      state[key] = btn.dataset.val;
+      if (key === 'approach') {
+        document.getElementById('section-a').style.display = state.approach === 'A' ? '' : 'none';
+        document.getElementById('section-b').style.display = state.approach === 'B' ? '' : 'none';
+      }
+      clearPreset();
+      renderAll();
+    });
+  });
+}
+
+function wireToggle(id, key) {
+  const btn = document.getElementById(id);
+  if (!btn) return;
+  btn.classList.toggle('on', !!state[key]);
+  btn.addEventListener('click', () => {
+    state[key] = !state[key];
+    btn.classList.toggle('on', state[key]);
+    clearPreset();
+    renderAll();
+  });
+}
+
+function wireSwatches(id, key) {
+  document.getElementById(id).querySelectorAll('.swatch').forEach(sw => {
+    sw.addEventListener('click', () => {
+      document.getElementById(id).querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+      sw.classList.add('active');
+      state[key] = sw.dataset.val;
+      clearPreset();
+      renderAll();
+    });
+  });
+}
+
+// ── Presets ────────────────────────────────────────────────────────────────────
+const PRESETS = {
+  'a-recommended': { approach: 'A', accentColor: 'amber',   blockStyle: 'bordered', btnStyle: 'outline', ctaCopy: 'open',  showIcon: true,  showCopy: true,  viewport: 'desktop', removeHeaderToggle: true,  showAnnotations: true  },
+  'a-subtle':      { approach: 'A', accentColor: 'neutral', blockStyle: 'minimal',  btnStyle: 'ghost',   ctaCopy: 'try',   showIcon: false, showCopy: false, viewport: 'desktop', removeHeaderToggle: true,  showAnnotations: true  },
+  'b-card':        { approach: 'B', accentColor: 'amber',   cardImg: 'wave',  showBadge: false, cardAction: 'open',    viewport: 'desktop', removeHeaderToggle: true,  showAnnotations: true  },
+  'b-badged':      { approach: 'B', accentColor: 'emerald', cardImg: 'keys',  showBadge: true,  cardAction: 'explore', viewport: 'desktop', removeHeaderToggle: false, showAnnotations: true  },
+  'no-entry':      { approach: 'A', accentColor: 'neutral', blockStyle: 'minimal',  btnStyle: 'outline', ctaCopy: 'open',  showIcon: false, showCopy: false, viewport: 'mobile',  removeHeaderToggle: true,  showAnnotations: true  },
+};
+
+function syncControls() {
+  const SEGS = { 'seg-approach': 'approach', 'seg-block-style': 'blockStyle', 'seg-btn-style': 'btnStyle', 'seg-cta-copy': 'ctaCopy', 'seg-card-img': 'cardImg', 'seg-card-action': 'cardAction', 'seg-viewport': 'viewport' };
+  Object.entries(SEGS).forEach(([id, key]) => {
+    const seg = document.getElementById(id);
+    if (!seg) return;
+    seg.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.val === state[key]));
+  });
+  const TOGS = { 'tog-icon': 'showIcon', 'tog-copy': 'showCopy', 'tog-badge': 'showBadge', 'tog-header': 'removeHeaderToggle', 'tog-annotations': 'showAnnotations' };
+  Object.entries(TOGS).forEach(([id, key]) => {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('on', !!state[key]);
+  });
+  document.getElementById('swatches-accent').querySelectorAll('.swatch').forEach(sw => {
+    sw.classList.toggle('active', sw.dataset.val === state.accentColor);
+  });
+  document.getElementById('section-a').style.display = state.approach === 'A' ? '' : 'none';
+  document.getElementById('section-b').style.display = state.approach === 'B' ? '' : 'none';
+}
+
+function clearPreset() {
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+}
+
+document.querySelectorAll('.preset-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    clearPreset();
+    btn.classList.add('active');
+    Object.assign(state, PRESETS[btn.dataset.preset]);
+    syncControls();
+    renderAll();
+  });
+});
+
+document.getElementById('copy-btn').addEventListener('click', function() {
+  const text = document.getElementById('output-text').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    this.textContent = 'Copied!';
+    this.classList.add('copied');
+    setTimeout(() => { this.textContent = 'Copy prompt'; this.classList.remove('copied'); }, 1800);
+  });
+});
+
+// ── Bootstrap ──────────────────────────────────────────────────────────────────
+wireSegmented('seg-approach',    'approach');
+wireSegmented('seg-block-style', 'blockStyle');
+wireSegmented('seg-btn-style',   'btnStyle');
+wireSegmented('seg-cta-copy',    'ctaCopy');
+wireSegmented('seg-card-img',    'cardImg');
+wireSegmented('seg-card-action', 'cardAction');
+wireSegmented('seg-viewport',    'viewport');
+wireSwatches('swatches-accent',  'accentColor');
+wireToggle('tog-icon',           'showIcon');
+wireToggle('tog-copy',           'showCopy');
+wireToggle('tog-badge',          'showBadge');
+wireToggle('tog-header',         'removeHeaderToggle');
+wireToggle('tog-annotations',    'showAnnotations');
+
+syncControls();
+renderAll();
+</script>
+</body>
+</html>

@@ -6,7 +6,6 @@ import Link from "next/link";
 import { Menu } from "lucide-react";
 import { site } from "@/lib/portfolio-data";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { ViewModeToggle } from "@/components/portfolio/view-mode-toggle";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -47,9 +46,6 @@ export function SiteHeader() {
           />
         </Link>
         <div className="flex items-center gap-3 md:gap-6">
-          <div className="hidden lg:block">
-            <ViewModeToggle />
-          </div>
           {/* Desktop nav */}
           <nav className="hidden lg:block" aria-label="Main navigation">
             <ul className="flex items-center gap-6">

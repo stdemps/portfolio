@@ -12,6 +12,8 @@ import { Button } from "@/components/ui/button"
 import { ExternalLink } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { MoogBankSelector } from "./moog-bank-selector"
+import { useViewMode } from "@/hooks/use-view-mode"
+import { useMediaQuery } from "@/hooks/use-media-query"
 
 /** When true, show projects marked "Coming Soon"; otherwise hide them (default). */
 const showComingSoon =
@@ -34,6 +36,8 @@ export function WorkSection({ carousel = false, onContactClick }: WorkSectionPro
     projects.filter((p) => p.kind === "personal")
   )
   const [activeBank, setActiveBank] = React.useState(0)
+  const [, setViewMode] = useViewMode()
+  const isDesktop = useMediaQuery("(min-width: 1024px)")
 
   if (carousel) {
     const bankItems: React.ReactNode[] = [
@@ -268,6 +272,40 @@ export function WorkSection({ carousel = false, onContactClick }: WorkSectionPro
               </Link>{" "}
               and I can share work samples.
             </p>
+          </ScrollReveal>
+        )}
+
+        {/* Moog Playground CTA — only on lg+ where the playground is available */}
+        {isDesktop && (
+          <ScrollReveal delay={160}>
+            <div className="mt-10 rounded-xl border border-border/60 px-5 py-5 md:mt-12 lg:mt-14">
+              <div className="flex items-center gap-2.5">
+                <span className="text-base" aria-hidden>🎛</span>
+                <h3 className="font-display text-base font-medium tracking-tight text-foreground md:text-lg">
+                  Moog Playground
+                </h3>
+              </div>
+              <p className="mt-2 max-w-md text-sm text-muted-foreground">
+                Try the Moog synthesiser — an interactive in-page experience.
+              </p>
+              <div className="mt-4">
+                <Button
+                  variant="outline"
+                  size="default"
+                  className="group gap-2"
+                  aria-label="Open Playground — opens interactive Moog synthesiser mode"
+                  onClick={() => setViewMode("Playground")}
+                >
+                  Open Playground
+                  <span
+                    className="inline-block transition-transform duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:translate-x-0.5"
+                    aria-hidden
+                  >
+                    →
+                  </span>
+                </Button>
+              </div>
+            </div>
           </ScrollReveal>
         )}
       </div>

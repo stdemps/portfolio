@@ -755,6 +755,7 @@ export function AiChat({ chatState }: { chatState: ChatStateReturn }) {
       {/* Desktop panel: sticky aside inside the grid column */}
       {isSplitPanelViewport && (
         <aside
+          data-testid="chat-panel"
           aria-label="Chat with Steven's AI assistant"
           aria-hidden={!isOpen}
           className={cn(
@@ -771,6 +772,7 @@ export function AiChat({ chatState }: { chatState: ChatStateReturn }) {
       {!isSplitPanelViewport && (
         <Sheet open={isOpen} onOpenChange={(o) => !o && close()}>
           <SheetContent
+            data-testid="chat-panel"
             side="bottom"
             aria-label="Chat with Steven's AI assistant"
             className={cn(

@@ -19,10 +19,10 @@ test.describe("AI Chat", () => {
     await expect(trigger).toBeVisible({ timeout: 10000 })
     await trigger.click()
 
-    const panel = page.getByRole("dialog", { name: /ask about steven/i })
+    const panel = page.locator("[data-testid='chat-panel']")
     await expect(panel).toBeVisible()
-    await expect(panel.getByText(/ask me anything/i)).toBeVisible()
-    await expect(panel.getByText(/suggested/i)).toBeVisible()
+    await expect(panel.getByText(/I can answer questions about Steven/i)).toBeVisible()
+    await expect(panel.getByText(/What makes Steven a strong design lead/i)).toBeVisible()
   })
 
   test("closes panel when close button is clicked", async ({ page }) => {
@@ -30,7 +30,7 @@ test.describe("AI Chat", () => {
     await expect(trigger).toBeVisible({ timeout: 10000 })
     await trigger.click()
 
-    const panel = page.getByRole("dialog", { name: /ask about steven/i })
+    const panel = page.locator("[data-testid='chat-panel']")
     await expect(panel).toBeVisible()
 
     await panel.getByRole("button", { name: /close chat/i }).click()
@@ -50,10 +50,10 @@ test.describe("AI Chat", () => {
     await expect(trigger).toBeVisible({ timeout: 10000 })
     await trigger.click()
 
-    const panel = page.getByRole("dialog", { name: /ask about steven/i })
+    const panel = page.locator("[data-testid='chat-panel']")
     await expect(panel).toBeVisible()
 
-    await panel.getByRole("button", { name: /what's your design process\?/i }).click()
+    await panel.getByRole("button", { name: /what makes steven a strong design lead/i }).click()
 
     await expect(panel.getByText(/steven leads product design at kpmg uk/i)).toBeVisible({
       timeout: 10000,
@@ -73,7 +73,7 @@ test.describe("AI Chat", () => {
     await expect(trigger).toBeVisible({ timeout: 10000 })
     await trigger.click()
 
-    const panel = page.getByRole("dialog", { name: /ask about steven/i })
+    const panel = page.locator("[data-testid='chat-panel']")
     await expect(panel).toBeVisible()
 
     const input = panel.getByRole("textbox", { name: /type your question/i })
@@ -106,7 +106,7 @@ test.describe("AI Chat - accessibility", () => {
     await expect(trigger).toBeVisible({ timeout: 10000 })
     await trigger.click()
 
-    const panel = page.getByRole("dialog", { name: /ask about steven/i })
+    const panel = page.locator("[data-testid='chat-panel']")
     await expect(panel).toBeVisible()
     expect(await panel.getAttribute("aria-label")).toMatch(/chat with steven's ai assistant/i)
     await expect(panel.getByRole("textbox", { name: /type your question/i })).toBeVisible()
