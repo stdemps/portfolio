@@ -1,6 +1,7 @@
 import type { Testimonial } from "@/lib/portfolio-data"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
+import { Quote } from "lucide-react"
 
 interface TestimonialCardProps {
   testimonial: Testimonial
@@ -8,15 +9,7 @@ interface TestimonialCardProps {
 }
 
 export function TestimonialCard({ testimonial, className }: TestimonialCardProps) {
-  const initials =
-    testimonial.name
-      .trim()
-      .split(/\s+/)
-      .filter(Boolean)
-      .map((n) => n.charAt(0))
-      .join("")
-      .slice(0, 2)
-      .toUpperCase() || "?"
+  const displayName = testimonial.name ?? "Hidden for privacy"
 
   return (
     <article
@@ -28,16 +21,18 @@ export function TestimonialCard({ testimonial, className }: TestimonialCardProps
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 flex-1 overflow-hidden">
           <h3 className="truncate font-display text-lg font-medium text-foreground md:text-xl">
-            {testimonial.name}
+            {displayName}
           </h3>
-          <p className="mt-0.5 truncate text-sm text-muted-foreground">{testimonial.role}</p>
+          <p className={cn("truncate text-sm text-muted-foreground", testimonial.name && "mt-0.5")}>
+            {testimonial.role}
+          </p>
         </div>
-        <Avatar className="h-12 w-12 shrink-0 border border-border/60 md:h-14 md:w-14">
+        <Avatar className="h-12 w-12 shrink-0 border border-border/60 md:h-14 md:w-14" aria-hidden="true">
           {testimonial.avatar ? (
             <AvatarImage src={testimonial.avatar} alt="" />
           ) : null}
-          <AvatarFallback className="bg-muted text-muted-foreground text-sm font-medium">
-            {initials}
+          <AvatarFallback className="bg-muted text-muted-foreground flex items-center justify-center">
+            <Quote className="h-5 w-5 md:h-6 md:w-6" aria-hidden="true" />
           </AvatarFallback>
         </Avatar>
       </div>

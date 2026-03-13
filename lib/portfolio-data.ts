@@ -59,7 +59,10 @@ export interface WorkExperienceItem {
 
 export interface Testimonial {
   id: string
-  name: string
+  /** Omitted for privacy; use initials to tell who wrote what */
+  name?: string
+  /** Initials shown in avatar when name is omitted (e.g. "OD", "JR") */
+  initials?: string
   role: string
   quote: string
   avatar?: string
@@ -240,10 +243,11 @@ export const workExperience: WorkExperienceItem[] = [
   },
 ]
 
+/* Names omitted for privacy; initials preserved so you can tell who wrote what. */
 export const testimonials: Testimonial[] = [
   {
     id: "oli",
-    name: "Oli Dockray",
+    initials: "OD",
     role: "Partner Tax Tech & Innovation",
     quote:
       "Hugely impressed by your commitment, approach and methodology. The design/UX work you've done during your time with us is fantastic, enabling us to build a consistent experience across our product suite.",
@@ -252,7 +256,7 @@ export const testimonials: Testimonial[] = [
   },
   {
     id: "jamie",
-    name: "Jamie Richards",
+    initials: "JR",
     role: "Director Tax Tech & Innovation",
     quote:
       "Steven's a creative force, constantly devising modern designs with a user-centric approach. He's revamped the portals for a contemporary and personalised feel, showcasing his keen understanding of user experience.",
@@ -260,7 +264,7 @@ export const testimonials: Testimonial[] = [
   },
   {
     id: "siva",
-    name: "Siva Kumar Pandurao",
+    initials: "SK",
     role: "Product Owner",
     quote:
       "Steven brings a rare blend of creativity and structure. His designs are not only visually compelling but also deeply considered from a user and business perspective. A real asset to any product team.",
@@ -268,7 +272,7 @@ export const testimonials: Testimonial[] = [
   },
   {
     id: "sinu",
-    name: "Sinu Babu",
+    initials: "SB",
     role: "Lead Software Engineer",
     quote:
       "Your Figma mockups, crafted with a keen eye and analytical mind, have been instrumental in APEX development. Your approachable nature fosters collaboration, with junior team members readily seeking and receiving your valuable insights. You're also open to feedback, making you a true asset.",
@@ -277,7 +281,7 @@ export const testimonials: Testimonial[] = [
   },
   {
     id: "shubhangi",
-    name: "Shubhangi Jagtap",
+    initials: "SJ",
     role: "Senior Software Developer",
     quote:
       "Steven's deep business knowledge and analytical skills shaped our product during Research & Design. He seamlessly filled the vacant product owner role, perfectly bridging business and development. He really went above and beyond.",
@@ -286,7 +290,7 @@ export const testimonials: Testimonial[] = [
   },
   {
     id: "rozlynn",
-    name: "Rozlynn Jacobs",
+    initials: "RJ",
     role: "Senior Business Analyst",
     quote:
       "You always go over and above what you need to do to help make the project function in the best way possible. Your mock ups, usability studies and demos are excellent. The business area really like this approach.",
