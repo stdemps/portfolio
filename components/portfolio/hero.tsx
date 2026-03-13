@@ -57,12 +57,10 @@ export function Hero({ carousel = false, onContactClick }: HeroProps) {
         </div>
 
         {/* Right: sidebar descriptor — visible only at xl+ */}
-        <div className="hidden xl:flex xl:flex-col xl:items-end xl:gap-4 xl:pb-1 xl:text-right">
-          <p className="text-sm text-muted-foreground leading-relaxed max-w-[220px]">
-            Based in the UK. Designing products at KPMG since 2022.
-          </p>
-          <p className="text-sm text-muted-foreground leading-relaxed max-w-[220px] whitespace-nowrap">
-            Musician. Reggie's dad. Product Builder.
+        <div className="hidden xl:flex xl:items-end xl:pb-1 xl:text-right">
+          <p className="text-sm text-muted-foreground leading-snug max-w-[220px]">
+            Based in the UK. Designing products at KPMG since 2022.<br />
+            Musician. Reggie&apos;s dad. Product Builder.
           </p>
         </div>
       </div>

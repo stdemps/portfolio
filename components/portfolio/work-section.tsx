@@ -286,7 +286,7 @@ export function WorkSection({ carousel = false, onContactClick }: WorkSectionPro
                 </h3>
               </div>
               <p className="mt-2 max-w-md text-sm text-muted-foreground">
-                Try the Moog synthesiser — an interactive in-page experience.
+                Experience this portfolio in a playful, interactive playground. Try the Moog synthesiser!
               </p>
               <div className="mt-4">
                 <Button
