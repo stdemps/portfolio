@@ -210,7 +210,7 @@ function ActionBtn({
       onMouseUp={() => onRelease?.()}
       onMouseLeave={() => onRelease?.()}
       className={cn(
-        "flex h-[52px] w-[52px] select-none items-center justify-center rounded-full border-2 font-mono text-sm font-bold shadow-[0_3px_0_rgba(0,0,0,0.5)] active:translate-y-[1px] active:shadow-[0_1px_0_rgba(0,0,0,0.5)]",
+        "flex h-[60px] w-[60px] select-none items-center justify-center rounded-full border-2 font-mono text-base font-bold shadow-[0_3px_0_rgba(0,0,0,0.5)] active:translate-y-[1px] active:shadow-[0_1px_0_rgba(0,0,0,0.5)]",
         accent
           ? "border-[#4dd0e1]/40 bg-[hsl(240,6%,13%)] text-[#4dd0e1]"
           : "border-white/10 bg-[hsl(240,6%,13%)] text-white/50",
@@ -330,13 +330,13 @@ function PlaybookQuestEmbed({
         {/* ── Controller (fullscreen only) ── */}
         {isFullscreen ? (
           <div
-            className="shrink-0 px-6 pb-[max(12px,env(safe-area-inset-bottom))] pt-4"
+            className="-mt-4 shrink-0 px-10 pb-[max(8px,env(safe-area-inset-bottom))] pt-0"
             role="group"
             aria-label="Game controller"
           >
-            <div className="mx-auto flex max-w-md items-center justify-between">
+            <div className="mx-auto flex max-w-xs items-center justify-between">
               {/* D-pad */}
-              <div className="grid h-[108px] w-[108px] grid-cols-3 grid-rows-3 gap-[2px] overflow-hidden rounded-2xl">
+              <div className="grid h-[132px] w-[132px] grid-cols-3 grid-rows-3 gap-[2px] overflow-hidden rounded-2xl">
                 <span />
                 <DpadBtn
                   code="ArrowUp"
