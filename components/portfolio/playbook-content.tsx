@@ -294,14 +294,14 @@ function PlaybookQuestEmbed({
         <div
           className={
             isFullscreen
-              ? "flex min-h-0 flex-1 items-center justify-center overflow-hidden"
+              ? "w-full shrink-0 overflow-hidden"
               : undefined
           }
         >
           <div
             className={
               isFullscreen
-                ? "relative w-full max-h-full overflow-hidden"
+                ? "relative w-full overflow-hidden"
                 : "relative w-full min-h-[200px] overflow-hidden rounded-xl border border-border/60 bg-muted/10"
             }
             style={{ aspectRatio: "640 / 440" }}
@@ -330,11 +330,11 @@ function PlaybookQuestEmbed({
         {/* ── Controller (fullscreen only) ── */}
         {isFullscreen ? (
           <div
-            className="-mt-4 shrink-0 px-10 pb-[max(8px,env(safe-area-inset-bottom))] pt-0"
+            className="flex flex-1 items-center justify-center px-8 pb-[env(safe-area-inset-bottom)]"
             role="group"
             aria-label="Game controller"
           >
-            <div className="mx-auto flex max-w-xs items-center justify-between">
+            <div className="flex items-center gap-16">
               {/* D-pad */}
               <div className="grid h-[132px] w-[132px] grid-cols-3 grid-rows-3 gap-[2px] overflow-hidden rounded-2xl">
                 <span />
