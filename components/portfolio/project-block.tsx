@@ -8,6 +8,8 @@ interface ProjectBlockProps {
   className?: string
   /** When true, use compact sizing for synth screen / constrained layouts */
   compact?: boolean
+  /** When true, load image eagerly (e.g. LCP candidate above the fold) */
+  priority?: boolean
 }
 
 function browserBarUrl(href?: string): string {
@@ -15,7 +17,12 @@ function browserBarUrl(href?: string): string {
   try { return new URL(href).hostname.replace(/^www\./, "") } catch { return href }
 }
 
-export function ProjectBlock({ project, className, compact = false }: ProjectBlockProps) {
+export function ProjectBlock({
+  project,
+  className,
+  compact = false,
+  priority = false,
+}: ProjectBlockProps) {
   const isPhones = project.mockupType === "phones"
   const isBrowser = project.mockupType === "browser"
 
@@ -70,6 +77,7 @@ export function ProjectBlock({ project, className, compact = false }: ProjectBlo
               src={project.image}
               alt={project.imageAlt ?? `${project.title} — project preview`}
               fill
+              priority={priority}
               className="object-cover"
               sizes={compact ? "80px" : "(max-width: 768px) 100vw, 80vw"}
             />
@@ -108,6 +116,7 @@ export function ProjectBlock({ project, className, compact = false }: ProjectBlo
             src={project.image}
             alt={project.imageAlt ?? `${project.title} — project preview`}
             fill
+            priority={priority}
             className="object-cover"
             sizes={compact ? "80px" : "(max-width: 768px) 100vw, 80vw"}
           />

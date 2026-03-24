@@ -8,6 +8,7 @@ import {
 } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import { THEME_INIT_SCRIPT_HTML } from "@/lib/theme-init-script";
 import { Toaster } from "@/components/ui/sonner";
 import { Analytics } from "@vercel/analytics/next";
 import { FathomAnalytics } from "@/components/analytics/fathom";
@@ -59,6 +60,12 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${interTight.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} ${spaceMono.variable} ${vt323.variable}`}
     >
+      <head>
+        <script
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT_HTML }}
+        />
+      </head>
       <body className="font-sans antialiased overflow-x-hidden">
         <a
           href="#main"

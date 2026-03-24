@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils"
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetTitle,
 } from "@/components/ui/sheet"
 import { useChatState } from "@/hooks/use-chat-state"
@@ -339,7 +340,7 @@ function MessageList({ messages }: { messages: Message[] }) {
                     />
                   ))}
                 </span>
-                <span className="sr-only">Steven's assistant is typing</span>
+                <span className="sr-only">{"Steven's assistant is typing"}</span>
               </span>
             )}
           </div>
@@ -783,6 +784,9 @@ export function AiChat({ chatState }: { chatState: ChatStateReturn }) {
             onOpenAutoFocus={(e) => { e.preventDefault(); inputRef.current?.focus() }}
           >
             <SheetTitle className="sr-only">Ask about Steven</SheetTitle>
+            <SheetDescription className="sr-only">
+              {"Chat with an AI assistant about Steven's portfolio, experience, and work."}
+            </SheetDescription>
             <PanelContents {...panelProps} />
           </SheetContent>
         </Sheet>

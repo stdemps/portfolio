@@ -10,17 +10,18 @@ import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
 
 const navLinks = [
-  { href: "#work", label: "Work" },
-  { href: "#experience", label: "Experience" },
-  { href: "#testimonials", label: "Testimonials" },
-  { href: "#about", label: "About" },
-  { href: "#contact", label: "Contact" },
+  { href: "/#work", label: "Work" },
+  { href: "/#experience", label: "Experience" },
+  { href: "/#testimonials", label: "Testimonials" },
+  { href: "/#about", label: "About" },
+  { href: "/#contact", label: "Contact" },
 ] as const;
 
 export function SiteHeader() {
@@ -84,13 +85,12 @@ export function SiteHeader() {
                 <Menu className="h-5 w-5" aria-hidden />
               </Button>
             </SheetTrigger>
-            <SheetContent
-              side="right"
-              className="w-[min(300px,85vw)]"
-              aria-describedby="mobile-nav-desc"
-            >
+            <SheetContent side="right" className="w-[min(300px,85vw)]">
               <SheetHeader>
-                <SheetTitle id="mobile-nav-desc">Menu</SheetTitle>
+                <SheetTitle>Menu</SheetTitle>
+                <SheetDescription className="sr-only">
+                  Site sections and links.
+                </SheetDescription>
               </SheetHeader>
               <nav
                 aria-label="Main navigation"

@@ -1,9 +1,11 @@
 "use client"
 
+import * as React from "react"
 import Image from "next/image"
-import { Github } from "lucide-react"
+import { Github, Maximize2, X } from "lucide-react"
 import { ScrollReveal } from "@/components/scroll-reveal"
 import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 import prototypeStarterScreenshot from "../../public/projects/prototype-starter.png"
 import { SectionLabel } from "./section-label"
 
@@ -128,11 +130,119 @@ function PhaseItem({
   )
 }
 
+/* ── Playbook Quest iframe (hero + optional reuse) ── */
+function PlaybookQuestEmbed({
+  className,
+  iframeLoading = "lazy",
+}: {
+  className?: string
+  iframeLoading?: "eager" | "lazy"
+}) {
+  const [isFullscreen, setIsFullscreen] = React.useState(false)
+  const containerRef = React.useRef<HTMLDivElement>(null)
+
+  const enterFullscreen = React.useCallback(() => {
+    setIsFullscreen(true)
+    containerRef.current?.requestFullscreen?.().catch(() => {})
+  }, [])
+
+  const exitFullscreen = React.useCallback(() => {
+    setIsFullscreen(false)
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {})
+    }
+  }, [])
+
+  React.useEffect(() => {
+    function onFullscreenChange() {
+      if (!document.fullscreenElement) setIsFullscreen(false)
+    }
+    document.addEventListener("fullscreenchange", onFullscreenChange)
+    return () =>
+      document.removeEventListener("fullscreenchange", onFullscreenChange)
+  }, [])
+
+  return (
+    <div className={cn("mx-auto w-full max-w-[680px]", className)}>
+      <div
+        ref={containerRef}
+        className={
+          isFullscreen
+            ? "fixed inset-0 z-50 flex items-center justify-center bg-[hsl(240,10%,4%)]"
+            : "relative"
+        }
+      >
+        {isFullscreen ? (
+          <button
+            type="button"
+            onClick={exitFullscreen}
+            className="absolute right-3 top-3 z-50 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur transition-colors hover:bg-white/20"
+            aria-label="Exit fullscreen"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        ) : null}
+
+        <div
+          className={
+            isFullscreen
+              ? "relative w-full max-h-full overflow-hidden"
+              : "relative w-full min-h-[200px] overflow-hidden rounded-xl border border-border/60 bg-muted/10"
+          }
+          style={{ aspectRatio: "640 / 440" }}
+        >
+          <iframe
+            src="/playbook-quest.html"
+            title="Playbook Quest — an 8-bit game walkthrough of the AI prototyping lifecycle"
+            className="absolute inset-0 h-full w-full border-0"
+            loading={iframeLoading}
+            allow="autoplay; fullscreen"
+            referrerPolicy="strict-origin-when-cross-origin"
+            aria-describedby="playbook-quest-hint"
+          >
+            <p className="p-4 text-sm text-muted-foreground">
+              Your browser does not support iframes.{" "}
+              <a href="/playbook-quest.html" className="underline">
+                Open Playbook Quest directly
+              </a>
+              .
+            </p>
+          </iframe>
+        </div>
+
+        {!isFullscreen ? (
+          <button
+            type="button"
+            onClick={enterFullscreen}
+            className="absolute bottom-2 right-2 z-10 flex h-8 w-8 items-center justify-center rounded-md bg-black/60 text-white/70 backdrop-blur transition-colors hover:bg-black/80 hover:text-white lg:hidden"
+            aria-label="Play fullscreen"
+          >
+            <Maximize2 className="h-4 w-4" />
+          </button>
+        ) : null}
+      </div>
+
+      <p
+        id="playbook-quest-hint"
+        className={
+          isFullscreen
+            ? "sr-only"
+            : "mt-3 text-balance text-center text-xs text-muted-foreground"
+        }
+      >
+        Desktop: arrow keys to move, space to interact. On a phone, use the
+        on-screen buttons (◀ ▲ ▶ and A); during NPC dialogue the buttons hide
+        so you can read — tap the text box to continue.
+      </p>
+    </div>
+  )
+}
+
 /* ── Main content ── */
 export function PlaybookContent() {
   return (
     <>
-      {/* ═══ HERO — two-column: copy left, image right ═══ */}
+      {/* ═══ HERO — two-column: copy left, Playbook Quest right ═══ */}
       <section className="border-b border-border/60">
         <div className="container px-4 py-12 md:px-6 md:py-16 lg:px-8 lg:pt-24 lg:pb-20">
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2 md:items-center md:gap-8 lg:gap-12 xl:gap-16">
@@ -149,17 +259,13 @@ export function PlaybookContent() {
               </p>
             </div>
             <div className="mt-8 min-w-0 md:mt-0">
-              <div className="overflow-hidden rounded-lg border border-border/60 bg-muted/20 shadow-sm">
-                <Image
-                  src={prototypeStarterScreenshot}
-                  alt="The prototype-starter workspace open in VS Code with Claude Code and the AI Agent panel"
-                  placeholder="blur"
-                  className="h-auto w-full"
-                  sizes="(max-width: 767px) 100vw, (max-width: 1280px) 48vw, 640px"
-                  priority
-                  decoding="async"
-                />
-              </div>
+              <p className="mb-3 text-center text-xs font-normal uppercase tracking-wide text-muted-foreground md:text-left">
+                Learn by playing
+              </p>
+              <PlaybookQuestEmbed
+                className="max-w-none"
+                iframeLoading="eager"
+              />
             </div>
           </div>
         </div>
@@ -199,49 +305,6 @@ export function PlaybookContent() {
         </div>
       </section>
 
-      {/* ═══ GAME — 8-bit playbook quest ═══ */}
-      <section className="border-b border-border/60">
-        <div className="container px-4 py-12 md:px-6 md:py-16 lg:px-8 lg:py-20">
-          <ScrollReveal>
-            <div className="mx-auto max-w-[680px]">
-              <p className="mb-4 text-center text-xs font-normal uppercase tracking-wide text-muted-foreground md:mb-6">
-                Learn by playing
-              </p>
-              <div
-                className="relative w-full min-h-[200px] overflow-hidden rounded-xl border border-border/60"
-                style={{ aspectRatio: "640 / 440" }}
-              >
-                <iframe
-                  src="/playbook-quest.html"
-                  title="Playbook Quest — an 8-bit game walkthrough of the AI prototyping lifecycle"
-                  className="absolute inset-0 h-full w-full border-0"
-                  loading="lazy"
-                  allow="autoplay"
-                  referrerPolicy="strict-origin-when-cross-origin"
-                  aria-describedby="playbook-quest-hint"
-                >
-                  <p className="p-4 text-sm text-muted-foreground">
-                    Your browser does not support iframes.{" "}
-                    <a href="/playbook-quest.html" className="underline">
-                      Open Playbook Quest directly
-                    </a>
-                    .
-                  </p>
-                </iframe>
-              </div>
-              <p
-                id="playbook-quest-hint"
-                className="mt-3 text-balance text-center text-xs text-muted-foreground"
-              >
-                Desktop: arrow keys to move, space to interact. On a phone, use the on-screen
-                buttons (◀ ▲ ▶ and A); during NPC dialogue the buttons hide so you can read — tap
-                the text box to continue.
-              </p>
-            </div>
-          </ScrollReveal>
-        </div>
-      </section>
-
       {/* ═══ PRE-FLIGHT — matches template repo cards pattern ═══ */}
       <section className="scroll-mt-16 border-b border-border/60 md:scroll-mt-20">
         <div className="container px-4 py-12 md:px-6 md:py-16 lg:px-8 lg:py-20">
@@ -274,61 +337,95 @@ export function PlaybookContent() {
         </div>
       </section>
 
-      {/* ═══ TOOLCHAIN — two cards side by side ═══ */}
+      {/* ═══ TOOLCHAIN — bento: workspace image + stacked tool cards ═══ */}
       <section id="toolchain" className="scroll-mt-16 border-b border-border/60 md:scroll-mt-20">
         <div className="container px-4 py-12 md:px-6 md:py-16 lg:px-8 lg:py-20">
           <ScrollReveal>
             <SectionLabel number="01" title="The tools" />
-            <p className="mt-4 max-w-2xl text-sm text-muted-foreground md:mt-5 md:text-base">
+            <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground md:mt-5 lg:text-sm lg:leading-relaxed">
               Two tools, one codebase. Use whichever feels more natural — you
               can switch freely between them at any time.
             </p>
           </ScrollReveal>
 
-          <div className="mt-8 grid gap-4 md:mt-10 md:grid-cols-2 lg:mt-12">
-            <ScrollReveal>
-              <div className="rounded-lg border border-border bg-card p-6">
-                <p className="text-xs font-normal uppercase tracking-wide text-muted-foreground">
-                  Terminal or Extension
-                </p>
-                <h3 className="mt-2 font-display text-lg font-medium text-foreground md:text-xl">
-                  Claude Code
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                  Run <Code>claude</Code> in your terminal for a fast,
-                  keyboard-driven experience — or install the Claude Code
-                  Extension for a chat-like interface.
-                </p>
-                <ul className="mt-4 space-y-1.5 text-sm text-muted-foreground">
-                  <li>• Reads Figma files directly via MCP</li>
-                  <li>• Builds features end-to-end autonomously</li>
-                  <li>• Runs audits, refactors, and polish commands</li>
-                  <li>• Conversational agents like <Code>/designer</Code></li>
-                </ul>
+          {/*
+            Layout by breakpoint:
+            - default–sm: single column — image, then cards stacked.
+            - md–xl: image full width, then two tool cards side by side (tablet & 1024–1279 “awkward” band).
+            - xl+: 70/30 bento — image left spanning rows, cards stacked right.
+            Wrapper uses xl:contents so card ScrollReveals slot into the outer grid at xl+.
+          */}
+          <div className="mt-5 grid grid-cols-1 gap-4 sm:mt-6 sm:gap-5 md:mt-8 md:gap-6 xl:grid-cols-[minmax(0,7fr)_minmax(0,3fr)] xl:grid-rows-2 xl:items-stretch xl:gap-6">
+            <ScrollReveal
+              delay={40}
+              className="flex min-h-0 flex-col xl:row-span-2"
+            >
+              {/* Phone: taller frame; sm+: 16:9; md–xl: cap height; xl+: contain + flex fill */}
+              <div className="relative aspect-[16/10] w-full min-h-[200px] overflow-hidden rounded-xl border border-border/60 bg-muted/30 shadow-sm sm:aspect-video sm:min-h-[220px] md:aspect-video md:min-h-0 md:max-h-[420px] xl:max-h-none xl:min-h-[260px] xl:aspect-auto xl:flex-1">
+                <Image
+                  src={prototypeStarterScreenshot}
+                  alt="The prototype-starter workspace open in VS Code with Claude Code and the AI Agent panel"
+                  placeholder="blur"
+                  fill
+                  className="object-cover object-center xl:object-contain xl:object-left-top"
+                  sizes="(max-width: 1279px) 100vw, 70vw"
+                />
               </div>
             </ScrollReveal>
 
-            <ScrollReveal delay={80}>
-              <div className="rounded-lg border border-border bg-card p-6">
-                <p className="text-xs font-normal uppercase tracking-wide text-muted-foreground">
-                  IDE Chat Agent
-                </p>
-                <h3 className="mt-2 font-display text-lg font-medium text-foreground md:text-xl">
-                  AntiGravity
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                  Lives in the primary AI Chat panel in your IDE. Uses{" "}
-                  <Code>.agents/workflows/</Code> to execute multi-step
-                  instructions from a single prompt.
-                </p>
-                <ul className="mt-4 space-y-1.5 text-sm text-muted-foreground">
-                  <li>• Strong visual processing — image to code</li>
-                  <li>• Pre-built slash-command workflows</li>
-                  <li>• Scaffold entire features from Figma mockups</li>
-                  <li>• Works on the same codebase as Claude Code</li>
-                </ul>
-              </div>
-            </ScrollReveal>
+            <div className="grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2 md:items-stretch md:gap-5 xl:contents">
+              <ScrollReveal
+                delay={60}
+                className="h-full min-h-0 md:flex md:flex-col xl:col-start-2 xl:row-start-1"
+              >
+                <div className="flex h-full min-h-[11rem] flex-col rounded-xl border border-border bg-card p-4 sm:p-5 md:min-h-0 md:p-5 lg:p-6 xl:p-5">
+                  <p className="text-[11px] font-normal uppercase tracking-wide text-muted-foreground sm:text-xs">
+                    Terminal or Extension
+                  </p>
+                  <h3 className="mt-1.5 font-display text-lg font-medium leading-snug text-foreground sm:mt-2 md:text-xl lg:text-xl xl:text-lg xl:leading-snug">
+                    Claude Code
+                  </h3>
+                  <p className="mt-2 text-base leading-relaxed text-muted-foreground md:text-sm lg:leading-relaxed">
+                    Run <Code>claude</Code> in your terminal for a fast,
+                    keyboard-driven experience — or install the Claude Code
+                    Extension for a chat-like interface.
+                  </p>
+                  <ul className="mt-3 space-y-2.5 text-base leading-snug text-muted-foreground sm:mt-4 md:mt-3 md:space-y-2 md:text-sm md:leading-normal lg:space-y-2 xl:space-y-1.5">
+                    <li className="pl-0.5">• Reads Figma files directly via MCP</li>
+                    <li className="pl-0.5">• Builds features end-to-end autonomously</li>
+                    <li className="pl-0.5">• Runs audits, refactors, and polish commands</li>
+                    <li className="pl-0.5">
+                      • Conversational agents like <Code>/designer</Code>
+                    </li>
+                  </ul>
+                </div>
+              </ScrollReveal>
+
+              <ScrollReveal
+                delay={100}
+                className="h-full min-h-0 md:flex md:flex-col xl:col-start-2 xl:row-start-2"
+              >
+                <div className="flex h-full min-h-[11rem] flex-col rounded-xl border border-border bg-card p-4 sm:p-5 md:min-h-0 md:p-5 lg:p-6 xl:p-5">
+                  <p className="text-[11px] font-normal uppercase tracking-wide text-muted-foreground sm:text-xs">
+                    IDE Chat Agent
+                  </p>
+                  <h3 className="mt-1.5 font-display text-lg font-medium leading-snug text-foreground sm:mt-2 md:text-xl lg:text-xl xl:text-lg xl:leading-snug">
+                    AntiGravity
+                  </h3>
+                  <p className="mt-2 text-base leading-relaxed text-muted-foreground md:text-sm lg:leading-relaxed">
+                    Lives in the primary AI Chat panel in your IDE. Uses{" "}
+                    <Code>.agents/workflows/</Code> to execute multi-step
+                    instructions from a single prompt.
+                  </p>
+                  <ul className="mt-3 space-y-2.5 text-base leading-snug text-muted-foreground sm:mt-4 md:mt-3 md:space-y-2 md:text-sm md:leading-normal lg:space-y-2 xl:space-y-1.5">
+                    <li className="pl-0.5">• Strong visual processing — image to code</li>
+                    <li className="pl-0.5">• Pre-built slash-command workflows</li>
+                    <li className="pl-0.5">• Scaffold entire features from Figma mockups</li>
+                    <li className="pl-0.5">• Works on the same codebase as Claude Code</li>
+                  </ul>
+                </div>
+              </ScrollReveal>
+            </div>
           </div>
         </div>
       </section>

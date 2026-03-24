@@ -18,6 +18,9 @@ import { useViewMode } from "@/hooks/use-view-mode"
 const showComingSoon =
   process.env.NEXT_PUBLIC_SHOW_COMING_SOON_PROJECTS === "true"
 
+/** Set true to restore the "Work projects" / NDA CTA band (main page + Moog bank). */
+const showWorkProjectsSection = false
+
 function filterComingSoon<T extends { comingSoon?: boolean }>(items: T[]): T[] {
   if (showComingSoon) return items
   return items.filter((item) => !item.comingSoon)
@@ -38,8 +41,7 @@ export function WorkSection({ carousel = false, onContactClick }: WorkSectionPro
   const [, setViewMode] = useViewMode()
 
   if (carousel) {
-    const bankItems: React.ReactNode[] = [
-      /* Bank 0: Intro + template repos */
+    const introBank = (
       <div key="intro" data-moog-bank-item className="flex flex-col justify-center">
         <SectionLabel number="01" title={workSectionLabels.recentWork} playground />
         <p className="mt-4 max-w-2xl text-sm text-muted-foreground">
@@ -67,9 +69,10 @@ export function WorkSection({ carousel = false, onContactClick }: WorkSectionPro
             </a>
           ))}
         </ul>
-      </div>,
+      </div>
+    )
 
-      /* Bank 1: Work projects CTA */
+    const workCtaBank = (
       <div key="work-cta" data-moog-bank-item className="flex flex-col justify-center">
         <SectionLabel number="02" title={workSectionLabels.workProjects} playground />
         <p className="mt-4 max-w-2xl text-sm text-muted-foreground">
@@ -100,10 +103,10 @@ export function WorkSection({ carousel = false, onContactClick }: WorkSectionPro
             </Button>
           )}
         </div>
-      </div>,
+      </div>
+    )
 
-      /* Banks 2+: One project per bank — split-screen detail layout */
-      ...prototypeProjects.map((project) => (
+    const projectBanks = prototypeProjects.map((project) => (
         <div
           key={project.id}
           data-moog-bank-item
@@ -155,11 +158,21 @@ export function WorkSection({ carousel = false, onContactClick }: WorkSectionPro
             </div>
           </div>
         </div>
-      )),
+    ))
+
+    const bankItems: React.ReactNode[] = [
+      introBank,
+      ...(showWorkProjectsSection ? [workCtaBank] : []),
+      ...projectBanks,
     ]
 
     const bankCount = bankItems.length
     const displayBank = bankCount > 0 ? Math.min(activeBank, bankCount - 1) : 0
+
+    const projectBankStart = showWorkProjectsSection ? 2 : 1
+    const isProjectBank =
+      displayBank >= projectBankStart &&
+      displayBank < projectBankStart + prototypeProjects.length
 
     return (
       <section id="work" className="flex h-full flex-col">
@@ -174,7 +187,7 @@ export function WorkSection({ carousel = false, onContactClick }: WorkSectionPro
                 transition={{ duration: 0.15 }}
                 className="relative flex min-h-0 flex-1 flex-col justify-center"
               >
-                {displayBank >= 2 ? (
+                {isProjectBank ? (
                   <div className="absolute inset-0 flex min-h-0 flex-col overflow-hidden">
                     {bankItems[displayBank]}
                   </div>
@@ -284,30 +297,31 @@ export function WorkSection({ carousel = false, onContactClick }: WorkSectionPro
           </ScrollReveal>
         </div>
 
-        {/* Work projects (private) */}
-        <ScrollReveal>
-          <h3 className="mt-10 font-display text-lg font-medium tracking-tight text-muted-foreground md:mt-12 md:text-xl lg:mt-14">
-            {workSectionLabels.workProjects}
-          </h3>
-          <p className="mt-4 max-w-2xl text-sm text-muted-foreground md:mt-5 md:text-base lg:mt-6">
-            {workSectionLabels.workProjectsDescription}
-          </p>
-          <div className="mt-5 md:mt-6">
-            <Button
-              variant="outline"
-              size="default"
-              className="group w-full min-h-11 justify-center gap-2 sm:w-auto"
-              asChild
-            >
-              <Link href="#contact">
-                Get in touch{" "}
-                <span className="cta-arrow inline-block transition-transform duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:translate-x-0.5" aria-hidden>
-                  →
-                </span>
-              </Link>
-            </Button>
-          </div>
-        </ScrollReveal>
+        {showWorkProjectsSection ? (
+          <ScrollReveal>
+            <h3 className="mt-10 font-display text-lg font-medium tracking-tight text-muted-foreground md:mt-12 md:text-xl lg:mt-14">
+              {workSectionLabels.workProjects}
+            </h3>
+            <p className="mt-4 max-w-2xl text-sm text-muted-foreground md:mt-5 md:text-base lg:mt-6">
+              {workSectionLabels.workProjectsDescription}
+            </p>
+            <div className="mt-5 md:mt-6">
+              <Button
+                variant="outline"
+                size="default"
+                className="group w-full min-h-11 justify-center gap-2 sm:w-auto"
+                asChild
+              >
+                <Link href="#contact">
+                  Get in touch{" "}
+                  <span className="cta-arrow inline-block transition-transform duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:translate-x-0.5" aria-hidden>
+                    →
+                  </span>
+                </Link>
+              </Button>
+            </div>
+          </ScrollReveal>
+        ) : null}
 
         {/* Side projects */}
         <ScrollReveal>
