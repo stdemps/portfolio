@@ -294,7 +294,7 @@ function PlaybookQuestEmbed({
         <div
           className={
             isFullscreen
-              ? "w-full shrink-0 overflow-hidden"
+              ? "w-full shrink-0 overflow-hidden pt-6"
               : undefined
           }
         >
