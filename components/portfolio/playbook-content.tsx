@@ -188,7 +188,7 @@ export function PlaybookContent() {
       <section id="toolchain" className="scroll-mt-16 border-b border-border/60 md:scroll-mt-20">
         <div className="container px-4 py-12 md:px-6 md:py-16 lg:px-8 lg:py-20">
           <ScrollReveal>
-            <SectionLabel number="01" title="The toolchain" />
+            <SectionLabel number="01" title="The tools" />
             <p className="mt-4 max-w-2xl text-sm text-muted-foreground md:mt-5 md:text-base">
               Two tools, one codebase. Use whichever feels more natural — you
               can switch freely between them at any time.
