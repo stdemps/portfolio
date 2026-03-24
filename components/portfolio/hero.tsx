@@ -40,7 +40,7 @@ export function Hero({ carousel = false, onContactClick }: HeroProps) {
             <Button
               variant="default"
               size="lg"
-              className="group gap-2 px-6 text-base font-semibold shadow-md transition-transform duration-200 hover:scale-[1.02] focus-visible:ring-2 focus-visible:ring-offset-2 md:px-8"
+              className="group w-full min-h-12 justify-center gap-2 px-6 text-base font-semibold shadow-md transition-transform duration-200 hover:scale-[1.02] focus-visible:ring-2 focus-visible:ring-offset-2 sm:w-auto md:px-8"
               asChild
             >
               <Link href="#contact">
@@ -102,7 +102,7 @@ export function Hero({ carousel = false, onContactClick }: HeroProps) {
                   <Button
                     variant="outline"
                     size="lg"
-                    className="moog-cta group h-11 gap-2 px-6 text-base font-semibold md:h-12 md:px-8"
+                    className="moog-cta group w-full min-h-12 justify-center gap-2 px-6 text-base font-semibold sm:w-auto md:px-8"
                     onClick={onContactClick}
                   >
                     Let&apos;s chat{" "}
@@ -117,7 +117,7 @@ export function Hero({ carousel = false, onContactClick }: HeroProps) {
                   <Button
                     variant="outline"
                     size="lg"
-                    className="moog-cta group h-11 gap-2 px-6 text-base font-semibold md:h-12 md:px-8"
+                    className="moog-cta group w-full min-h-12 justify-center gap-2 px-6 text-base font-semibold sm:w-auto md:px-8"
                     asChild
                   >
                     <Link href="#contact">

@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PLAYBOOK QUEST</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:hsl(240,10%,4%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:100vh;font-family:'Press Start 2P',monospace;overflow:hidden;user-select:none;
+}
+#gameWrapper{position:relative;width:640px;height:400px}
+canvas{
+  display:block;image-rendering:pixelated;image-rendering:crisp-edges;
+  border:3px solid hsl(240,6%,18%);
+  border-radius:6px;
+  box-shadow:0 0 30px rgba(100,150,220,0.06);
+}
+#ui{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none}
+#hud{position:absolute;top:6px;left:6px;right:6px;display:flex;justify-content:space-between;pointer-events:none}
+.hud-panel{
+  background:rgba(6,8,16,0.82);border:1px solid rgba(255,255,255,0.1);
+  padding:5px 8px;font-size:7px;color:rgba(255,255,255,0.7);line-height:1.8;border-radius:3px;
+}
+#xpBar{width:80px;height:5px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);margin-top:3px;border-radius:2px}
+#xpFill{height:100%;background:#4dd0e1;transition:width 0.3s;width:0%;border-radius:2px}
+#dialog{
+  position:absolute;bottom:6px;left:6px;right:6px;
+  background:rgba(6,8,16,0.92);border:2px solid rgba(255,255,255,0.15);border-radius:6px;
+  padding:10px 12px 8px;display:none;pointer-events:all;z-index:10;
+  border-left:3px solid #4dd0e1;
+}
+#dialogSpeaker{font-size:7px;color:#4dd0e1;margin-bottom:5px}
+#dialogText{font-size:7px;color:rgba(255,255,255,0.82);line-height:1.9;min-height:32px}
+#dialogContinue{font-size:6px;color:rgba(255,255,255,0.4);text-align:right;margin-top:5px;animation:blink .8s step-end infinite}
+#titleScreen{
+  position:absolute;inset:0;
+  background:linear-gradient(180deg,#050810 0%,#0c1628 60%,#162030 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:20;
+}
+#titleScreen h1{font-size:16px;color:#e8f4ff;text-shadow:2px 2px #060a14,0 0 24px rgba(77,208,225,0.25);text-align:center;line-height:1.6;margin-bottom:6px}
+#titleScreen .sub{font-size:7px;color:rgba(255,255,255,0.45);margin-bottom:36px;text-align:center;line-height:1.8}
+#titleScreen .press{font-size:7px;color:#4dd0e1;animation:blink 1s step-end infinite}
+#titleScreen .credits{font-size:6px;color:rgba(255,255,255,0.2);margin-top:18px;text-align:center;line-height:2}
+#notification{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  background:rgba(6,8,16,0.92);border:2px solid rgba(255,255,255,0.18);border-radius:6px;
+  padding:12px 18px;font-size:7px;color:#e8f4ff;text-align:center;line-height:2;
+  display:none;z-index:15;animation:popIn .2s ease;
+}
+#controls{margin-top:10px;font-size:6px;color:rgba(255,255,255,0.2);text-align:center;line-height:2.2}
+#controls span{color:rgba(255,255,255,0.45)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+@keyframes popIn{from{transform:translate(-50%,-50%) scale(.8);opacity:0}to{transform:translate(-50%,-50%) scale(1);opacity:1}}
+#endScreen{
+  position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(6,8,16,0.97) 0%,rgba(26,20,6,0.97) 100%);
+  display:none;flex-direction:column;align-items:center;justify-content:center;z-index:25;
+}
+#endScreen h2{font-size:13px;color:#ffd54f;text-shadow:2px 2px #1a1400,0 0 24px rgba(255,213,79,0.3);margin-bottom:14px;text-align:center;line-height:1.8}
+#endScreen p{font-size:7px;color:rgba(255,255,255,0.65);line-height:2.2;text-align:center;max-width:500px;margin-bottom:18px}
+#endScreen .replay{font-size:7px;color:#ffd54f;animation:blink 1s step-end infinite;cursor:pointer;pointer-events:all}
+</style>
+</head>
+<body>
+<div id="gameWrapper">
+  <canvas id="c" width="640" height="400"></canvas>
+  <div id="ui">
+    <div id="hud">
+      <div class="hud-panel" id="hudLeft">DESIGNER LVL 1<br>PHASE: 0/7<br><div id="xpBar"><div id="xpFill"></div></div></div>
+      <div class="hud-panel" id="hudRight">GEMS: <span id="gemCount">0</span>/7<br>ZONE: <span id="zoneName">TITLE</span></div>
+    </div>
+    <div id="dialog"><div id="dialogSpeaker">???</div><div id="dialogText"></div><div id="dialogContinue">▼ SPACE</div></div>
+    <div id="notification"></div>
+  </div>
+  <div id="titleScreen">
+    <h1>PLAYBOOK<br>QUEST</h1>
+    <div class="sub">A 16-bit journey through the<br>AI Prototyping Lifecycle</div>
+    <div class="press">PRESS SPACE TO START</div>
+    <div class="credits">ARROW KEYS move | SPACE interact<br>Talk to NPCs • Collect gems</div>
+  </div>
+  <div id="endScreen">
+    <h2>QUEST<br>COMPLETE</h2>
+    <p>YOU SHIPPED IT!<br><br>From raw idea to live product —<br>deployed, tested, and iterated.</p>
+    <div class="replay" id="replayBtn">PLAY AGAIN</div>
+  </div>
+</div>
+<div id="controls"><span>← →</span> MOVE &nbsp; <span>SPACE</span> INTERACT</div>
+<script>
+const canvas=document.getElementById('c'),ctx=canvas.getContext('2d');
+
+// ─── GBA PALETTES (per-zone) ───
+const PAL=[
+  {sky1:'#050810',sky2:'#0c1628',ground:'#0e1a30',groundMid:'#162440',groundTop:'#1e3050',groundLine:'#2a4a6a',
+   plat:'#162848',platTop:'#2e5080',platShade:'#0a1420',accent:'#4dd0e1',accentDark:'#00838f',
+   highlight:'#e0f7fa',warm:'#26c6da',star:'#80deea',npc1:'#00acc1',npc2:'#006064',
+   gem1:'#4dd0e1',gem2:'#e0f7fa',gem3:'#00838f'},
+  {sky1:'#060e08',sky2:'#0e2014',ground:'#142010',groundMid:'#1e3018',groundTop:'#284020',groundLine:'#3a5a2e',
+   plat:'#1e3818',platTop:'#3a6030',platShade:'#0e1a0c',accent:'#66bb6a',accentDark:'#2e7d32',
+   highlight:'#c8e6c9',warm:'#81c784',star:'#81c784',npc1:'#43a047',npc2:'#1b5e20',
+   gem1:'#66bb6a',gem2:'#c8e6c9',gem3:'#2e7d32'},
+  {sky1:'#0a0614',sky2:'#160e28',ground:'#1a1236',groundMid:'#241a48',groundTop:'#2e2258',groundLine:'#4a3878',
+   plat:'#221840',platTop:'#4a3080',platShade:'#120c20',accent:'#ce93d8',accentDark:'#7b1fa2',
+   highlight:'#f3e5f5',warm:'#ba68c8',star:'#e1bee7',npc1:'#ab47bc',npc2:'#6a1b9a',
+   gem1:'#ce93d8',gem2:'#f3e5f5',gem3:'#7b1fa2'},
+  {sky1:'#0a0804',sky2:'#181208',ground:'#201a0c',groundMid:'#302612',groundTop:'#403218',groundLine:'#5a4828',
+   plat:'#2e2210',platTop:'#504020',platShade:'#140e06',accent:'#ffb74d',accentDark:'#e65100',
+   highlight:'#fff3e0',warm:'#ffa726',star:'#ffe0b2',npc1:'#ff9800',npc2:'#e65100',
+   gem1:'#ffb74d',gem2:'#fff3e0',gem3:'#e65100'},
+  {sky1:'#0e0604',sky2:'#1c0c06',ground:'#241008',groundMid:'#34180c',groundTop:'#442010',groundLine:'#6a3418',
+   plat:'#301408',platTop:'#5a2810',platShade:'#180a04',accent:'#ff7043',accentDark:'#bf360c',
+   highlight:'#ffccbc',warm:'#ff5722',star:'#ffab91',npc1:'#f4511e',npc2:'#bf360c',
+   gem1:'#ff7043',gem2:'#ffccbc',gem3:'#bf360c'},
+  {sky1:'#040a14',sky2:'#0c1a30',ground:'#101e38',groundMid:'#182a48',groundTop:'#203658',groundLine:'#305070',
+   plat:'#1a2e4e',platTop:'#3060a0',platShade:'#0a1420',accent:'#81d4fa',accentDark:'#0277bd',
+   highlight:'#e1f5fe',warm:'#4fc3f7',star:'#e1f5fe',npc1:'#29b6f6',npc2:'#01579b',
+   gem1:'#81d4fa',gem2:'#e1f5fe',gem3:'#0277bd'},
+  {sky1:'#0c0a04',sky2:'#1e1808',ground:'#201a0a',groundMid:'#302610',groundTop:'#403218',groundLine:'#5a4a28',
+   plat:'#302410',platTop:'#5a4420',platShade:'#181206',accent:'#ffd54f',accentDark:'#f57f17',
+   highlight:'#fff8e1',warm:'#ffca28',star:'#fff8e1',npc1:'#ffc107',npc2:'#f57f17',
+   gem1:'#ffd54f',gem2:'#fff8e1',gem3:'#f57f17'},
+];
+
+// ─── AUDIO (unchanged) ───
+const AC=new(window.AudioContext||window.webkitAudioContext)();
+function note(f,d,t='square',v=0.06){const o=AC.createOscillator(),g=AC.createGain();o.connect(g);g.connect(AC.destination);o.type=t;o.frequency.value=f;g.gain.setValueAtTime(v,AC.currentTime);g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+d);o.start();o.stop(AC.currentTime+d)}
+function sfxStep(){note(220+Math.random()*40,.05,'square',.03)}
+function sfxGem(){[523,659,784,1047].forEach((f,i)=>setTimeout(()=>note(f,.12,'triangle',.08),i*70))}
+function sfxTalk(){note(440,.04,'square',.05)}
+function sfxZone(){[262,330,392,523,659].forEach((f,i)=>setTimeout(()=>note(f,.2,'square',.06),i*100))}
+function sfxWin(){[523,659,784,1047,1319,1047,1319,1568].forEach((f,i)=>setTimeout(()=>note(f,.2,'triangle',.1),i*120))}
+
+// ─── GAME STATE ───
+let STATE='title',dialogQueue=[],dialogIndex=0,dialogActive=false,gems=0,phase=0,xp=0,frame=0,stepTimer=0;
+const player={x:80,y:0,vx:0,vy:0,w:14,h:20,onGround:false,facing:1,animFrame:0,animTimer:0,moving:false};
+const keys={};
+window.addEventListener('keydown',e=>{keys[e.code]=true;if(e.code==='Space'||e.code==='Enter')handleAction();if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.code))e.preventDefault()});
+window.addEventListener('keyup',e=>{keys[e.code]=false});
+
+// ─── ZONES (dialog & layout unchanged) ───
+const ZONES=[
+  {name:'PRE-FLIGHT',groundY:310,platforms:[{x:200,y:245,w:70,h:10},{x:360,y:210,w:70,h:10},{x:500,y:245,w:70,h:10}],
+   npc:{x:300,name:'T-3RM',lines:["WELCOME, DESIGNER!","This isn't gospel — just","follow the phases and","you'll have something live.","RULE 1: Open the terminal.","CMD+J in your IDE.","Red errors? Paste to AI.","You've got this.","Check SETUP.md first!","* PREFLIGHT COMPLETE *"]},
+   gem:{x:500,y:225},portal:{x:580},decor:'terminal'},
+  {name:'IDEATION',groundY:310,platforms:[{x:150,y:260,w:80,h:10},{x:320,y:220,w:80,h:10},{x:480,y:260,w:60,h:10}],
+   npc:{x:280,name:'PM BOT',lines:["Before pushing pixels...","pressure-test the idea!","Run /pm to scope features.","Run /user-researcher to","validate assumptions.","Write ideas in:","docs/prds/idea.md","Then /setup-project-context","to load into AI memory.","* IDEA TESTED *"]},
+   gem:{x:460,y:240},portal:{x:580},decor:'forest'},
+  {name:'FIGMA ZONE',groundY:310,platforms:[{x:120,y:250,w:90,h:10},{x:310,y:210,w:90,h:10},{x:490,y:250,w:70,h:10}],
+   npc:{x:270,name:'FIGMA FAIRY',lines:["Don't code yet — design!","Focus on layout, spacing,","and the user experience.","This is your sandbox.","Claude reads Figma directly","via MCP — no exports.","claude mcp add figma ...","Then paste your Figma URL!","* DESIGN PHASE CLEAR *"]},
+   gem:{x:510,y:230},portal:{x:580},decor:'sky'},
+  {name:'CODE DUNGEON',groundY:310,platforms:[{x:160,y:255,w:70,h:10},{x:310,y:215,w:70,h:10},{x:460,y:255,w:70,h:10}],
+   npc:{x:270,name:'CLAUDE BOT',lines:["Time to build for real!","Point Claude at your Figma","and skip the export dance.","@designer — turn this into","a full React page.","Use DESIGN_SYSTEM.md!","Then: npm run dev","Open localhost:3000","* CODE PROTOTYPE LIVE *"]},
+   gem:{x:470,y:235},portal:{x:580},decor:'dungeon'},
+  {name:'FIREBASE CAVES',groundY:310,platforms:[{x:140,y:255,w:80,h:10},{x:310,y:210,w:80,h:10},{x:480,y:255,w:70,h:10}],
+   npc:{x:270,name:'FIRE SAGE',lines:["A prototype isn't testable","if it doesn't save data!","Create a Firebase project.","Enable Firestore + Auth.","Paste keys into .env.local","WARNING: Test Mode is open!","Secure rules before deploy.","Ask Claude: /engineer","Hook up the Firestore form.","* DATA FLOWS *"]},
+   gem:{x:490,y:235},portal:{x:580},decor:'lava'},
+  {name:'POLISH PEAKS',groundY:310,platforms:[{x:130,y:250,w:80,h:10},{x:310,y:200,w:80,h:10},{x:490,y:250,w:70,h:10}],
+   npc:{x:280,name:'VERCEL VINCE',lines:["Time to ship!","Run /audit then /polish.","Fix spacing + a11y.","Run /harden for security.","Push to GitHub:","Ask Claude: commit + push.","Deploy on Vercel.com!","Add Firebase env vars.","Click DEPLOY.","* SHIPPED TO PROD *"]},
+   gem:{x:500,y:230},portal:{x:580},decor:'sky'},
+  {name:'FEEDBACK WORLD',groundY:310,platforms:[{x:150,y:245,w:90,h:10},{x:330,y:200,w:90,h:10},{x:510,y:245,w:60,h:10}],
+   npc:{x:290,name:'USER SAGE',lines:["Deploying isn't the finish","line — it's where the real","learning starts.","Gather user feedback.","Ask Claude:","Act as /user-researcher.","Synthesise friction points.","Then loop back: Figma","or straight back to code.","The loop continues.","* LIFECYCLE MASTERED *"]},
+   gem:{x:520,y:225},portal:{x:600},decor:'victory'},
+];
+
+// ─── GAME LOGIC (unchanged) ───
+let interactCooldown=0,gemCollected=[false,false,false,false,false,false,false],particles=[];
+function spawnP(x,y,c,n=8){for(let i=0;i<n;i++)particles.push({x,y,vx:(Math.random()-.5)*3,vy:-(Math.random()*3+1),c,life:25,max:25})}
+
+function resetGame(){
+  player.x=80;player.y=0;player.vx=0;player.vy=0;player.facing=1;player.moving=false;
+  gems=0;phase=0;xp=0;frame=0;dialogActive=false;particles=[];
+  gemCollected=[false,false,false,false,false,false,false];
+  hideDialog();
+  document.getElementById('endScreen').style.display='none';
+  document.getElementById('titleScreen').style.display='none';
+  updateHUD();STATE='playing';
+}
+
+function updateHUD(){
+  const g=document.getElementById('gemCount'),z=document.getElementById('zoneName'),h=document.getElementById('hudLeft');
+  if(g)g.textContent=gems;
+  if(z)z.textContent=ZONES[phase]?ZONES[phase].name:'???';
+  if(h){while(h.firstChild)h.removeChild(h.firstChild);
+    h.appendChild(document.createTextNode('LVL '+(Math.floor(xp/10)+1)+' PHASE: '+phase+'/7'));
+    h.appendChild(document.createElement('br'));
+    const bar=document.createElement('div');bar.id='xpBar';
+    const fill=document.createElement('div');fill.id='xpFill';fill.style.width=((xp%10)*10)+'%';
+    bar.appendChild(fill);h.appendChild(bar);
+  }
+  updateZoneAccent();
+}
+
+function updateZoneAccent(){
+  const p=PAL[phase];if(!p)return;
+  const d=document.getElementById('dialog');if(d)d.style.borderLeftColor=p.accent;
+  const ds=document.getElementById('dialogSpeaker');if(ds)ds.style.color=p.accent;
+  const xf=document.getElementById('xpFill');if(xf)xf.style.background=p.accent;
+}
+
+let typeInterval=null,currentFullText='',typePos=0;
+function showDialog(s,lines){dialogActive=true;dialogQueue=lines;dialogIndex=0;document.getElementById('dialog').style.display='block';document.getElementById('dialogSpeaker').textContent=s;typeText(lines[0])}
+function typeText(t){currentFullText=t;typePos=0;document.getElementById('dialogText').textContent='';if(typeInterval)clearInterval(typeInterval);typeInterval=setInterval(()=>{if(typePos<currentFullText.length){document.getElementById('dialogText').textContent+=currentFullText[typePos];typePos++;if(typePos%2===0)sfxTalk()}else{clearInterval(typeInterval);typeInterval=null}},30)}
+function advanceDialog(){if(typeInterval){clearInterval(typeInterval);typeInterval=null;document.getElementById('dialogText').textContent=currentFullText;return}dialogIndex++;if(dialogIndex<dialogQueue.length)typeText(dialogQueue[dialogIndex]);else{hideDialog();xp+=5;updateHUD()}}
+function hideDialog(){document.getElementById('dialog').style.display='none';dialogActive=false;if(typeInterval){clearInterval(typeInterval);typeInterval=null}}
+
+let notifT=null;
+function showNotif(t){const e=document.getElementById('notification');e.textContent=t;e.style.display='block';if(notifT)clearTimeout(notifT);notifT=setTimeout(()=>{e.style.display='none'},2000)}
+
+function handleAction(){
+  if(AC.state==='suspended')AC.resume();
+  if(STATE==='title'){document.getElementById('titleScreen').style.display='none';STATE='playing';sfxZone();return}
+  if(STATE==='win')return;
+  if(dialogActive){advanceDialog();return}
+  if(interactCooldown>0)return;
+  const z=ZONES[phase];if(!z)return;
+  const npc=z.npc,ny=z.groundY-28;
+  if(Math.abs(player.x+7-(npc.x+7))<44&&Math.abs(player.y+10-(ny+14))<44){sfxZone();showDialog(npc.name,npc.lines);interactCooldown=20}
+}
+
+function updatePhysics(){
+  if(dialogActive)return;player.moving=false;
+  if(keys['ArrowLeft']||keys['KeyA']){player.vx=-2.5;player.facing=-1;player.moving=true}
+  else if(keys['ArrowRight']||keys['KeyD']){player.vx=2.5;player.facing=1;player.moving=true}
+  else player.vx*=.8;
+  if((keys['ArrowUp']||keys['KeyW']||keys['Space'])&&player.onGround&&!dialogActive){player.vy=-9;player.onGround=false;note(280,.1,'square',.05)}
+  player.vy+=.45;player.x+=player.vx;player.y+=player.vy;
+  const z=ZONES[phase],gY=z?z.groundY:310;player.onGround=false;
+  if(player.y+player.h>=gY){player.y=gY-player.h;player.vy=0;player.onGround=true}
+  if(z)for(const p of z.platforms)if(player.x+player.w>p.x&&player.x<p.x+p.w&&player.y+player.h>p.y&&player.y+player.h<p.y+p.h+6&&player.vy>=0){player.y=p.y-player.h;player.vy=0;player.onGround=true}
+  if(player.x<0)player.x=0;if(player.x>626)player.x=626;if(player.y<-80)player.y=-80;
+  if(player.moving&&player.onGround){stepTimer++;if(stepTimer%14===0)sfxStep()}
+  if(player.moving&&player.onGround){player.animTimer++;if(player.animTimer%8===0)player.animFrame=(player.animFrame+1)%4}else player.animFrame=0;
+  if(interactCooldown>0)interactCooldown--;
+}
+
+function checkCollect(){
+  const z=ZONES[phase];if(!z)return;
+  if(!gemCollected[phase]){const g=z.gem,gy=z.groundY-50;if(Math.abs(player.x+7-(g.x+6))<24&&Math.abs(player.y+10-(gy+6))<24){gemCollected[phase]=true;gems++;xp+=10;sfxGem();spawnP(g.x+6,gy+6,PAL[phase].highlight,10);showNotif('GEM '+gems+'/7  +10 XP');updateHUD()}}
+  if(player.x+player.w>z.portal.x-16&&player.x<z.portal.x+16&&gemCollected[phase])nextZone();
+}
+
+function nextZone(){
+  if(phase>=ZONES.length-1){sfxWin();STATE='win';document.getElementById('endScreen').style.display='flex';return}
+  sfxZone();phase++;player.x=50;player.y=ZONES[phase].groundY-player.h-2;hideDialog();updateHUD();
+  spawnP(player.x+7,player.y,PAL[phase].accent,12);showNotif('ENTERING: '+ZONES[phase].name);
+}
+
+function rect(x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(Math.round(x),Math.round(y),w,h)}
+
+// ─── DRAW (GBA-style) ───
+function drawBG(){
+  const z=ZONES[phase],p=PAL[phase],gY=z.groundY;
+  // Gradient sky
+  const gr=ctx.createLinearGradient(0,0,0,gY);gr.addColorStop(0,p.sky1);gr.addColorStop(1,p.sky2);
+  ctx.fillStyle=gr;ctx.fillRect(0,0,640,gY);
+  // Stars
+  for(let i=0;i<40;i++){const sx=(i*137+frame*.08)%640,sy=(i*97)%200,br=Math.sin(frame*.04+i)*.5+.5;
+    if(br>.4){ctx.globalAlpha=br*.5;ctx.fillStyle=i%3===0?p.highlight:p.star;
+    const sz=i%7===0?2:1;ctx.fillRect(Math.round(sx),Math.round(sy),sz,sz)}}
+  ctx.globalAlpha=1;
+  // Zone decorations
+  if(z.decor==='terminal'){
+    ctx.font='8px monospace';ctx.globalAlpha=.07;ctx.fillStyle=p.accent;
+    for(let i=0;i<15;i++)ctx.fillText(String.fromCharCode(33+(i*17+frame*.02)%94),(i*43+frame*.5)%640,(frame*.6+i*35)%(gY-20));
+    ctx.globalAlpha=1;
+    for(let i=0;i<5;i++){const bx=60+i*120,bh=30+(i*37)%40;
+      rect(bx,gY-bh,24,bh,p.groundMid);rect(bx+2,gY-bh+2,20,2,p.groundLine);
+      for(let wy=gY-bh+8;wy<gY-4;wy+=8){if(Math.sin(frame*.02+i+wy)>.2)rect(bx+4,wy,3,2,p.accent)}}
+  }
+  if(z.decor==='forest'||z.decor==='victory'){
+    const isV=z.decor==='victory';
+    for(let i=0;i<7;i++){const tx=(i*90+30)%600,ty=gY-36-Math.abs(Math.sin(i)*16);
+      rect(tx+10,ty+16,8,24,'#5d4037');rect(tx+12,ty+16,3,24,'#4e342e');
+      rect(tx,ty+4,28,14,p.accentDark);rect(tx+2,ty-4,24,12,p.accent);
+      rect(tx+6,ty-10,16,8,isV?p.highlight:p.warm)}
+    if(isV){for(let i=0;i<12;i++){const sx=(i*53+frame*.3)%640,sy=(i*41+Math.sin(frame*.03+i)*20)%(gY-40);
+      ctx.globalAlpha=Math.sin(frame*.06+i)*.3+.2;ctx.fillStyle=p.highlight;
+      ctx.fillRect(Math.round(sx),Math.round(sy),2,2)}ctx.globalAlpha=1}
+  }
+  if(z.decor==='sky'){
+    for(let i=0;i<5;i++){const cx=(i*130+frame*.2)%700-40,cy=40+i*30;
+      rect(Math.round(cx),cy,56,12,p.groundTop);rect(Math.round(cx)+10,cy-8,36,10,p.groundLine);
+      rect(Math.round(cx)+14,cy-4,28,6,p.groundTop)}
+    if(phase===5){for(let i=0;i<15;i++){const sx=(i*43+frame*.3)%640,sy=(i*31+frame*.5)%(gY-20);
+      ctx.globalAlpha=.25;ctx.fillStyle=p.highlight;ctx.fillRect(Math.round(sx),Math.round(sy),2,2)}ctx.globalAlpha=1}
+  }
+  if(z.decor==='dungeon'){
+    ctx.strokeStyle=p.groundLine;for(let bx=0;bx<640;bx+=36)for(let by=0;by<gY;by+=18){ctx.globalAlpha=.1;ctx.strokeRect(bx+(by%36===0?0:18),by,36,18)}ctx.globalAlpha=1;
+    for(let i=0;i<4;i++){const tx=80+i*150,ty=gY-70,fl=Math.sin(frame*.15+i*2)*2;
+      rect(tx,ty,4,14,'#5d4037');rect(tx-2,ty-8+fl,8,8,p.warm);rect(tx-1,ty-5+fl,6,4,p.highlight);
+      ctx.globalAlpha=.04;rect(tx-16,ty-24,36,40,p.accent);ctx.globalAlpha=1}
+  }
+  if(z.decor==='lava'){
+    for(let i=0;i<8;i++){const sx=40+i*80,sh=20+(i*13)%30;rect(sx,0,8,sh,p.groundMid);rect(sx+2,sh,4,6,p.groundTop)}
+    for(let i=0;i<4;i++){const lx=50+i*150,lw=50+i*10,pu=Math.sin(frame*.07+i)*2;
+      rect(lx,gY-4,lw,6,p.accentDark);rect(lx+4,gY-6+pu,lw-8,4,p.accent);rect(lx+8,gY-4+pu,lw-16,2,p.highlight);
+      ctx.globalAlpha=.04;rect(lx-8,gY-30,lw+16,34,p.warm);ctx.globalAlpha=1}
+  }
+}
+
+function drawGround(){
+  const z=ZONES[phase];if(!z)return;
+  const p=PAL[phase],gY=z.groundY;
+  rect(0,gY,640,3,p.groundLine);rect(0,gY+3,640,8,p.groundTop);
+  rect(0,gY+11,640,79,p.ground);rect(0,gY+11,640,6,p.groundMid);
+  for(let x=0;x<640;x+=18){rect(x,gY,6,2,p.groundTop);if(x%36===0)rect(x+8,gY+14,3,2,p.groundMid)}
+  for(const pl of z.platforms){
+    rect(pl.x,pl.y+2,pl.w,pl.h,p.platShade);
+    rect(pl.x,pl.y,pl.w,pl.h,p.plat);
+    rect(pl.x,pl.y,pl.w,2,p.platTop);
+    rect(pl.x+1,pl.y+1,pl.w-2,1,p.groundLine);
+    rect(pl.x,pl.y+pl.h-1,pl.w,1,p.platShade);
+  }
+}
+
+function drawGem(){
+  const z=ZONES[phase];if(!z||gemCollected[phase])return;
+  const g=z.gem,p=PAL[phase],gy=z.groundY-50,bob=Math.sin(frame*.08)*3;
+  ctx.globalAlpha=.15;rect(g.x-4,gy+bob-4,20,20,p.gem1);ctx.globalAlpha=1;
+  rect(g.x+4,gy+bob,4,3,p.gem1);rect(g.x+2,gy+bob+3,8,3,p.gem2);
+  rect(g.x,gy+bob+6,12,3,p.gem2);rect(g.x+2,gy+bob+9,8,3,p.gem1);
+  rect(g.x+4,gy+bob+12,4,3,p.gem3);
+  rect(g.x+4,gy+bob+1,2,2,'#fff');rect(g.x+3,gy+bob+4,2,2,p.highlight);
+}
+
+function drawPortal(){
+  const z=ZONES[phase];if(!z||!gemCollected[phase])return;
+  const px=z.portal.x,py=z.groundY-48,s=frame*.04,p=PAL[phase];
+  for(let a=0;a<8;a++){const ang=a*(Math.PI/4)+s;rect(px+Math.cos(ang)*16,py+Math.sin(ang)*22,3,3,a%2?p.highlight:p.accent)}
+  ctx.globalAlpha=.25;rect(px-10,py-14,24,32,p.accent);ctx.globalAlpha=1;
+  ctx.fillStyle=p.highlight;ctx.font='6px "Press Start 2P"';ctx.fillText('>',px-2,py-20);
+}
+
+function drawNPC(){
+  const z=ZONES[phase];if(!z)return;
+  const npc=z.npc,ny=z.groundY-28,bob=Math.sin(frame*.05)*2,p=PAL[phase];
+  ctx.globalAlpha=.2;rect(npc.x+2,z.groundY-3,14,3,'#000');ctx.globalAlpha=1;
+  rect(npc.x+3,ny+bob-8,12,10,'#ffcc80');rect(npc.x+3,ny+bob-8,12,2,'#ffb74d');
+  rect(npc.x+5,ny+bob-4,2,2,'#212121');rect(npc.x+11,ny+bob-4,2,2,'#212121');
+  rect(npc.x+3,ny+bob+2,12,10,p.npc1);rect(npc.x+5,ny+bob+4,8,6,p.npc2);
+  rect(npc.x+0,ny+bob+4,3,6,p.npc1);rect(npc.x+15,ny+bob+4,3,6,p.npc1);
+  rect(npc.x+4,ny+bob+12,4,6,p.npc2);rect(npc.x+10,ny+bob+12,4,6,p.npc2);
+  if(Math.abs(player.x+7-(npc.x+7))<50){ctx.fillStyle=p.accent;ctx.font='6px "Press Start 2P"';
+    ctx.fillText('SPACE',npc.x-6,ny+bob-18);const ab=Math.sin(frame*.12)*2;ctx.fillText('v',npc.x+5,ny+bob-10+ab)}
+}
+
+function drawPlayer(){
+  const px=Math.round(player.x),py=Math.round(player.y),f=player.facing,af=player.animFrame;
+  const gY=ZONES[phase]?ZONES[phase].groundY:310;
+  ctx.globalAlpha=.2;rect(px+1,gY-3,12,3,'#000');ctx.globalAlpha=1;
+  const lo=player.moving&&player.onGround?[0,2,0,-2][af]:0;
+  rect(px+2,py+14,4,6+lo,'#5d4037');rect(px+8,py+14,4,6-lo,'#5d4037');
+  rect(px+3,py+15,2,4+lo,'#4e342e');rect(px+9,py+15,2,4-lo,'#4e342e');
+  rect(px+1,py+6,12,9,'#42a5f5');rect(px+3,py+8,8,5,'#1e88e5');
+  const as=player.moving?Math.sin(frame*.2)*2:0;
+  rect(px-1,py+7+as,3,6,'#42a5f5');rect(px+12,py+7-as,3,6,'#42a5f5');
+  rect(px+2,py-2,10,8,'#ffcc80');rect(px+2,py-2,10,2,'#ffb74d');
+  rect(px+1,py-5,12,4,'#4e342e');rect(px+3,py-6,6,2,'#4e342e');rect(px+2,py-4,3,2,'#6d4c41');
+  if(f>=0){rect(px+4,py+1,2,2,'#212121');rect(px+8,py+1,2,2,'#212121')}
+  else{rect(px+2,py+1,2,2,'#212121');rect(px+6,py+1,2,2,'#212121')}
+}
+
+function drawParticles(){for(const p of particles){ctx.globalAlpha=p.life/p.max;ctx.fillStyle=p.c;ctx.fillRect(Math.round(p.x),Math.round(p.y),2,2)}ctx.globalAlpha=1}
+function updateParticles(){particles=particles.filter(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.15;p.life--;return p.life>0})}
+
+function drawScanlines(){
+  ctx.fillStyle='rgba(0,0,0,0.015)';for(let y=0;y<400;y+=2)ctx.fillRect(0,y,640,1);
+  const v=ctx.createRadialGradient(320,200,120,320,200,360);v.addColorStop(0,'transparent');v.addColorStop(1,'rgba(0,0,0,0.18)');ctx.fillStyle=v;ctx.fillRect(0,0,640,400);
+}
+
+function drawZoneInfo(){
+  const z=ZONES[phase],p=PAL[phase];if(!z)return;
+  ctx.fillStyle='rgba(6,8,16,0.7)';ctx.fillRect(230,3,180,16);
+  ctx.fillStyle=p.accent;ctx.font='6px "Press Start 2P"';ctx.textAlign='center';
+  ctx.fillText('ZONE '+(phase+1)+': '+z.name,320,13);ctx.textAlign='left';
+}
+
+function draw(){
+  frame++;if(STATE==='title'||STATE==='win')return;
+  ctx.clearRect(0,0,640,400);
+  updatePhysics();checkCollect();updateParticles();
+  drawBG();drawGround();drawGem();drawPortal();drawNPC();drawPlayer();drawParticles();drawScanlines();drawZoneInfo();
+}
+
+function startIntro(){
+  document.getElementById('titleScreen').style.display='flex';
+  const p=PAL[0];
+  function td(){
+    if(STATE==='playing')return;
+    const gr=ctx.createLinearGradient(0,0,0,400);gr.addColorStop(0,p.sky1);gr.addColorStop(1,p.sky2);
+    ctx.fillStyle=gr;ctx.fillRect(0,0,640,400);
+    for(let i=0;i<40;i++){const sx=(i*137+frame*.4)%640,sy=(i*97+frame*.15)%400;
+      if(Math.sin(frame*.04+i)>.4){ctx.globalAlpha=.35;ctx.fillStyle=p.star;ctx.fillRect(Math.round(sx),Math.round(sy),2,2)}}
+    ctx.globalAlpha=1;
+    rect(0,330,640,70,p.ground);rect(0,330,640,2,p.groundLine);
+    const hx=280+Math.sin(frame*.02)*18;
+    rect(hx+2,298,10,8,'#ffcc80');rect(hx+1,296,12,4,'#4e342e');
+    rect(hx+1,306,12,9,'#42a5f5');rect(hx+3,315,4,5,'#5d4037');rect(hx+9,315,4,5,'#5d4037');
+    frame++;requestAnimationFrame(td);
+  }
+  td();
+}
+
+function gameLoop(){draw();requestAnimationFrame(gameLoop)}
+function init(){
+  player.y=ZONES[0].groundY-player.h-2;updateHUD();
+  document.getElementById('replayBtn').addEventListener('click',()=>{document.getElementById('endScreen').style.display='none';resetGame()});
+  startIntro();gameLoop();
+}
+window.addEventListener('load',init);
+</script>
+</body>
+</html>

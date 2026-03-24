@@ -79,12 +79,22 @@ export function WorkSection({ carousel = false, onContactClick }: WorkSectionPro
         </p>
         <div className="mt-5">
           {onContactClick ? (
-            <Button variant="outline" size="default" className="moog-cta group gap-2" onClick={onContactClick}>
+            <Button
+              variant="outline"
+              size="default"
+              className="moog-cta group w-full min-h-11 justify-center gap-2 sm:w-auto"
+              onClick={onContactClick}
+            >
               Get in touch{" "}
               <span className="cta-arrow inline-block transition-transform duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:translate-x-0.5" aria-hidden>→</span>
             </Button>
           ) : (
-            <Button variant="outline" size="default" className="moog-cta group gap-2" asChild>
+            <Button
+              variant="outline"
+              size="default"
+              className="moog-cta group w-full min-h-11 justify-center gap-2 sm:w-auto"
+              asChild
+            >
               <Link href="#contact">
                 Get in touch{" "}
                 <span className="cta-arrow inline-block transition-transform duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:translate-x-0.5" aria-hidden>→</span>
@@ -208,8 +218,13 @@ export function WorkSection({ carousel = false, onContactClick }: WorkSectionPro
                 AI-assisted development. Clone it, follow the playbook, ship
                 something real.
               </p>
-              <div className="mt-4 flex flex-wrap items-center gap-3">
-                <Button variant="default" size="default" className="group gap-2" asChild>
+              <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+                <Button
+                  variant="default"
+                  size="default"
+                  className="group w-full min-h-11 justify-center gap-2 sm:w-auto"
+                  asChild
+                >
                   <Link href="/playbook">
                     Read the playbook{" "}
                     <span
@@ -220,7 +235,12 @@ export function WorkSection({ carousel = false, onContactClick }: WorkSectionPro
                     </span>
                   </Link>
                 </Button>
-                <Button variant="outline" size="default" className="gap-2" asChild>
+                <Button
+                  variant="outline"
+                  size="default"
+                  className="w-full min-h-11 justify-center gap-2 sm:w-auto"
+                  asChild
+                >
                   <a
                     href="https://github.com/stdemps/prototype-starter"
                     target="_blank"
@@ -245,7 +265,12 @@ export function WorkSection({ carousel = false, onContactClick }: WorkSectionPro
                 soon.
               </p>
               <div className="mt-4">
-                <Button variant="outline" size="default" className="gap-2" asChild>
+                <Button
+                  variant="outline"
+                  size="default"
+                  className="w-full min-h-11 justify-center gap-2 sm:w-auto"
+                  asChild
+                >
                   <a
                     href="https://github.com/stdemps/product-workspace"
                     target="_blank"
@@ -270,7 +295,12 @@ export function WorkSection({ carousel = false, onContactClick }: WorkSectionPro
             {workSectionLabels.workProjectsDescription}
           </p>
           <div className="mt-5 md:mt-6">
-            <Button variant="outline" size="default" className="group gap-2" asChild>
+            <Button
+              variant="outline"
+              size="default"
+              className="group w-full min-h-11 justify-center gap-2 sm:w-auto"
+              asChild
+            >
               <Link href="#contact">
                 Get in touch{" "}
                 <span className="cta-arrow inline-block transition-transform duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:translate-x-0.5" aria-hidden>
@@ -318,14 +348,14 @@ export function WorkSection({ carousel = false, onContactClick }: WorkSectionPro
         {/* Moog Playground CTA — only on lg+ where the playground is available */}
         {isDesktop && (
           <ScrollReveal delay={160}>
-            <div className="mt-10 rounded-xl border border-border/60 px-5 py-5 md:mt-12 lg:mt-14">
+            <div className="mt-10 rounded-xl border border-border bg-gradient-to-br from-muted/40 to-muted/10 px-6 py-6 md:mt-12 lg:mt-14">
               <div className="flex items-center gap-2.5">
-                <span className="text-base" aria-hidden>🎛</span>
-                <h3 className="font-display text-base font-medium tracking-tight text-foreground md:text-lg">
+                <span className="text-lg" aria-hidden>🎛</span>
+                <h3 className="font-display text-lg font-semibold tracking-tight text-foreground md:text-xl">
                   Moog Playground
                 </h3>
               </div>
-              <p className="mt-2 max-w-md text-sm text-muted-foreground">
+              <p className="mt-2 max-w-lg text-sm text-muted-foreground md:text-base">
                 Experience this portfolio in a playful, interactive playground. Try the Moog synthesiser!
               </p>
               <div className="mt-4">

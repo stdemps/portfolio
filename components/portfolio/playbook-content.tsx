@@ -94,8 +94,8 @@ export function PlaybookContent() {
                 From idea to testable prototype
               </h1>
               <p className="mt-4 max-w-xl text-sm text-muted-foreground md:mt-5 md:text-base">
-                Leverage Claude Code and AntiGravity to build real, testable
-                products — in a fraction of the time.
+                Use Claude Code and AntiGravity to build real, testable
+                prototypes — without writing code from scratch.
               </p>
             </div>
             <div className="mt-8 min-w-0 md:mt-0">
@@ -131,7 +131,7 @@ export function PlaybookContent() {
                 href="https://github.com/stdemps/prototype-starter"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex shrink-0 items-center gap-2 rounded-md border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="inline-flex min-h-11 w-full shrink-0 items-center justify-center gap-2 rounded-md border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:w-auto sm:justify-start"
                 aria-label="Clone prototype-starter on GitHub (opens in new tab)"
               >
                 Clone on GitHub
@@ -149,9 +149,50 @@ export function PlaybookContent() {
         </div>
       </section>
 
+      {/* ═══ GAME — 8-bit playbook quest ═══ */}
+      <section className="border-b border-border/60">
+        <div className="container px-4 py-12 md:px-6 md:py-16 lg:px-8 lg:py-20">
+          <ScrollReveal>
+            <div className="mx-auto max-w-[680px]">
+              <p className="mb-4 text-center text-xs font-normal uppercase tracking-wide text-muted-foreground md:mb-6">
+                Learn by playing
+              </p>
+              <div
+                className="relative w-full overflow-hidden rounded-xl border border-border/60"
+                style={{ aspectRatio: "640 / 440" }}
+              >
+                <iframe
+                  src="/playbook-quest.html"
+                  title="Playbook Quest — an 8-bit game walkthrough of the AI prototyping lifecycle"
+                  className="absolute inset-0 h-full w-full border-0"
+                  loading="lazy"
+                  allow="autoplay"
+                >
+                  <p className="p-4 text-sm text-muted-foreground">
+                    Your browser does not support iframes.{" "}
+                    <a href="/playbook-quest.html" className="underline">Open Playbook Quest directly</a>.
+                  </p>
+                </iframe>
+              </div>
+              <p className="mt-3 text-center text-xs text-muted-foreground">
+                Arrow keys to move, space to interact
+              </p>
+            </div>
+          </ScrollReveal>
+        </div>
+      </section>
+
       {/* ═══ PRE-FLIGHT — matches template repo cards pattern ═══ */}
       <section className="scroll-mt-16 border-b border-border/60 md:scroll-mt-20">
         <div className="container px-4 py-12 md:px-6 md:py-16 lg:px-8 lg:py-20">
+          <ScrollReveal>
+            <p className="mb-8 max-w-2xl text-sm text-muted-foreground md:mb-10 md:text-base">
+              I put this together based on what my friend needs. It&apos;s a
+              starting point - just follow the phases and you&apos;ll have
+              something live and testable.
+            </p>
+          </ScrollReveal>
+
           <ScrollReveal>
             <SectionLabel number="00" title="Pre-flight checklist" />
           </ScrollReveal>
@@ -249,7 +290,7 @@ export function PlaybookContent() {
           <ScrollReveal>
             <div className="rounded-xl border border-border/60 px-5 py-5 md:px-6 md:py-6">
               <h3 className="font-display text-base font-medium tracking-tight text-foreground md:text-lg">
-                Figma Superpowers via MCP
+                Reading Figma Directly via MCP
               </h3>
               <p className="mt-2 max-w-lg text-sm text-muted-foreground">
                 Claude Code can read design data, layout structures, and
@@ -285,7 +326,7 @@ export function PlaybookContent() {
               aria-hidden
             />
 
-            <PhaseItem number="Phase 1" icon="💡" title="Ideation — The Product Partner" isCurrent delay={0}>
+            <PhaseItem number="Phase 1" icon="💡" title="Ideation — Pressure-Test the Idea" isCurrent delay={0}>
               <p>
                 Before pushing pixels, use Claude Code to pressure-test your
                 ideas. Run <Code>/pm</Code> to discuss feature scope,
@@ -414,9 +455,9 @@ export function PlaybookContent() {
 
             <PhaseItem number="Phase 7" icon="🔄" title="The Feedback Loop — Iterating" delay={480}>
               <p>
-                Deploying isn&apos;t the end — it&apos;s the beginning! Gather
-                user feedback, quotes, and pain points, then let Claude
-                synthesise the messy data:
+                Deploying isn&apos;t the finish line — it&apos;s where the
+                real learning starts. Gather user feedback, quotes, and pain
+                points, then let Claude synthesise the messy data:
               </p>
               <Tip>
                 🤖 <em>&quot;Act as my <Code>/user-researcher</Code>. Here are
@@ -473,7 +514,7 @@ export function PlaybookContent() {
               },
             ].map((snippet, i) => (
               <ScrollReveal asListItem key={snippet.label} delay={i * 60} className="flex">
-                <div className="flex-1 rounded-lg border border-border bg-card p-4">
+                <div className="flex-1 rounded-lg border border-border bg-card p-4 transition-colors hover:bg-muted/50">
                   <p className="text-xs font-normal uppercase tracking-wide text-muted-foreground">
                     {snippet.label}
                   </p>

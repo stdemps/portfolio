@@ -23,11 +23,11 @@ export function ContactSection({ carousel = false }: ContactSectionProps) {
         </ScrollReveal>
 
         <ScrollReveal delay={80}>
-          <div className="mt-10 flex flex-col gap-4 sm:flex-row md:mt-12 2xl:mt-0 2xl:flex-row 2xl:shrink-0">
+          <div className="mt-10 flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4 md:mt-12 2xl:mt-0 2xl:w-auto 2xl:flex-row 2xl:shrink-0">
             <Button
               variant="default"
               size="lg"
-              className="h-14 gap-2.5 px-8 text-base font-semibold shadow-md focus-visible:ring-2 focus-visible:ring-offset-2"
+              className="h-12 w-full min-h-12 justify-center gap-2.5 px-8 text-base font-semibold shadow-md focus-visible:ring-2 focus-visible:ring-offset-2 sm:h-14 sm:min-h-14 sm:w-auto md:px-8"
               asChild
             >
               <a
@@ -41,7 +41,7 @@ export function ContactSection({ carousel = false }: ContactSectionProps) {
             <Button
               variant="outline"
               size="lg"
-              className="h-14 gap-2.5 px-8 text-base font-semibold focus-visible:ring-2 focus-visible:ring-offset-2"
+              className="h-12 w-full min-h-12 justify-center gap-2.5 px-8 text-base font-semibold focus-visible:ring-2 focus-visible:ring-offset-2 sm:h-14 sm:min-h-14 sm:w-auto md:px-8"
               asChild
             >
               <a
@@ -72,14 +72,24 @@ export function ContactSection({ carousel = false }: ContactSectionProps) {
               <p className="mt-2 text-sm text-muted-foreground md:text-base">
                 I&apos;m always happy to connect — whether it&apos;s about a project, a role, or just swapping ideas.
               </p>
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4 md:mt-10">
-                <Button variant="outline" size="lg" className="moog-cta gap-2 px-5 text-base font-medium md:px-6" asChild>
+              <div className="mt-8 flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-4 md:mt-10">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="moog-cta w-full min-h-12 justify-center gap-2 px-5 text-base font-medium sm:w-auto md:px-6"
+                  asChild
+                >
                   <a href={`mailto:${site.email}`} aria-label="Send an email">
                     <Mail className="h-5 w-5 shrink-0" aria-hidden />
                     Email
                   </a>
                 </Button>
-                <Button variant="outline" size="lg" className="moog-cta gap-2 px-5 text-base font-medium md:px-6" asChild>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="moog-cta w-full min-h-12 justify-center gap-2 px-5 text-base font-medium sm:w-auto md:px-6"
+                  asChild
+                >
                   <a href={site.linkedIn} target="_blank" rel="noopener noreferrer" aria-label="Connect on LinkedIn (opens in new tab)">
                     <LinkedinIcon className="h-5 w-5 shrink-0" aria-hidden />
                     LinkedIn
