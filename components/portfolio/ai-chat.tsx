@@ -722,6 +722,9 @@ export function AiChat({ chatState }: { chatState: ChatStateReturn }) {
     }
   }
 
+  const isOpen = state === "open"
+  const isSplitPanelViewport = useMediaQuery("(min-width: 768px)")
+
   if (state === "dismissed") return null
 
   const panelProps = {
@@ -737,9 +740,6 @@ export function AiChat({ chatState }: { chatState: ChatStateReturn }) {
     stopStreaming,
     onClose: close,
   }
-
-  const isOpen = state === "open"
-  const isSplitPanelViewport = useMediaQuery("(min-width: 768px)")
 
   return (
     <>

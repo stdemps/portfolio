@@ -196,30 +196,70 @@ export function WorkSection({ carousel = false, onContactClick }: WorkSectionPro
           </p>
         </ScrollReveal>
 
-        {/* Template repo links */}
-        <ul className="mt-6 flex list-none flex-col gap-3 sm:flex-row sm:gap-4 2xl:gap-6">
-          {templateRepos.map((repo, i) => (
-            <ScrollReveal asListItem key={repo.name} delay={i * 80}>
-              <a
-                href={repo.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`${repo.name} (opens in new tab)`}
-                className="flex min-h-[4.5rem] items-start gap-3 rounded-xl border border-border/60 bg-muted/30 px-4 py-3 transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-              >
-                <div className="min-w-0 flex-1">
-                  <span className="font-display font-medium text-foreground">
-                    {repo.name}
-                  </span>
-                  <p className="mt-0.5 text-sm text-muted-foreground">
-                    {repo.description}
-                  </p>
-                </div>
-                <ExternalLink className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
-              </a>
-            </ScrollReveal>
-          ))}
-        </ul>
+        {/* Workspace cards — prototype-starter + product-workspace */}
+        <div className="mt-6 grid gap-4 md:mt-8 md:grid-cols-2">
+          <ScrollReveal>
+            <div className="flex h-full flex-col rounded-xl border border-border/60 px-5 py-5 md:px-6 md:py-6">
+              <h3 className="font-display text-base font-medium tracking-tight text-foreground md:text-lg">
+                prototype-starter
+              </h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                A ready-to-go workspace for building testable prototypes with
+                AI-assisted development. Clone it, follow the playbook, ship
+                something real.
+              </p>
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                <Button variant="default" size="default" className="group gap-2" asChild>
+                  <Link href="/playbook">
+                    Read the playbook{" "}
+                    <span
+                      className="inline-block transition-transform duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:translate-x-0.5"
+                      aria-hidden
+                    >
+                      →
+                    </span>
+                  </Link>
+                </Button>
+                <Button variant="outline" size="default" className="gap-2" asChild>
+                  <a
+                    href="https://github.com/stdemps/prototype-starter"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="prototype-starter on GitHub (opens in new tab)"
+                  >
+                    GitHub
+                    <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+                  </a>
+                </Button>
+              </div>
+            </div>
+          </ScrollReveal>
+
+          <ScrollReveal delay={80}>
+            <div className="flex h-full flex-col rounded-xl border border-border/60 px-5 py-5 md:px-6 md:py-6">
+              <h3 className="font-display text-base font-medium tracking-tight text-foreground md:text-lg">
+                product-workspace
+              </h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Design-to-dev workflow and product templates. Playbook coming
+                soon.
+              </p>
+              <div className="mt-4">
+                <Button variant="outline" size="default" className="gap-2" asChild>
+                  <a
+                    href="https://github.com/stdemps/product-workspace"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="product-workspace on GitHub (opens in new tab)"
+                  >
+                    GitHub
+                    <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+                  </a>
+                </Button>
+              </div>
+            </div>
+          </ScrollReveal>
+        </div>
 
         {/* Work projects (private) */}
         <ScrollReveal>
