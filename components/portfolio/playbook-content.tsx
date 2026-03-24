@@ -130,6 +130,99 @@ function PhaseItem({
   )
 }
 
+/* ── D-pad button (touch-optimised, no click delay) ── */
+function DpadBtn({
+  code,
+  sendMsg,
+  children,
+  className,
+}: {
+  code: string
+  sendMsg: (type: string, data?: Record<string, unknown>) => void
+  children: React.ReactNode
+  className?: string
+}) {
+  const pressed = React.useRef(false)
+  const down = React.useCallback(
+    (e: React.TouchEvent | React.MouseEvent) => {
+      e.preventDefault()
+      if (!pressed.current) {
+        pressed.current = true
+        sendMsg("keydown", { code })
+      }
+    },
+    [code, sendMsg],
+  )
+  const up = React.useCallback(() => {
+    if (pressed.current) {
+      pressed.current = false
+      sendMsg("keyup", { code })
+    }
+  }, [code, sendMsg])
+
+  return (
+    <button
+      type="button"
+      onTouchStart={down}
+      onTouchEnd={up}
+      onTouchCancel={up}
+      onMouseDown={down}
+      onMouseUp={up}
+      onMouseLeave={up}
+      className={cn(
+        "flex items-center justify-center bg-[hsl(240,6%,13%)] text-white/50 active:bg-[hsl(240,6%,18%)] active:text-white/70",
+        className,
+      )}
+      aria-label={`D-pad ${code.replace("Arrow", "").toLowerCase()}`}
+    >
+      {children}
+    </button>
+  )
+}
+
+/* ── Action button (A / B) ── */
+function ActionBtn({
+  label,
+  onPress,
+  onRelease,
+  accent = false,
+  className,
+}: {
+  label: string
+  onPress: () => void
+  onRelease?: () => void
+  accent?: boolean
+  className?: string
+}) {
+  return (
+    <button
+      type="button"
+      onTouchStart={(e) => {
+        e.preventDefault()
+        onPress()
+      }}
+      onTouchEnd={(e) => {
+        e.preventDefault()
+        onRelease?.()
+      }}
+      onTouchCancel={() => onRelease?.()}
+      onMouseDown={onPress}
+      onMouseUp={() => onRelease?.()}
+      onMouseLeave={() => onRelease?.()}
+      className={cn(
+        "flex h-[52px] w-[52px] select-none items-center justify-center rounded-full border-2 font-mono text-sm font-bold shadow-[0_3px_0_rgba(0,0,0,0.5)] active:translate-y-[1px] active:shadow-[0_1px_0_rgba(0,0,0,0.5)]",
+        accent
+          ? "border-[#4dd0e1]/40 bg-[hsl(240,6%,13%)] text-[#4dd0e1]"
+          : "border-white/10 bg-[hsl(240,6%,13%)] text-white/50",
+        className,
+      )}
+      aria-label={`${label} button`}
+    >
+      {label}
+    </button>
+  )
+}
+
 /* ── Playbook Quest iframe (hero + optional reuse) ── */
 function PlaybookQuestEmbed({
   className,
@@ -140,27 +233,40 @@ function PlaybookQuestEmbed({
 }) {
   const [isFullscreen, setIsFullscreen] = React.useState(false)
   const containerRef = React.useRef<HTMLDivElement>(null)
+  const iframeRef = React.useRef<HTMLIFrameElement>(null)
+
+  const sendMsg = React.useCallback(
+    (type: string, data?: Record<string, unknown>) => {
+      iframeRef.current?.contentWindow?.postMessage({ type, ...data }, "*")
+    },
+    [],
+  )
 
   const enterFullscreen = React.useCallback(() => {
     setIsFullscreen(true)
+    sendMsg("extControls", { enabled: true })
     containerRef.current?.requestFullscreen?.().catch(() => {})
-  }, [])
+  }, [sendMsg])
 
   const exitFullscreen = React.useCallback(() => {
     setIsFullscreen(false)
+    sendMsg("extControls", { enabled: false })
     if (document.fullscreenElement) {
       document.exitFullscreen().catch(() => {})
     }
-  }, [])
+  }, [sendMsg])
 
   React.useEffect(() => {
     function onFullscreenChange() {
-      if (!document.fullscreenElement) setIsFullscreen(false)
+      if (!document.fullscreenElement) {
+        setIsFullscreen(false)
+        sendMsg("extControls", { enabled: false })
+      }
     }
     document.addEventListener("fullscreenchange", onFullscreenChange)
     return () =>
       document.removeEventListener("fullscreenchange", onFullscreenChange)
-  }, [])
+  }, [sendMsg])
 
   return (
     <div className={cn("mx-auto w-full max-w-[680px]", className)}>
@@ -168,10 +274,11 @@ function PlaybookQuestEmbed({
         ref={containerRef}
         className={
           isFullscreen
-            ? "fixed inset-0 z-50 flex items-center justify-center bg-[hsl(240,10%,4%)]"
+            ? "fixed inset-0 z-50 flex flex-col bg-[hsl(240,10%,4%)]"
             : "relative"
         }
       >
+        {/* ── Close button (fullscreen only) ── */}
         {isFullscreen ? (
           <button
             type="button"
@@ -183,33 +290,116 @@ function PlaybookQuestEmbed({
           </button>
         ) : null}
 
+        {/* ── Game canvas ── */}
         <div
           className={
             isFullscreen
-              ? "relative w-full max-h-full overflow-hidden"
-              : "relative w-full min-h-[200px] overflow-hidden rounded-xl border border-border/60 bg-muted/10"
+              ? "flex min-h-0 flex-1 items-center justify-center overflow-hidden"
+              : undefined
           }
-          style={{ aspectRatio: "640 / 440" }}
         >
-          <iframe
-            src="/playbook-quest.html"
-            title="Playbook Quest — an 8-bit game walkthrough of the AI prototyping lifecycle"
-            className="absolute inset-0 h-full w-full border-0"
-            loading={iframeLoading}
-            allow="autoplay; fullscreen"
-            referrerPolicy="strict-origin-when-cross-origin"
-            aria-describedby="playbook-quest-hint"
+          <div
+            className={
+              isFullscreen
+                ? "relative w-full max-h-full overflow-hidden"
+                : "relative w-full min-h-[200px] overflow-hidden rounded-xl border border-border/60 bg-muted/10"
+            }
+            style={{ aspectRatio: "640 / 440" }}
           >
-            <p className="p-4 text-sm text-muted-foreground">
-              Your browser does not support iframes.{" "}
-              <a href="/playbook-quest.html" className="underline">
-                Open Playbook Quest directly
-              </a>
-              .
-            </p>
-          </iframe>
+            <iframe
+              ref={iframeRef}
+              src="/playbook-quest.html"
+              title="Playbook Quest — an 8-bit game walkthrough of the AI prototyping lifecycle"
+              className="absolute inset-0 h-full w-full border-0"
+              loading={iframeLoading}
+              allow="autoplay; fullscreen"
+              referrerPolicy="strict-origin-when-cross-origin"
+              aria-describedby="playbook-quest-hint"
+            >
+              <p className="p-4 text-sm text-muted-foreground">
+                Your browser does not support iframes.{" "}
+                <a href="/playbook-quest.html" className="underline">
+                  Open Playbook Quest directly
+                </a>
+                .
+              </p>
+            </iframe>
+          </div>
         </div>
 
+        {/* ── Controller (fullscreen only) ── */}
+        {isFullscreen ? (
+          <div
+            className="shrink-0 px-6 pb-[max(12px,env(safe-area-inset-bottom))] pt-4"
+            role="group"
+            aria-label="Game controller"
+          >
+            <div className="mx-auto flex max-w-md items-center justify-between">
+              {/* D-pad */}
+              <div className="grid h-[108px] w-[108px] grid-cols-3 grid-rows-3 gap-[2px] overflow-hidden rounded-2xl">
+                <span />
+                <DpadBtn
+                  code="ArrowUp"
+                  sendMsg={sendMsg}
+                  className="rounded-t-xl"
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+                    <path d="M8 3L13 11H3L8 3Z" fill="currentColor" />
+                  </svg>
+                </DpadBtn>
+                <span />
+                <DpadBtn
+                  code="ArrowLeft"
+                  sendMsg={sendMsg}
+                  className="rounded-l-xl"
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+                    <path d="M3 8L11 3V13L3 8Z" fill="currentColor" />
+                  </svg>
+                </DpadBtn>
+                <span className="bg-[hsl(240,6%,11%)]" />
+                <DpadBtn
+                  code="ArrowRight"
+                  sendMsg={sendMsg}
+                  className="rounded-r-xl"
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+                    <path d="M13 8L5 3V13L13 8Z" fill="currentColor" />
+                  </svg>
+                </DpadBtn>
+                <span />
+                <DpadBtn
+                  code="ArrowDown"
+                  sendMsg={sendMsg}
+                  className="rounded-b-xl"
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+                    <path d="M8 13L3 5H13L8 13Z" fill="currentColor" />
+                  </svg>
+                </DpadBtn>
+                <span />
+              </div>
+
+              {/* A + B buttons */}
+              <div className="flex items-end gap-4">
+                <ActionBtn
+                  label="B"
+                  onPress={() => sendMsg("keydown", { code: "ArrowUp" })}
+                  onRelease={() => sendMsg("keyup", { code: "ArrowUp" })}
+                  className="translate-y-0"
+                />
+                <ActionBtn
+                  label="A"
+                  accent
+                  onPress={() => sendMsg("action")}
+                  className="-translate-y-4"
+                />
+              </div>
+            </div>
+          </div>
+        ) : null}
+
+        {/* ── Expand button (inline, mobile only) ── */}
         {!isFullscreen ? (
           <button
             type="button"

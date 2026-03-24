@@ -73,6 +73,8 @@ canvas{
 #touchControls #tcAct{flex:1.15;max-width:104px;border-color:rgba(255,213,79,0.45);color:#ffe082}
 /* Hide movement buttons while NPC dialog is open so text stays readable */
 #gameWrapper.is-dialog-open #touchControls{display:none!important;}
+/* Hide built-in controls when external (fullscreen) controller is active */
+#touchControls.ext-hidden{display:none!important;}
 @media (max-width:540px),(hover:none) and (pointer:coarse){
   #touchControls{display:flex;}
   #controls{font-size:5px}
@@ -186,6 +188,18 @@ const player={x:80,y:0,vx:0,vy:0,w:14,h:20,onGround:false,facing:1,animFrame:0,a
 const keys={};
 window.addEventListener('keydown',e=>{keys[e.code]=true;if(e.code==='Space'||e.code==='Enter')handleAction();if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.code))e.preventDefault()});
 window.addEventListener('keyup',e=>{keys[e.code]=false});
+
+// ─── EXTERNAL CONTROLS (fullscreen React controller via postMessage) ───
+window.addEventListener('message',function(e){
+  var d=e.data;if(!d||typeof d!=='object')return;
+  if(d.type==='keydown')keys[d.code]=true;
+  if(d.type==='keyup')keys[d.code]=false;
+  if(d.type==='action')handleAction();
+  if(d.type==='extControls'){
+    var tc=document.getElementById('touchControls');
+    if(tc)tc.classList.toggle('ext-hidden',!!d.enabled);
+  }
+});
 
 const MQ_TOUCH=window.matchMedia('(max-width:540px),(hover:none) and (pointer:coarse)');
 let preferTouchHints=MQ_TOUCH.matches;
