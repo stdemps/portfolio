@@ -3,11 +3,25 @@ import Link from "next/link"
 import { SiteHeader } from "@/components/portfolio/site-header"
 import { Footer } from "@/components/portfolio/footer"
 import { PlaybookContent } from "@/components/portfolio/playbook-content"
+import { ContactSection } from "@/components/portfolio/contact-section"
 
 export const metadata: Metadata = {
   title: "AI Prototyping Playbook | Steven Dempster",
   description:
     "A designer's field guide to building real, testable prototypes with Claude Code and AntiGravity.",
+  openGraph: {
+    title: "AI Prototyping Playbook | Steven Dempster",
+    description:
+      "A designer's field guide to building real, testable prototypes with Claude Code and AntiGravity.",
+    type: "article",
+    locale: "en_GB",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "AI Prototyping Playbook | Steven Dempster",
+    description:
+      "A designer's field guide to building real, testable prototypes with Claude Code and AntiGravity.",
+  },
 }
 
 export default function PlaybookPage() {
@@ -21,7 +35,7 @@ export default function PlaybookPage() {
         >
           <Link
             href="/"
-            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+            className="inline-flex max-w-full items-center gap-1.5 break-words text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
             <svg
               width="16"
@@ -43,6 +57,7 @@ export default function PlaybookPage() {
           </Link>
         </nav>
         <PlaybookContent />
+        <ContactSection />
       </main>
       <Footer />
     </div>

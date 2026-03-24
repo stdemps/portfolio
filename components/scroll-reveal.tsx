@@ -32,6 +32,11 @@ export function ScrollReveal({
     const el = ref.current
     if (!el) return
 
+    if (typeof IntersectionObserver === "undefined") {
+      setVisible(true)
+      return
+    }
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -46,22 +51,29 @@ export function ScrollReveal({
     return () => observer.disconnect()
   }, [])
 
-  const sharedProps = {
-    ref: ref as React.RefObject<HTMLElement>,
-    className: cn("scroll-reveal", visible && "is-visible", className),
-    style: delay ? ({ "--reveal-delay": `${delay}ms` } as React.CSSProperties) : undefined,
-  }
+  const revealClassName = cn("scroll-reveal", visible && "is-visible", className)
+  const revealStyle = delay
+    ? ({ "--reveal-delay": `${delay}ms` } as React.CSSProperties)
+    : undefined
 
   if (asListItem) {
     return (
-      <li ref={ref as React.RefObject<HTMLLIElement>} className={sharedProps.className} style={sharedProps.style}>
+      <li
+        ref={ref as React.RefObject<HTMLLIElement>}
+        className={revealClassName}
+        style={revealStyle}
+      >
         {children}
       </li>
     )
   }
 
   return (
-    <div ref={ref as React.RefObject<HTMLDivElement>} className={sharedProps.className} style={sharedProps.style}>
+    <div
+      ref={ref as React.RefObject<HTMLDivElement>}
+      className={revealClassName}
+      style={revealStyle}
+    >
       {children}
     </div>
   )

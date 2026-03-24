@@ -13,7 +13,6 @@ import { ExternalLink } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { MoogBankSelector } from "./moog-bank-selector"
 import { useViewMode } from "@/hooks/use-view-mode"
-import { useMediaQuery } from "@/hooks/use-media-query"
 
 /** When true, show projects marked "Coming Soon"; otherwise hide them (default). */
 const showComingSoon =
@@ -37,7 +36,6 @@ export function WorkSection({ carousel = false, onContactClick }: WorkSectionPro
   )
   const [activeBank, setActiveBank] = React.useState(0)
   const [, setViewMode] = useViewMode()
-  const isDesktop = useMediaQuery("(min-width: 1024px)")
 
   if (carousel) {
     const bankItems: React.ReactNode[] = [
@@ -220,7 +218,7 @@ export function WorkSection({ carousel = false, onContactClick }: WorkSectionPro
               </p>
               <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
                 <Button
-                  variant="default"
+                  variant="outline"
                   size="default"
                   className="group w-full min-h-11 justify-center gap-2 sm:w-auto"
                   asChild
@@ -228,7 +226,7 @@ export function WorkSection({ carousel = false, onContactClick }: WorkSectionPro
                   <Link href="/playbook">
                     Read the playbook{" "}
                     <span
-                      className="inline-block transition-transform duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:translate-x-0.5"
+                      className="cta-arrow inline-block transition-transform duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:translate-x-0.5"
                       aria-hidden
                     >
                       →
@@ -236,7 +234,7 @@ export function WorkSection({ carousel = false, onContactClick }: WorkSectionPro
                   </Link>
                 </Button>
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="default"
                   className="w-full min-h-11 justify-center gap-2 sm:w-auto"
                   asChild
@@ -266,7 +264,7 @@ export function WorkSection({ carousel = false, onContactClick }: WorkSectionPro
               </p>
               <div className="mt-4">
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="default"
                   className="w-full min-h-11 justify-center gap-2 sm:w-auto"
                   asChild
@@ -345,8 +343,8 @@ export function WorkSection({ carousel = false, onContactClick }: WorkSectionPro
           </ScrollReveal>
         )}
 
-        {/* Moog Playground CTA — only on lg+ where the playground is available */}
-        {isDesktop && (
+        {/* Moog Playground CTA — lg+ only (CSS: avoids hydration flicker vs useMediaQuery) */}
+        <div className="hidden lg:block">
           <ScrollReveal delay={160}>
             <div className="mt-10 rounded-xl border border-border bg-gradient-to-br from-muted/40 to-muted/10 px-6 py-6 md:mt-12 lg:mt-14">
               <div className="flex items-center gap-2.5">
@@ -377,7 +375,7 @@ export function WorkSection({ carousel = false, onContactClick }: WorkSectionPro
               </div>
             </div>
           </ScrollReveal>
-        )}
+        </div>
       </div>
     </section>
   )

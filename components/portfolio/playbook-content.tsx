@@ -1,14 +1,64 @@
 "use client"
 
 import Image from "next/image"
+import { Github } from "lucide-react"
 import { ScrollReveal } from "@/components/scroll-reveal"
+import { Button } from "@/components/ui/button"
 import prototypeStarterScreenshot from "../../public/projects/prototype-starter.png"
 import { SectionLabel } from "./section-label"
+
+const PREFLIGHT_CARDS = [
+  {
+    title: "Open the Terminal",
+    body: "Your command centre. Cmd + J (Mac) or Ctrl + ` (Windows), or View → Terminal in your IDE.",
+  },
+  {
+    title: "Don't Panic on Red",
+    body: 'Copy the error, paste it to the AI, and say "I got this error, help me fix it." You\'ve got this.',
+  },
+  {
+    title: "Run Setup First",
+    body: "Follow the install steps in SETUP.md before jumping into the lifecycle below.",
+  },
+] as const
+
+const QUICK_REFERENCE_SNIPPETS = [
+  {
+    label: "UI Review",
+    cmd: "/critique components/Button.tsx",
+    desc: "Get instant UX and design critique on any component.",
+  },
+  {
+    label: "Mobile Fix",
+    cmd: "/adapt components/Navbar.tsx",
+    desc: "Make any component responsive and mobile-friendly.",
+  },
+  {
+    label: "Animation",
+    cmd: "/animate components/Modal.tsx",
+    desc: "Add subtle, purposeful motion to any component.",
+  },
+  {
+    label: "Design Question",
+    cmd: "/designer What's the best pattern for a multi-step form?",
+    desc: "Ask design system and UX pattern questions directly.",
+  },
+  {
+    label: "Audit",
+    cmd: "/audit",
+    desc: "Run a full accessibility and spacing audit on your pages.",
+  },
+  {
+    label: "Polish",
+    cmd: "/polish",
+    desc: "Apply final UX refinements and clean up any rough edges.",
+  },
+] as const
 
 /* ── Inline code ── */
 function Code({ children }: { children: React.ReactNode }) {
   return (
-    <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[13px]">
+    <code className="break-words rounded bg-muted px-1.5 py-0.5 font-mono text-[13px] [overflow-wrap:anywhere]">
       {children}
     </code>
   )
@@ -26,8 +76,8 @@ function Tip({
     <div
       className={
         variant === "warning"
-          ? "mt-3 rounded-lg border border-orange-200 bg-orange-50 px-4 py-3 text-sm leading-relaxed text-orange-800 dark:border-orange-800/40 dark:bg-orange-950/30 dark:text-orange-300"
-          : "mt-3 rounded-lg border border-border bg-card px-4 py-3 text-sm leading-relaxed text-muted-foreground"
+          ? "mt-3 break-words rounded-lg border border-orange-200 bg-orange-50 px-4 py-3 text-sm leading-relaxed text-orange-800 dark:border-orange-800/40 dark:bg-orange-950/30 dark:text-orange-300"
+          : "mt-3 break-words rounded-lg border border-border bg-card px-4 py-3 text-sm leading-relaxed text-muted-foreground"
       }
     >
       {children}
@@ -67,10 +117,10 @@ function PhaseItem({
         <p className="text-xs font-normal uppercase tracking-wide text-muted-foreground">
           {icon} {number}
         </p>
-        <h3 className="mt-1 font-display text-lg font-medium text-foreground md:text-xl">
+        <h3 className="mt-1 break-words font-display text-lg font-medium text-foreground md:text-xl">
           {title}
         </h3>
-        <div className="mt-2 space-y-3 text-sm leading-relaxed text-muted-foreground md:text-base md:leading-relaxed">
+        <div className="mt-2 min-w-0 space-y-3 break-words text-sm leading-relaxed text-muted-foreground md:text-base md:leading-relaxed">
           {children}
         </div>
       </div>
@@ -90,10 +140,10 @@ export function PlaybookContent() {
               <p className="text-base text-muted-foreground md:text-lg">
                 A designer&apos;s field guide
               </p>
-              <h1 className="mt-4 font-display text-3xl font-medium leading-[1.25] tracking-tight text-foreground sm:text-4xl md:text-5xl lg:text-6xl">
+              <h1 className="mt-4 break-words font-display text-3xl font-medium leading-[1.25] tracking-tight text-foreground sm:text-4xl md:text-5xl lg:text-6xl">
                 From idea to testable prototype
               </h1>
-              <p className="mt-4 max-w-xl text-sm text-muted-foreground md:mt-5 md:text-base">
+              <p className="mt-4 max-w-xl break-words text-sm text-muted-foreground md:mt-5 md:text-base">
                 Use Claude Code and AntiGravity to build real, testable
                 prototypes — without writing code from scratch.
               </p>
@@ -107,6 +157,7 @@ export function PlaybookContent() {
                   className="h-auto w-full"
                   sizes="(max-width: 767px) 100vw, (max-width: 1280px) 48vw, 640px"
                   priority
+                  decoding="async"
                 />
               </div>
             </div>
@@ -127,23 +178,22 @@ export function PlaybookContent() {
                   Clone the workspace, then follow this guide step by step.
                 </p>
               </div>
-              <a
-                href="https://github.com/stdemps/prototype-starter"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex min-h-11 w-full shrink-0 items-center justify-center gap-2 rounded-md border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:w-auto sm:justify-start"
-                aria-label="Clone prototype-starter on GitHub (opens in new tab)"
+              <Button
+                variant="default"
+                size="lg"
+                className="w-full shrink-0 sm:w-auto"
+                asChild
               >
-                Clone on GitHub
-                <svg
-                  viewBox="0 0 16 16"
-                  className="h-4 w-4"
-                  fill="currentColor"
-                  aria-hidden
+                <a
+                  href="https://github.com/stdemps/prototype-starter"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Clone prototype-starter on GitHub (opens in new tab)"
                 >
-                  <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
-                </svg>
-              </a>
+                  Clone on GitHub
+                  <Github className="h-4 w-4" aria-hidden />
+                </a>
+              </Button>
             </div>
           </ScrollReveal>
         </div>
@@ -158,7 +208,7 @@ export function PlaybookContent() {
                 Learn by playing
               </p>
               <div
-                className="relative w-full overflow-hidden rounded-xl border border-border/60"
+                className="relative w-full min-h-[200px] overflow-hidden rounded-xl border border-border/60"
                 style={{ aspectRatio: "640 / 440" }}
               >
                 <iframe
@@ -167,15 +217,25 @@ export function PlaybookContent() {
                   className="absolute inset-0 h-full w-full border-0"
                   loading="lazy"
                   allow="autoplay"
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  aria-describedby="playbook-quest-hint"
                 >
                   <p className="p-4 text-sm text-muted-foreground">
                     Your browser does not support iframes.{" "}
-                    <a href="/playbook-quest.html" className="underline">Open Playbook Quest directly</a>.
+                    <a href="/playbook-quest.html" className="underline">
+                      Open Playbook Quest directly
+                    </a>
+                    .
                   </p>
                 </iframe>
               </div>
-              <p className="mt-3 text-center text-xs text-muted-foreground">
-                Arrow keys to move, space to interact
+              <p
+                id="playbook-quest-hint"
+                className="mt-3 text-balance text-center text-xs text-muted-foreground"
+              >
+                Desktop: arrow keys to move, space to interact. On a phone, use the on-screen
+                buttons (◀ ▲ ▶ and A); during NPC dialogue the buttons hide so you can read — tap
+                the text box to continue.
               </p>
             </div>
           </ScrollReveal>
@@ -198,26 +258,15 @@ export function PlaybookContent() {
           </ScrollReveal>
 
           <ul className="mt-6 flex list-none flex-col gap-3 lg:flex-row lg:gap-4 md:mt-8">
-            {[
-              {
-                title: "Open the Terminal",
-                body: "Your command centre. Cmd + J (Mac) or Ctrl + ` (Windows), or View → Terminal in your IDE.",
-              },
-              {
-                title: "Don't Panic on Red",
-                body: "Copy the error, paste it to the AI, and say \"I got this error, help me fix it.\" You've got this.",
-              },
-              {
-                title: "Run Setup First",
-                body: "Follow the install steps in SETUP.md before jumping into the lifecycle below.",
-              },
-            ].map((card, i) => (
+            {PREFLIGHT_CARDS.map((card, i) => (
               <ScrollReveal asListItem key={card.title} delay={i * 80} className="flex-1">
-                <div className="flex min-h-[4.5rem] flex-col gap-1 rounded-xl border border-border/60 bg-muted/30 px-4 py-3 transition-colors hover:bg-muted/50">
-                  <span className="font-display font-medium text-foreground">
+                <div className="flex min-h-[4.5rem] min-w-0 flex-col gap-1 rounded-xl border border-border/60 bg-muted/30 px-4 py-3 transition-colors hover:bg-muted/50">
+                  <span className="break-words font-display font-medium text-foreground">
                     {card.title}
                   </span>
-                  <p className="text-sm leading-relaxed text-muted-foreground">{card.body}</p>
+                  <p className="break-words text-sm leading-relaxed text-muted-foreground">
+                    {card.body}
+                  </p>
                 </div>
               </ScrollReveal>
             ))}
@@ -297,7 +346,10 @@ export function PlaybookContent() {
                 typography directly from your live Figma files — no more
                 screenshot exports.
               </p>
-              <pre className="mt-4 overflow-x-auto rounded-lg border border-border bg-muted/30 px-4 py-3 font-mono text-xs leading-relaxed text-foreground md:text-sm">
+              <pre
+                className="mt-4 overflow-x-auto break-all rounded-lg border border-border bg-muted/30 px-4 py-3 font-mono text-xs leading-relaxed text-foreground sm:break-normal md:text-sm"
+                tabIndex={0}
+              >
 {`claude mcp add figma npx -y \\
   @modelcontextprotocol/server-figma \\
   <YOUR_FIGMA_TOKEN>`}
@@ -378,10 +430,10 @@ export function PlaybookContent() {
 
             <PhaseItem number="Phase 4" icon="🔥" title="Making it Real — Firebase Data" delay={180}>
               <p>
-                A prototype isn&apos;t testable if it doesn&apos;t save data.
-                Create a Firebase project, enable <strong>Firestore</strong> and{" "}
-                <strong>Authentication</strong>, grab your config keys, and
-                paste them into a <Code>.env.local</Code> file (duplicated from{" "}
+                Want to capture user input? Create a Firebase project, enable{" "}
+                <strong>Firestore</strong> and <strong>Authentication</strong>,
+                grab your config keys, and paste them into a{" "}
+                <Code>.env.local</Code> file (duplicated from{" "}
                 <Code>.env.example</Code>).
               </p>
               <Tip>
@@ -481,47 +533,16 @@ export function PlaybookContent() {
           </ScrollReveal>
 
           <ul className="mt-6 grid list-none gap-3 sm:grid-cols-2 lg:grid-cols-3 md:mt-8">
-            {[
-              {
-                label: "UI Review",
-                cmd: "/critique components/Button.tsx",
-                desc: "Get instant UX and design critique on any component.",
-              },
-              {
-                label: "Mobile Fix",
-                cmd: "/adapt components/Navbar.tsx",
-                desc: "Make any component responsive and mobile-friendly.",
-              },
-              {
-                label: "Animation",
-                cmd: "/animate components/Modal.tsx",
-                desc: "Add subtle, purposeful motion to any component.",
-              },
-              {
-                label: "Design Question",
-                cmd: "/designer What's the best pattern for a multi-step form?",
-                desc: "Ask design system and UX pattern questions directly.",
-              },
-              {
-                label: "Audit",
-                cmd: "/audit",
-                desc: "Run a full accessibility and spacing audit on your pages.",
-              },
-              {
-                label: "Polish",
-                cmd: "/polish",
-                desc: "Apply final UX refinements and clean up any rough edges.",
-              },
-            ].map((snippet, i) => (
+            {QUICK_REFERENCE_SNIPPETS.map((snippet, i) => (
               <ScrollReveal asListItem key={snippet.label} delay={i * 60} className="flex">
-                <div className="flex-1 rounded-lg border border-border bg-card p-4 transition-colors hover:bg-muted/50">
+                <div className="min-w-0 flex-1 rounded-lg border border-border bg-card p-4 transition-colors hover:bg-muted/50">
                   <p className="text-xs font-normal uppercase tracking-wide text-muted-foreground">
                     {snippet.label}
                   </p>
-                  <p className="mt-1.5 break-words font-mono text-sm text-foreground">
+                  <p className="mt-1.5 break-words font-mono text-sm text-foreground [overflow-wrap:anywhere]">
                     {snippet.cmd}
                   </p>
-                  <p className="mt-1 text-sm text-muted-foreground">
+                  <p className="mt-1 break-words text-sm text-muted-foreground">
                     {snippet.desc}
                   </p>
                 </div>

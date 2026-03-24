@@ -10,16 +10,18 @@
 body{
   background:hsl(240,10%,4%);
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  min-height:100vh;font-family:'Press Start 2P',monospace;overflow:hidden;user-select:none;
+  min-height:100vh;min-height:100dvh;font-family:'Press Start 2P',monospace;overflow-x:hidden;overflow-y:auto;user-select:none;
+  -webkit-tap-highlight-color:transparent;padding:max(8px,env(safe-area-inset-top)) max(8px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left));
 }
-#gameWrapper{position:relative;width:640px;height:400px}
+#gameShell{width:100%;max-width:640px;margin:0 auto}
+#gameWrapper{position:relative;width:100%;aspect-ratio:640/400}
 canvas{
-  display:block;image-rendering:pixelated;image-rendering:crisp-edges;
+  display:block;width:100%;height:100%;image-rendering:pixelated;image-rendering:crisp-edges;
   border:3px solid hsl(240,6%,18%);
   border-radius:6px;
   box-shadow:0 0 30px rgba(100,150,220,0.06);
 }
-#ui{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none}
+#ui{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:5}
 #hud{position:absolute;top:6px;left:6px;right:6px;display:flex;justify-content:space-between;pointer-events:none}
 .hud-panel{
   background:rgba(6,8,16,0.82);border:1px solid rgba(255,255,255,0.1);
@@ -30,8 +32,8 @@ canvas{
 #dialog{
   position:absolute;bottom:6px;left:6px;right:6px;
   background:rgba(6,8,16,0.92);border:2px solid rgba(255,255,255,0.15);border-radius:6px;
-  padding:10px 12px 8px;display:none;pointer-events:all;z-index:10;
-  border-left:3px solid #4dd0e1;
+  padding:10px 12px 8px;display:none;pointer-events:all;z-index:20;
+  border-left:3px solid #4dd0e1;cursor:pointer;touch-action:manipulation;
 }
 #dialogSpeaker{font-size:7px;color:#4dd0e1;margin-bottom:5px}
 #dialogText{font-size:7px;color:rgba(255,255,255,0.82);line-height:1.9;min-height:32px}
@@ -40,6 +42,7 @@ canvas{
   position:absolute;inset:0;
   background:linear-gradient(180deg,#050810 0%,#0c1628 60%,#162030 100%);
   display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:20;
+  cursor:pointer;touch-action:manipulation;
 }
 #titleScreen h1{font-size:16px;color:#e8f4ff;text-shadow:2px 2px #060a14,0 0 24px rgba(77,208,225,0.25);text-align:center;line-height:1.6;margin-bottom:6px}
 #titleScreen .sub{font-size:7px;color:rgba(255,255,255,0.45);margin-bottom:36px;text-align:center;line-height:1.8}
@@ -53,8 +56,34 @@ canvas{
 }
 #controls{margin-top:10px;font-size:6px;color:rgba(255,255,255,0.2);text-align:center;line-height:2.2}
 #controls span{color:rgba(255,255,255,0.45)}
+#touchControls{
+  display:none;position:absolute;left:0;right:0;bottom:0;z-index:4;
+  padding:6px 8px 8px;gap:8px;justify-content:center;align-items:stretch;
+  pointer-events:none;
+  background:linear-gradient(180deg,transparent,rgba(6,8,16,0.75));
+}
+#touchControls button{
+  pointer-events:auto;touch-action:none;-webkit-user-select:none;user-select:none;
+  flex:1;min-width:44px;max-width:96px;min-height:48px;max-height:52px;
+  font-family:'Press Start 2P',monospace;font-size:9px;line-height:1.2;color:rgba(255,255,255,0.92);
+  background:rgba(20,28,48,0.92);border:2px solid rgba(77,208,225,0.35);border-radius:8px;
+  box-shadow:0 2px 0 rgba(0,0,0,0.4);cursor:pointer;
+}
+#touchControls button:active{background:rgba(30,40,64,0.95);transform:translateY(1px)}
+#touchControls #tcAct{flex:1.15;max-width:104px;border-color:rgba(255,213,79,0.45);color:#ffe082}
+/* Hide movement buttons while NPC dialog is open so text stays readable */
+#gameWrapper.is-dialog-open #touchControls{display:none!important;}
+@media (max-width:540px),(hover:none) and (pointer:coarse){
+  #touchControls{display:flex;}
+  #controls{font-size:5px}
+}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
 @keyframes popIn{from{transform:translate(-50%,-50%) scale(.8);opacity:0}to{transform:translate(-50%,-50%) scale(1);opacity:1}}
+@media (prefers-reduced-motion: reduce){
+  #dialogContinue,#titleScreen .press,#endScreen .replay{animation:none!important;opacity:1!important}
+  #xpFill{transition:none!important}
+  #notification{animation:none!important}
+}
 #endScreen{
   position:absolute;inset:0;
   background:linear-gradient(180deg,rgba(6,8,16,0.97) 0%,rgba(26,20,6,0.97) 100%);
@@ -66,6 +95,7 @@ canvas{
 </style>
 </head>
 <body>
+<div id="gameShell">
 <div id="gameWrapper">
   <canvas id="c" width="640" height="400"></canvas>
   <div id="ui">
@@ -87,10 +117,18 @@ canvas{
     <p>YOU SHIPPED IT!<br><br>From raw idea to live product —<br>deployed, tested, and iterated.</p>
     <div class="replay" id="replayBtn">PLAY AGAIN</div>
   </div>
+  <div id="touchControls" role="group" aria-label="Game controls">
+    <button type="button" id="tcLeft" aria-label="Move left">◀</button>
+    <button type="button" id="tcRight" aria-label="Move right">▶</button>
+    <button type="button" id="tcJump" aria-label="Jump">▲</button>
+    <button type="button" id="tcAct" aria-label="Interact or advance dialog">A</button>
+  </div>
 </div>
-<div id="controls"><span>← →</span> MOVE &nbsp; <span>SPACE</span> INTERACT</div>
+</div>
+<div id="controls"><span>← →</span> MOVE &nbsp; <span>SPACE / A</span> INTERACT</div>
 <script>
-const canvas=document.getElementById('c'),ctx=canvas.getContext('2d');
+const canvas=document.getElementById('c');
+const ctx=canvas&&typeof canvas.getContext==='function'?canvas.getContext('2d'):null;
 
 // ─── GBA PALETTES (per-zone) ───
 const PAL=[
@@ -124,9 +162,18 @@ const PAL=[
    gem1:'#ffd54f',gem2:'#fff8e1',gem3:'#f57f17'},
 ];
 
-// ─── AUDIO (unchanged) ───
-const AC=new(window.AudioContext||window.webkitAudioContext)();
-function note(f,d,t='square',v=0.06){const o=AC.createOscillator(),g=AC.createGain();o.connect(g);g.connect(AC.destination);o.type=t;o.frequency.value=f;g.gain.setValueAtTime(v,AC.currentTime);g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+d);o.start();o.stop(AC.currentTime+d)}
+// ─── AUDIO (optional — strict contexts / old browsers may omit) ───
+let AC=null;
+try{
+  const Ctx=window.AudioContext||window.webkitAudioContext;
+  if(Ctx)AC=new Ctx();
+}catch(e){AC=null}
+function note(f,d,t='square',v=0.06){
+  if(!AC)return;
+  try{
+    const o=AC.createOscillator(),g=AC.createGain();o.connect(g);g.connect(AC.destination);o.type=t;o.frequency.value=f;g.gain.setValueAtTime(v,AC.currentTime);g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+d);o.start();o.stop(AC.currentTime+d);
+  }catch(e){/* ignore */}
+}
 function sfxStep(){note(220+Math.random()*40,.05,'square',.03)}
 function sfxGem(){[523,659,784,1047].forEach((f,i)=>setTimeout(()=>note(f,.12,'triangle',.08),i*70))}
 function sfxTalk(){note(440,.04,'square',.05)}
@@ -139,6 +186,58 @@ const player={x:80,y:0,vx:0,vy:0,w:14,h:20,onGround:false,facing:1,animFrame:0,a
 const keys={};
 window.addEventListener('keydown',e=>{keys[e.code]=true;if(e.code==='Space'||e.code==='Enter')handleAction();if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.code))e.preventDefault()});
 window.addEventListener('keyup',e=>{keys[e.code]=false});
+
+const MQ_TOUCH=window.matchMedia('(max-width:540px),(hover:none) and (pointer:coarse)');
+let preferTouchHints=MQ_TOUCH.matches;
+function setCreditsLines(lines){
+  const cred=document.querySelector('#titleScreen .credits');
+  if(!cred)return;
+  cred.replaceChildren();
+  for(let i=0;i<lines.length;i++){
+    if(i>0)cred.appendChild(document.createElement('br'));
+    cred.appendChild(document.createTextNode(lines[i]));
+  }
+}
+function refreshStaticHints(){
+  const press=document.querySelector('#titleScreen .press');
+  const dc=document.getElementById('dialogContinue');
+  if(press)press.textContent=preferTouchHints?'TAP TO START':'PRESS SPACE TO START';
+  if(preferTouchHints)setCreditsLines(['ON-SCREEN: MOVE + JUMP','A = TALK / ADVANCE','Talk to NPCs • Collect gems']);
+  else setCreditsLines(['ARROW KEYS move | SPACE interact','Talk to NPCs • Collect gems']);
+  if(dc)dc.textContent=preferTouchHints?'▼ TAP TO CONTINUE':'▼ SPACE';
+}
+function onTouchMediaChange(){preferTouchHints=MQ_TOUCH.matches;refreshStaticHints()}
+if(typeof MQ_TOUCH.addEventListener==='function')MQ_TOUCH.addEventListener('change',onTouchMediaChange);
+else if(typeof MQ_TOUCH.addListener==='function')MQ_TOUCH.addListener(onTouchMediaChange);
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){
+    keys['ArrowLeft']=keys['ArrowRight']=keys['ArrowUp']=keys['KeyW']=keys['Space']=keys['ArrowDown']=false;
+  }
+});
+function bindVirtualAxis(btn,code){
+  if(!btn)return;
+  const down=e=>{e.preventDefault();keys[code]=true};
+  const up=e=>{e.preventDefault();keys[code]=false};
+  btn.addEventListener('touchstart',down,{passive:false});
+  btn.addEventListener('touchend',up);
+  btn.addEventListener('touchcancel',up);
+  btn.addEventListener('mousedown',e=>{if(e.button===0)down(e)});
+  btn.addEventListener('mouseup',up);
+  btn.addEventListener('mouseleave',up);
+}
+let lastActTap=0;
+function bindActButton(btn){
+  if(!btn)return;
+  const fire=e=>{
+    e.preventDefault();
+    const t=Date.now();
+    if(t-lastActTap<200)return;
+    lastActTap=t;
+    handleAction();
+  };
+  btn.addEventListener('touchend',fire,{passive:false});
+  btn.addEventListener('click',fire);
+}
 
 // ─── ZONES (dialog & layout unchanged) ───
 const ZONES=[
@@ -174,8 +273,9 @@ function resetGame(){
   gems=0;phase=0;xp=0;frame=0;dialogActive=false;particles=[];
   gemCollected=[false,false,false,false,false,false,false];
   hideDialog();
-  document.getElementById('endScreen').style.display='none';
-  document.getElementById('titleScreen').style.display='none';
+  const end=document.getElementById('endScreen'),tit=document.getElementById('titleScreen');
+  if(end)end.style.display='none';
+  if(tit)tit.style.display='none';
   updateHUD();STATE='playing';
 }
 
@@ -201,16 +301,20 @@ function updateZoneAccent(){
 }
 
 let typeInterval=null,currentFullText='',typePos=0;
-function showDialog(s,lines){dialogActive=true;dialogQueue=lines;dialogIndex=0;document.getElementById('dialog').style.display='block';document.getElementById('dialogSpeaker').textContent=s;typeText(lines[0])}
+function syncTouchBarForDialog(){
+  const w=document.getElementById('gameWrapper');
+  if(w)w.classList.toggle('is-dialog-open',!!dialogActive);
+}
+function showDialog(s,lines){dialogActive=true;dialogQueue=lines;dialogIndex=0;document.getElementById('dialog').style.display='block';syncTouchBarForDialog();document.getElementById('dialogSpeaker').textContent=s;typeText(lines[0])}
 function typeText(t){currentFullText=t;typePos=0;document.getElementById('dialogText').textContent='';if(typeInterval)clearInterval(typeInterval);typeInterval=setInterval(()=>{if(typePos<currentFullText.length){document.getElementById('dialogText').textContent+=currentFullText[typePos];typePos++;if(typePos%2===0)sfxTalk()}else{clearInterval(typeInterval);typeInterval=null}},30)}
 function advanceDialog(){if(typeInterval){clearInterval(typeInterval);typeInterval=null;document.getElementById('dialogText').textContent=currentFullText;return}dialogIndex++;if(dialogIndex<dialogQueue.length)typeText(dialogQueue[dialogIndex]);else{hideDialog();xp+=5;updateHUD()}}
-function hideDialog(){document.getElementById('dialog').style.display='none';dialogActive=false;if(typeInterval){clearInterval(typeInterval);typeInterval=null}}
+function hideDialog(){document.getElementById('dialog').style.display='none';dialogActive=false;syncTouchBarForDialog();if(typeInterval){clearInterval(typeInterval);typeInterval=null}}
 
 let notifT=null;
 function showNotif(t){const e=document.getElementById('notification');e.textContent=t;e.style.display='block';if(notifT)clearTimeout(notifT);notifT=setTimeout(()=>{e.style.display='none'},2000)}
 
 function handleAction(){
-  if(AC.state==='suspended')AC.resume();
+  if(AC&&AC.state==='suspended')try{AC.resume()}catch(e){}
   if(STATE==='title'){document.getElementById('titleScreen').style.display='none';STATE='playing';sfxZone();return}
   if(STATE==='win')return;
   if(dialogActive){advanceDialog();return}
@@ -344,7 +448,7 @@ function drawNPC(){
   rect(npc.x+0,ny+bob+4,3,6,p.npc1);rect(npc.x+15,ny+bob+4,3,6,p.npc1);
   rect(npc.x+4,ny+bob+12,4,6,p.npc2);rect(npc.x+10,ny+bob+12,4,6,p.npc2);
   if(Math.abs(player.x+7-(npc.x+7))<50){ctx.fillStyle=p.accent;ctx.font='6px "Press Start 2P"';
-    ctx.fillText('SPACE',npc.x-6,ny+bob-18);const ab=Math.sin(frame*.12)*2;ctx.fillText('v',npc.x+5,ny+bob-10+ab)}
+    ctx.fillText(preferTouchHints?'A':'SPACE',npc.x-(preferTouchHints?2:6),ny+bob-18);const ab=Math.sin(frame*.12)*2;ctx.fillText('v',npc.x+5,ny+bob-10+ab)}
 }
 
 function drawPlayer(){
@@ -406,8 +510,44 @@ function startIntro(){
 
 function gameLoop(){draw();requestAnimationFrame(gameLoop)}
 function init(){
+  if(!canvas||!ctx){
+    const n=document.getElementById('notification');
+    if(n){n.textContent='This browser cannot run the game (no canvas). Try a current browser or open this file directly.';n.style.display='block'}
+    return;
+  }
   player.y=ZONES[0].groundY-player.h-2;updateHUD();
-  document.getElementById('replayBtn').addEventListener('click',()=>{document.getElementById('endScreen').style.display='none';resetGame()});
+  refreshStaticHints();
+  bindVirtualAxis(document.getElementById('tcLeft'),'ArrowLeft');
+  bindVirtualAxis(document.getElementById('tcRight'),'ArrowRight');
+  bindVirtualAxis(document.getElementById('tcJump'),'ArrowUp');
+  bindActButton(document.getElementById('tcAct'));
+  const titleEl=document.getElementById('titleScreen');
+  if(!titleEl)return;
+  titleEl.addEventListener('pointerup',e=>{
+    if(STATE!=='title')return;
+    if(e.pointerType==='mouse'&&e.button!==0)return;
+    e.preventDefault();
+    handleAction();
+  },{passive:false});
+  let lastDialogTap=0;
+  const dlg=document.getElementById('dialog');
+  if(dlg)dlg.addEventListener('pointerup',e=>{
+    if(!dialogActive)return;
+    if(e.pointerType==='mouse'&&e.button!==0)return;
+    e.preventDefault();
+    const t=Date.now();
+    if(t-lastDialogTap<220)return;
+    lastDialogTap=t;
+    handleAction();
+  },{passive:false});
+  const replayBtn=document.getElementById('replayBtn');
+  if(replayBtn)replayBtn.addEventListener('pointerup',e=>{
+    if(e.pointerType==='mouse'&&e.button!==0)return;
+    e.preventDefault();
+    const end=document.getElementById('endScreen');
+    if(end)end.style.display='none';
+    resetGame();
+  },{passive:false});
   startIntro();gameLoop();
 }
 window.addEventListener('load',init);
