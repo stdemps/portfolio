@@ -15,6 +15,11 @@ import { FathomAnalytics } from "@/components/analytics/fathom";
 import { Agentation } from "agentation";
 import { site } from "@/lib/portfolio-data";
 import { ChatLayout } from "@/components/portfolio/chat-layout";
+import { getSiteUrl } from "@/lib/site-url";
+import { SiteJsonLd } from "@/components/seo/site-json-ld";
+
+const siteUrl = getSiteUrl();
+const defaultTitle = `${site.name} | Product Design Lead, KPMG UK`;
 
 const interTight = Inter_Tight({
   subsets: ["latin"],
@@ -45,8 +50,28 @@ const spaceMono = Space_Mono({
 });
 
 export const metadata: Metadata = {
-  title: `${site.name} | Product Designer`,
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: defaultTitle,
+    template: `%s | ${site.name}`,
+  },
   description: site.tagline,
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_GB",
+    url: siteUrl,
+    siteName: site.name,
+    title: defaultTitle,
+    description: site.tagline,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: defaultTitle,
+    description: site.tagline,
+  },
 };
 
 export default function RootLayout({
@@ -65,6 +90,7 @@ export default function RootLayout({
           suppressHydrationWarning
           dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT_HTML }}
         />
+        <SiteJsonLd siteUrl={siteUrl} />
       </head>
       <body className="font-sans antialiased overflow-x-hidden">
         <a

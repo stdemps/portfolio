@@ -5,22 +5,27 @@ import { Footer } from "@/components/portfolio/footer"
 import { PlaybookContent } from "@/components/portfolio/playbook-content"
 import { ContactSection } from "@/components/portfolio/contact-section"
 
+const playbookTitle = "AI Prototyping Playbook"
+const playbookDescription =
+  "A designer's field guide to building real, testable prototypes with Claude Code and AntiGravity."
+
 export const metadata: Metadata = {
-  title: "AI Prototyping Playbook | Steven Dempster",
-  description:
-    "A designer's field guide to building real, testable prototypes with Claude Code and AntiGravity.",
+  title: playbookTitle,
+  description: playbookDescription,
+  alternates: {
+    canonical: "/playbook",
+  },
   openGraph: {
-    title: "AI Prototyping Playbook | Steven Dempster",
-    description:
-      "A designer's field guide to building real, testable prototypes with Claude Code and AntiGravity.",
+    title: `${playbookTitle} | Steven Dempster`,
+    description: playbookDescription,
     type: "article",
     locale: "en_GB",
+    url: "/playbook",
   },
   twitter: {
     card: "summary_large_image",
-    title: "AI Prototyping Playbook | Steven Dempster",
-    description:
-      "A designer's field guide to building real, testable prototypes with Claude Code and AntiGravity.",
+    title: `${playbookTitle} | Steven Dempster`,
+    description: playbookDescription,
   },
 }
 
