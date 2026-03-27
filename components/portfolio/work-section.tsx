@@ -360,32 +360,35 @@ export function WorkSection({ carousel = false, onContactClick }: WorkSectionPro
         {/* Moog Playground CTA — lg+ only (CSS: avoids hydration flicker vs useMediaQuery) */}
         <div className="hidden lg:block">
           <ScrollReveal delay={160}>
-            <div className="mt-10 rounded-xl border border-border bg-gradient-to-br from-muted/40 to-muted/10 px-6 py-6 md:mt-12 lg:mt-14">
-              <div className="flex items-center gap-2.5">
-                <span className="text-lg" aria-hidden>🎛</span>
-                <h3 className="font-display text-lg font-semibold tracking-tight text-foreground md:text-xl">
-                  Moog Playground
+            <div className="mt-8 overflow-hidden rounded-2xl border border-border/70 bg-gradient-to-br from-muted/55 via-muted/20 to-background px-6 py-6 md:mt-10 md:px-7 md:py-7 lg:mt-12 lg:px-8">
+              <div className="max-w-xl">
+                <div className="inline-flex items-center gap-2 rounded-full border border-border/80 bg-background/70 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                  <span aria-hidden>🎛</span>
+                  Interactive mode
+                </div>
+                <h3 className="mt-3 font-display text-xl font-semibold tracking-tight text-foreground md:text-2xl">
+                  Step into the Moog Playground
                 </h3>
-              </div>
-              <p className="mt-2 max-w-lg text-sm text-muted-foreground md:text-base">
-                Experience this portfolio in a playful, interactive playground. Try the Moog synthesiser!
-              </p>
-              <div className="mt-4">
-                <Button
-                  variant="outline"
-                  size="default"
-                  className="group gap-2"
-                  aria-label="Open Playground — opens interactive Moog synthesiser mode"
-                  onClick={() => setViewMode("Playground")}
-                >
-                  Open Playground
-                  <span
-                    className="inline-block transition-transform duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:translate-x-0.5"
-                    aria-hidden
+                <p className="mt-2.5 max-w-lg text-sm leading-relaxed text-muted-foreground md:text-base">
+                  Switch the portfolio into a synth-inspired interactive mode and explore the playful side of the work.
+                </p>
+                <div className="mt-5">
+                  <Button
+                    variant="default"
+                    size="lg"
+                    className="group w-full min-h-12 justify-center gap-2.5 px-6 text-base font-semibold shadow-md shadow-primary/20 sm:w-auto"
+                    aria-label="Open Playground — opens interactive Moog synthesiser mode"
+                    onClick={() => setViewMode("Playground")}
                   >
-                    →
-                  </span>
-                </Button>
+                    Open Playground
+                    <span
+                      className="inline-block transition-transform duration-200 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:translate-x-0.5"
+                      aria-hidden
+                    >
+                      →
+                    </span>
+                  </Button>
+                </div>
               </div>
             </div>
           </ScrollReveal>

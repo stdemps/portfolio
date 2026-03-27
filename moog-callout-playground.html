@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Moog Callout Playground</title>
+    <style>
+      :root {
+        --bg: #08080b;
+        --panel: #111116;
+        --panel-soft: #15151d;
+        --border: rgba(255, 255, 255, 0.08);
+        --text: #f4f4f5;
+        --muted: #a1a1aa;
+        --primary: #5574ff;
+        --accent: #ff4f94;
+        --amber: #d97706;
+        --radius: 24px;
+        --spacing: 48px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background:
+          radial-gradient(circle at top left, rgba(85, 116, 255, 0.16), transparent 28%),
+          radial-gradient(circle at top right, rgba(255, 79, 148, 0.12), transparent 24%),
+          var(--bg);
+        color: var(--text);
+      }
+
+      .shell {
+        display: grid;
+        grid-template-columns: 360px minmax(0, 1fr);
+        min-height: 100vh;
+      }
+
+      .controls {
+        border-right: 1px solid var(--border);
+        background: rgba(9, 9, 12, 0.9);
+        padding: 28px 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 22px;
+      }
+
+      .preview-pane {
+        padding: 32px;
+        display: grid;
+        grid-template-rows: 1fr auto;
+        gap: 24px;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 11px;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.03);
+        font-size: 11px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      .title {
+        font-size: 24px;
+        font-weight: 650;
+        line-height: 1.1;
+        letter-spacing: -0.03em;
+      }
+
+      .lede {
+        color: var(--muted);
+        line-height: 1.55;
+        font-size: 14px;
+      }
+
+      .section {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .section-label {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: #71717a;
+      }
+
+      .preset-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .preset-btn,
+      .copy-btn {
+        appearance: none;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--text);
+        padding: 12px 14px;
+        text-align: left;
+        cursor: pointer;
+        transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+      }
+
+      .preset-btn:hover,
+      .copy-btn:hover {
+        transform: translateY(-1px);
+        border-color: rgba(255, 255, 255, 0.16);
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      .preset-btn.active {
+        border-color: rgba(85, 116, 255, 0.45);
+        background: rgba(85, 116, 255, 0.14);
+      }
+
+      .preset-name {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+
+      .preset-note {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.35;
+      }
+
+      label {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: center;
+        font-size: 14px;
+        color: #e4e4e7;
+      }
+
+      input[type="range"],
+      select {
+        width: 100%;
+      }
+
+      select,
+      input[type="range"] {
+        accent-color: var(--primary);
+      }
+
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .field-value {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .preview-frame {
+        position: relative;
+        border-radius: 28px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 18%),
+          #09090d;
+        padding: 28px;
+        overflow: hidden;
+      }
+
+      .preview-frame::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 40%),
+          radial-gradient(circle at 15% 0%, rgba(85, 116, 255, 0.08), transparent 26%);
+        pointer-events: none;
+      }
+
+      .preview-section {
+        position: relative;
+        z-index: 1;
+        padding: 10px 0 0;
+      }
+
+      .mock-headings {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        margin-bottom: 26px;
+      }
+
+      .mock-kicker {
+        color: var(--muted);
+        font-size: 14px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .mock-heading {
+        font-size: 34px;
+        line-height: 1.02;
+        letter-spacing: -0.04em;
+        max-width: 16ch;
+      }
+
+      .mock-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      .mock-card {
+        min-height: 210px;
+        border-radius: 22px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
+      }
+
+      .callout-wrap {
+        margin-top: 0;
+      }
+
+      .callout {
+        position: relative;
+        overflow: hidden;
+        max-width: 740px;
+        border-radius: var(--radius);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 28px 30px;
+        background:
+          linear-gradient(135deg, rgba(39, 39, 46, 0.92), rgba(15, 15, 19, 0.98) 65%);
+        box-shadow:
+          0 12px 34px rgba(0, 0, 0, 0.28),
+          inset 0 1px 0 rgba(255, 255, 255, 0.04);
+      }
+
+      .callout::before,
+      .callout::after {
+        content: "";
+        position: absolute;
+        pointer-events: none;
+      }
+
+      .callout-content {
+        position: relative;
+        z-index: 2;
+        max-width: 540px;
+      }
+
+      .callout-label {
+        margin-bottom: 14px;
+      }
+
+      .callout-title {
+        font-size: 34px;
+        line-height: 1.02;
+        letter-spacing: -0.04em;
+        font-weight: 650;
+      }
+
+      .callout-copy {
+        margin-top: 12px;
+        max-width: 48ch;
+        color: var(--muted);
+        font-size: 16px;
+        line-height: 1.55;
+      }
+
+      .cta {
+        margin-top: 18px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        min-height: 50px;
+        padding: 0 22px;
+        border-radius: 14px;
+        border: 1px solid transparent;
+        font-weight: 650;
+        font-size: 16px;
+        color: white;
+        background: var(--primary);
+        box-shadow: 0 10px 22px rgba(85, 116, 255, 0.28);
+      }
+
+      .arrow {
+        transition: transform 140ms ease;
+      }
+
+      .cta:hover .arrow {
+        transform: translateX(2px);
+      }
+
+      .rail::before {
+        left: 24px;
+        right: 24px;
+        top: 0;
+        height: 2px;
+        background: linear-gradient(90deg, rgba(217, 119, 6, 0), rgba(217, 119, 6, 0.92) 20%, rgba(255, 79, 148, 0.85) 58%, rgba(85, 116, 255, 0.9));
+      }
+
+      .texture::after {
+        inset: 0;
+        opacity: 0.18;
+        background:
+          repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.03) 1px, transparent 1px, transparent 5px),
+          radial-gradient(circle at 18% 18%, rgba(217, 119, 6, 0.12), transparent 22%),
+          radial-gradient(circle at 85% 10%, rgba(85, 116, 255, 0.12), transparent 18%);
+        mix-blend-mode: screen;
+      }
+
+      .cluster .control-cluster {
+        display: flex;
+      }
+
+      .control-cluster {
+        position: absolute;
+        top: 22px;
+        right: 22px;
+        display: none;
+        gap: 14px;
+        z-index: 1;
+        opacity: 0.88;
+      }
+
+      .knob,
+      .slider {
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      .knob {
+        width: 46px;
+        height: 46px;
+        border-radius: 999px;
+        position: relative;
+        box-shadow: inset 0 0 0 6px rgba(0, 0, 0, 0.16);
+      }
+
+      .knob::after {
+        content: "";
+        position: absolute;
+        width: 3px;
+        height: 14px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.75);
+        top: 7px;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+
+      .slider {
+        width: 8px;
+        height: 46px;
+        border-radius: 999px;
+        position: relative;
+      }
+
+      .slider::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 10px;
+        width: 18px;
+        height: 8px;
+        transform: translateX(-50%);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.82);
+      }
+
+      .cta-outline .cta {
+        background: rgba(255, 255, 255, 0.04);
+        border-color: rgba(255, 255, 255, 0.1);
+        box-shadow: none;
+      }
+
+      .cta-glow .cta {
+        background: linear-gradient(135deg, #5c77ff, #ff4f94);
+        box-shadow: 0 14px 28px rgba(85, 116, 255, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+      }
+
+      .prompt {
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        background: rgba(17, 17, 23, 0.94);
+        padding: 18px;
+      }
+
+      .prompt-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 10px;
+      }
+
+      .prompt pre {
+        margin: 0;
+        white-space: pre-wrap;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 13px;
+        line-height: 1.55;
+        color: #d4d4d8;
+      }
+
+      .copy-btn {
+        padding: 10px 14px;
+        border-radius: 12px;
+        white-space: nowrap;
+      }
+
+      @media (max-width: 980px) {
+        .shell {
+          grid-template-columns: 1fr;
+        }
+
+        .controls {
+          border-right: 0;
+          border-bottom: 1px solid var(--border);
+        }
+
+        .preview-pane {
+          padding: 20px;
+        }
+
+        .mock-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .callout {
+          padding: 24px;
+        }
+
+        .control-cluster {
+          display: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="controls">
+        <div class="section">
+          <span class="eyebrow">🎛 Moog Callout Playground</span>
+          <h1 class="title">Explore accent options for the Playground CTA</h1>
+          <p class="lede">
+            Compare subtle synth-inspired treatments before changing the live portfolio section.
+          </p>
+        </div>
+
+        <div class="section">
+          <div class="section-label">Presets</div>
+          <div class="preset-grid" id="presetGrid"></div>
+        </div>
+
+        <div class="section">
+          <div class="section-label">Controls</div>
+
+          <div class="field">
+            <label for="accentStyle">
+              <span>Accent treatment</span>
+              <span class="field-value" id="accentStyleValue">Rail + texture</span>
+            </label>
+            <select id="accentStyle">
+              <option value="none">None</option>
+              <option value="rail">Accent rail</option>
+              <option value="rail-texture">Rail + texture</option>
+              <option value="cluster">Rail + texture + controls</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="ctaStyle">
+              <span>CTA style</span>
+              <span class="field-value" id="ctaStyleValue">Primary</span>
+            </label>
+            <select id="ctaStyle">
+              <option value="primary">Primary</option>
+              <option value="outline">Outline</option>
+              <option value="glow">Glow</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="spacing">
+              <span>Top spacing</span>
+              <span class="field-value" id="spacingValue">48px</span>
+            </label>
+            <input id="spacing" type="range" min="24" max="88" step="4" value="48" />
+          </div>
+
+          <div class="field">
+            <label for="radius">
+              <span>Corner radius</span>
+              <span class="field-value" id="radiusValue">24px</span>
+            </label>
+            <input id="radius" type="range" min="18" max="34" step="2" value="24" />
+          </div>
+
+          <div class="field">
+            <label for="eyebrowVisible">
+              <span>Show eyebrow</span>
+              <span class="field-value" id="eyebrowVisibleValue">Yes</span>
+            </label>
+            <select id="eyebrowVisible">
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+          </div>
+        </div>
+      </aside>
+
+      <main class="preview-pane">
+        <div class="preview-frame">
+          <section class="preview-section">
+            <div class="mock-headings">
+              <div class="mock-kicker">Side projects</div>
+              <div class="mock-heading">Three prototypes, one little CTA that needs to earn its place.</div>
+            </div>
+            <div class="mock-grid">
+              <div class="mock-card"></div>
+              <div class="mock-card"></div>
+              <div class="mock-card"></div>
+            </div>
+
+            <div class="callout-wrap" id="calloutWrap">
+              <div class="callout rail texture" id="callout">
+                <div class="control-cluster">
+                  <div class="knob"></div>
+                  <div class="slider"></div>
+                  <div class="knob"></div>
+                </div>
+                <div class="callout-content">
+                  <div class="eyebrow callout-label" id="calloutEyebrow">🎛 Interactive mode</div>
+                  <h3 class="callout-title">Step into the Moog Playground</h3>
+                  <p class="callout-copy">
+                    Switch the portfolio into a synth-inspired interactive mode and explore the playful side of the work.
+                  </p>
+                  <button class="cta" id="ctaButton">
+                    Open Playground
+                    <span class="arrow">→</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <section class="prompt">
+          <div class="prompt-head">
+            <div>
+              <div class="section-label">Prompt Output</div>
+              <p class="lede">Copy this back into chat if you want me to implement the selected direction.</p>
+            </div>
+            <button class="copy-btn" id="copyBtn">Copy prompt</button>
+          </div>
+          <pre id="promptText"></pre>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      const PRESETS = {
+        polished: {
+          label: "Current polish",
+          note: "Clean card, stronger CTA, no extra synth details.",
+          accentStyle: "none",
+          ctaStyle: "primary",
+          spacing: 48,
+          radius: 24,
+          eyebrowVisible: "yes",
+        },
+        rail: {
+          label: "Accent rail",
+          note: "Adds a premium analog line along the top edge.",
+          accentStyle: "rail",
+          ctaStyle: "primary",
+          spacing: 44,
+          radius: 24,
+          eyebrowVisible: "yes",
+        },
+        signature: {
+          label: "Signature pick",
+          note: "Rail plus light panel texture. My recommended balance.",
+          accentStyle: "rail-texture",
+          ctaStyle: "primary",
+          spacing: 40,
+          radius: 26,
+          eyebrowVisible: "yes",
+        },
+        stage: {
+          label: "Showpiece",
+          note: "Leans hard into synth cues with decorative controls.",
+          accentStyle: "cluster",
+          ctaStyle: "glow",
+          spacing: 36,
+          radius: 28,
+          eyebrowVisible: "yes",
+        },
+      };
+
+      const DEFAULTS = PRESETS.signature;
+      const state = { ...DEFAULTS, activePreset: "signature" };
+
+      const els = {
+        presetGrid: document.getElementById("presetGrid"),
+        calloutWrap: document.getElementById("calloutWrap"),
+        callout: document.getElementById("callout"),
+        calloutEyebrow: document.getElementById("calloutEyebrow"),
+        promptText: document.getElementById("promptText"),
+        copyBtn: document.getElementById("copyBtn"),
+        accentStyle: document.getElementById("accentStyle"),
+        accentStyleValue: document.getElementById("accentStyleValue"),
+        ctaStyle: document.getElementById("ctaStyle"),
+        ctaStyleValue: document.getElementById("ctaStyleValue"),
+        spacing: document.getElementById("spacing"),
+        spacingValue: document.getElementById("spacingValue"),
+        radius: document.getElementById("radius"),
+        radiusValue: document.getElementById("radiusValue"),
+        eyebrowVisible: document.getElementById("eyebrowVisible"),
+        eyebrowVisibleValue: document.getElementById("eyebrowVisibleValue"),
+      };
+
+      const accentLabels = {
+        none: "None",
+        rail: "Accent rail",
+        "rail-texture": "Rail + texture",
+        cluster: "Rail + texture + controls",
+      };
+
+      const ctaLabels = {
+        primary: "Primary",
+        outline: "Outline",
+        glow: "Glow",
+      };
+
+      function renderPresets() {
+        els.presetGrid.replaceChildren();
+
+        Object.entries(PRESETS).forEach(([key, preset]) => {
+          const button = document.createElement("button");
+          button.className = "preset-btn";
+          if (state.activePreset === key) button.classList.add("active");
+
+          const name = document.createElement("span");
+          name.className = "preset-name";
+          name.textContent = preset.label;
+
+          const note = document.createElement("span");
+          note.className = "preset-note";
+          note.textContent = preset.note;
+
+          button.append(name, note);
+          button.addEventListener("click", () => {
+            Object.assign(state, preset, { activePreset: key });
+            syncControls();
+            updateAll();
+          });
+
+          els.presetGrid.appendChild(button);
+        });
+      }
+
+      function syncControls() {
+        els.accentStyle.value = state.accentStyle;
+        els.ctaStyle.value = state.ctaStyle;
+        els.spacing.value = state.spacing;
+        els.radius.value = state.radius;
+        els.eyebrowVisible.value = state.eyebrowVisible;
+      }
+
+      function renderPreview() {
+        els.callout.className = "callout";
+
+        if (state.accentStyle === "rail") {
+          els.callout.classList.add("rail");
+        }
+
+        if (state.accentStyle === "rail-texture") {
+          els.callout.classList.add("rail", "texture");
+        }
+
+        if (state.accentStyle === "cluster") {
+          els.callout.classList.add("rail", "texture", "cluster");
+        }
+
+        els.callout.classList.toggle("cta-outline", state.ctaStyle === "outline");
+        els.callout.classList.toggle("cta-glow", state.ctaStyle === "glow");
+        els.calloutWrap.style.marginTop = `${state.spacing}px`;
+        els.callout.style.setProperty("--radius", `${state.radius}px`);
+        els.calloutEyebrow.style.display = state.eyebrowVisible === "yes" ? "inline-flex" : "none";
+
+        els.accentStyleValue.textContent = accentLabels[state.accentStyle];
+        els.ctaStyleValue.textContent = ctaLabels[state.ctaStyle];
+        els.spacingValue.textContent = `${state.spacing}px`;
+        els.radiusValue.textContent = `${state.radius}px`;
+        els.eyebrowVisibleValue.textContent = state.eyebrowVisible === "yes" ? "Yes" : "No";
+
+        renderPresets();
+      }
+
+      function updatePrompt() {
+        const parts = [];
+
+        if (state.accentStyle !== DEFAULTS.accentStyle) {
+          if (state.accentStyle === "none") {
+            parts.push("remove the synth accent details and keep the card clean");
+          }
+          if (state.accentStyle === "rail") {
+            parts.push("add a subtle analog-style accent rail across the top edge");
+          }
+          if (state.accentStyle === "cluster") {
+            parts.push("lean further into the synth metaphor with a top accent rail, light texture, and a small decorative control cluster");
+          }
+        } else {
+          parts.push("use the rail-plus-texture treatment as the default accent");
+        }
+
+        if (state.ctaStyle !== DEFAULTS.ctaStyle) {
+          if (state.ctaStyle === "outline") {
+            parts.push("switch the button to an outline CTA");
+          }
+          if (state.ctaStyle === "glow") {
+            parts.push("upgrade the button to a more luminous, higher-emphasis CTA");
+          }
+        } else {
+          parts.push("keep the button as a strong primary CTA");
+        }
+
+        if (state.spacing !== DEFAULTS.spacing) {
+          const direction = state.spacing < DEFAULTS.spacing ? "reduce" : "increase";
+          parts.push(`${direction} the top spacing to about ${state.spacing}px`);
+        }
+
+        if (state.radius !== DEFAULTS.radius) {
+          parts.push(`set the card radius to roughly ${state.radius}px`);
+        }
+
+        if (state.eyebrowVisible !== DEFAULTS.eyebrowVisible) {
+          parts.push(state.eyebrowVisible === "no" ? "remove the eyebrow label" : "restore the eyebrow label");
+        }
+
+        els.promptText.textContent =
+          "Polish the Moog Playground callout in the work section and " +
+          parts.join(", ") +
+          ". Keep the existing layout, preserve the desktop-only behavior, and make the treatment feel premium rather than gimmicky.";
+      }
+
+      function updateAll() {
+        renderPreview();
+        updatePrompt();
+      }
+
+      els.accentStyle.addEventListener("change", (event) => {
+        state.accentStyle = event.target.value;
+        state.activePreset = "";
+        updateAll();
+      });
+
+      els.ctaStyle.addEventListener("change", (event) => {
+        state.ctaStyle = event.target.value;
+        state.activePreset = "";
+        updateAll();
+      });
+
+      els.spacing.addEventListener("input", (event) => {
+        state.spacing = Number(event.target.value);
+        state.activePreset = "";
+        updateAll();
+      });
+
+      els.radius.addEventListener("input", (event) => {
+        state.radius = Number(event.target.value);
+        state.activePreset = "";
+        updateAll();
+      });
+
+      els.eyebrowVisible.addEventListener("change", (event) => {
+        state.eyebrowVisible = event.target.value;
+        state.activePreset = "";
+        updateAll();
+      });
+
+      els.copyBtn.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(els.promptText.textContent);
+          const oldText = els.copyBtn.textContent;
+          els.copyBtn.textContent = "Copied!";
+          setTimeout(() => {
+            els.copyBtn.textContent = oldText;
+          }, 1200);
+        } catch (error) {
+          els.copyBtn.textContent = "Copy failed";
+          setTimeout(() => {
+            els.copyBtn.textContent = "Copy prompt";
+          }, 1200);
+        }
+      });
+
+      syncControls();
+      updateAll();
+    </script>
+  </body>
+</html>
